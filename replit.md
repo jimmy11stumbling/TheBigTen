@@ -102,6 +102,8 @@ Changelog:
 - July 03, 2025: Initial setup of BlueprintForge with real-time streaming
 - July 03, 2025: Integrated NoCodeLos Blueprint Engine system prompt for standardized output format
 - July 03, 2025: Fixed server-side header errors and database schema implementation
+- July 03, 2025: Added user API key management system with settings dialog and local storage
+- July 03, 2025: Implemented API key validation and integration with DeepSeek API
 
 ## User Preferences
 

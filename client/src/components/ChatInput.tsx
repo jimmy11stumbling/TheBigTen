@@ -2,15 +2,18 @@ import { useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, Rocket } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, Rocket, Settings, AlertCircle } from "lucide-react";
 import { PlatformSelector } from "./PlatformSelector";
 import { useStream } from "@/contexts/StreamContext";
+import { useSettings } from "@/contexts/SettingsContext";
 import { Platform } from "@/lib/types";
 
 export function ChatInput() {
   const [prompt, setPrompt] = useState("");
   const [platform, setPlatform] = useState<Platform>("replit");
   const { streamState, generateBlueprint } = useStream();
+  const { hasApiKey } = useSettings();
 
   const isGenerating = streamState.status === "generating";
 
@@ -36,6 +39,21 @@ export function ChatInput() {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Describe Your App Idea</h2>
         
         <div className="space-y-4">
+          {!hasApiKey && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <div className="flex items-center justify-between">
+                  <span>Using demo mode. Configure your DeepSeek API key for full functionality.</span>
+                  <Button variant="ghost" size="sm" className="text-primary p-0 h-auto">
+                    <Settings className="w-3 h-3 mr-1" />
+                    Setup
+                  </Button>
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <div className="relative">
             <Textarea
               placeholder="E.g., A social media app for book lovers with reading challenges and reviews..."

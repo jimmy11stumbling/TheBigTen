@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { ChatInput } from "@/components/ChatInput";
 import { BlueprintViewer } from "@/components/BlueprintViewer";
 import { ProgressIndicator } from "@/components/ProgressIndicator";
 import { RecentBlueprints } from "@/components/RecentBlueprints";
+import { SettingsDialog } from "@/components/SettingsDialog";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
+import { useSettings } from "@/contexts/SettingsContext";
 import { 
   Compass, 
   HelpCircle, 
@@ -15,6 +19,9 @@ import {
 } from "lucide-react";
 
 export default function HomePage() {
+  const { hasApiKey } = useSettings();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* App Header */}
@@ -46,10 +53,28 @@ export default function HomePage() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              {/* API Key Status Badge */}
+              <div className="hidden sm:block">
+                {hasApiKey ? (
+                  <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    API Connected
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-orange-600 border-orange-200">
+                    Demo Mode
+                  </Badge>
+                )}
+              </div>
+              
               <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600">
                 <HelpCircle className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-gray-400 hover:text-gray-600"
+                onClick={() => setSettingsOpen(true)}
+              >
                 <Settings className="w-4 h-4" />
               </Button>
               <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
@@ -77,6 +102,9 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* Settings Dialog */}
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </div>
   );
 }

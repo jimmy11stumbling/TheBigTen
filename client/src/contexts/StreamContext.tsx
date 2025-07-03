@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 import { StreamState, StreamEvent, GenerateRequest } from "@/lib/types";
+import { useSettings } from "./SettingsContext";
 
 interface StreamContextType {
   streamState: StreamState;
@@ -22,6 +23,7 @@ interface StreamProviderProps {
 }
 
 export function StreamProvider({ children }: StreamProviderProps) {
+  const { apiKey } = useSettings();
   const [streamState, setStreamState] = useState<StreamState>({
     content: "",
     status: "idle",
@@ -34,12 +36,17 @@ export function StreamProvider({ children }: StreamProviderProps) {
     });
 
     try {
+      const requestWithApiKey = {
+        ...request,
+        apiKey: apiKey || undefined,
+      };
+
       const response = await fetch("/api/blueprint/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(request),
+        body: JSON.stringify(requestWithApiKey),
       });
 
       if (!response.ok) {
@@ -108,7 +115,7 @@ export function StreamProvider({ children }: StreamProviderProps) {
         error: error instanceof Error ? error.message : "Unknown error occurred",
       }));
     }
-  }, []);
+  }, [apiKey]);
 
   const resetStream = useCallback(() => {
     setStreamState({

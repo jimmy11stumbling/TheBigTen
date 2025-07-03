@@ -15,9 +15,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         prompt: z.string().min(1).max(500),
         platform: platformEnum,
         user_id: z.string().uuid().optional(),
+        apiKey: z.string().optional(),
       });
 
-      const { prompt, platform, user_id } = generateSchema.parse(req.body);
+      const { prompt, platform, user_id, apiKey } = generateSchema.parse(req.body);
 
       // Set SSE headers
       res.writeHead(200, {
@@ -42,7 +43,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       try {
         // Stream blueprint generation
-        for await (const chunk of generateBlueprint(prompt, platform)) {
+        for await (const chunk of generateBlueprint(prompt, platform, apiKey)) {
           fullContent += chunk;
           
           // Send chunk to client
@@ -120,6 +121,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Get blueprint error:", error);
       res.status(500).json({ message: "Failed to fetch blueprint" });
+    }
+  });
+
+  // Test API key endpoint
+  app.post("/api/test-api-key", async (req, res) => {
+    try {
+      const { apiKey } = req.body;
+      
+      if (!apiKey) {
+        return res.status(400).json({ message: "API key is required" });
+      }
+
+      // Make a simple test request to DeepSeek API
+      const testResponse = await fetch("https://api.deepseek.com/v1/models", {
+        headers: {
+          "Authorization": `Bearer ${apiKey}`
+        }
+      });
+
+      if (testResponse.ok) {
+        res.json({ valid: true, message: "API key is valid" });
+      } else {
+        res.status(400).json({ valid: false, message: "Invalid API key" });
+      }
+    } catch (error) {
+      console.error("API key test error:", error);
+      res.status(500).json({ valid: false, message: "Unable to validate API key" });
     }
   });
 
