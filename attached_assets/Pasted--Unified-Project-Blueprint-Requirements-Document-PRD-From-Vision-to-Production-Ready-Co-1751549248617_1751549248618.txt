@@ -1,0 +1,212 @@
+# **Unified Project Blueprint & Requirements Document (PRD)**
+## From Vision to Production-Ready Code in a Single Document
+
+---
+
+### **Project Metadata**
+- **Project Name:** `BlueprintForge`
+- **Version:** `1.0`
+- **Status:** `Approved`
+- **Owner(s):** `NoCodeLos Labs`
+- **Last Updated:** `2025-07-03`
+
+---
+
+## **1. The Product Vision (The "What & Why")**
+
+### **1.1. Executive Summary**
+*   **The Idea:** An AI-powered web application that transforms a user’s simple app concept into a fully populated, production-ready technical blueprint in real time.  
+*   **The Goal:** Enable developers and founders to go from idea to comprehensive spec in seconds, reducing planning overhead and accelerating MVP delivery.
+
+### **1.2. Problem Statement**
+Manually drafting product requirement documents and architecture diagrams is time-consuming, error-prone, and often misaligned with evolving stakeholder needs. BlueprintForge automates this process by streaming AI-generated blueprints directly into an interactive UI, ensuring accuracy, consistency, and developer buy-in.
+
+### **1.3. Target Audience & User Personas**
+- **Primary Audience:** Indie developers, technical founders, no-code enthusiasts, startup teams  
+- **User Persona 1:**  
+  - **Goal:** Rapidly generate detailed project specs from a simple idea.  
+  - **Pain Point:** Struggles to articulate technical requirements clearly and consistently for team alignment.
+
+### **1.4. Core User Stories / Epics**
+- **(Epic 1):** As a user, I want to submit a one-line description of my app idea and receive a structured project blueprint.  
+- **(Epic 2):** As a user, I want to watch the blueprint generate line by line so I can monitor progress and iterate mid-generation.
+
+### **1.5. Success Metrics (KPIs)**
+- **Adoption:** 250 unique blueprints generated within the first 30 days of launch  
+- **Engagement:** Average session time ≥ 3 minutes per user  
+- **Accuracy:** ≥ 95% placeholder replacement rate (no unresolved tokens)
+
+---
+
+## **2. The Technical Blueprint (The "How")**
+
+### **2.1. Layer 1: Core Build Prompts & Tasks**
+*These AI-ready prompts jumpstart each core feature’s development.*
+
+- **UI Component:**  
+  “Build a React/TypeScript `BlueprintViewer.tsx` component that connects to an SSE endpoint, streams markdown content in real time, renders it with syntax highlighting, and shows an animated loading indicator while awaiting new data.”
+
+- **API Endpoint:**  
+  “Implement an Express.js `POST /api/blueprint/generate` endpoint that accepts `{ prompt: string }`, invokes DeepSeek Reasoner via streaming API, and returns the response as `text/event-stream` to the client.”
+
+- **Database Schema:**  
+  “Define a PostgreSQL `blueprints` table with columns: `id UUID PRIMARY KEY`, `user_id UUID`, `prompt TEXT`, `content TEXT`, `platform VARCHAR`, `status VARCHAR`, `created_at TIMESTAMPTZ`, `updated_at TIMESTAMPTZ`.”
+
+- **Stream Handler:**  
+  “Create a `StreamContext.tsx` React Context to hold `streamingContent` and `streamingStatus`, exposing methods to append chunks and update status flags across the UI.”
+
+- **Simulated Mode:**  
+  “Write a Node.js generator function `invokeDeepSeekStreamSimulated(prompt: string)` that yields predefined markdown lines every 200ms for local development without API keys.”
+
+---
+
+### **2.2. Layer 2: Master Architecture**
+- **Technology Stack:**
+  - **Frontend:** React 18, TypeScript, Tailwind CSS, shadcn/ui  
+  - **Backend:** Node.js, Express.js, TypeScript  
+  - **Database:** PostgreSQL (Neon serverless) via Drizzle ORM  
+  - **AI Model:** DeepSeek Reasoner API (primary), Claude 3 Opus (fallback)  
+  - **Primary Hosting Platform:** Replit (dev/prod), Render (backend scale)
+
+- **System Architecture Diagram:**
+```mermaid
+graph TD
+  A[User Input] --> B[React Frontend]
+  B --> C[Express API Server]
+  C --> D[DeepSeek Reasoner]
+  C --> E[PostgreSQL via Neon]
+  D -->|SSE stream| B
+  E --> F[Blueprint History & Retrieval]
+```
+
+- **Folder & Component Structure:**
+```
+/client
+  /contexts
+    - StreamContext.tsx
+  /components
+    - BlueprintViewer.tsx
+    - ChatInput.tsx
+    - MessageList.tsx
+    - PlatformSelector.tsx
+    - ProgressIndicator.tsx
+    - ErrorDisplay.tsx
+  /pages
+    - landing.tsx
+    - home.tsx
+  - types.ts
+
+/server
+  /routes
+    - generate.ts
+    - blueprints.ts
+  /utils
+    - invokeDeepSeekStream.ts
+    - streamWrapper.ts
+  - drizze.config.ts
+
+/shared
+  - constants.ts
+  - interfaces.ts
+```
+
+- **Data Models & Schema:**
+```ts
+interface Blueprint {
+  id: string;
+  user_id: string;
+  prompt: string;
+  content: string;
+  platform: 'replit' | 'cursor' | 'lovable' | 'windsurf';
+  status: 'idle' | 'generating' | 'complete' | 'error';
+  created_at: Date;
+  updated_at: Date;
+}
+
+interface User {
+  id: string;
+  username: string;
+  avatar_url: string;
+}
+```
+
+- **API Endpoints (Contract):**
+  - `POST /api/blueprint/generate` – streams new blueprint  
+  - `GET /api/blueprints` – lists user’s blueprints  
+  - `GET /api/blueprints/:id` – retrieves a single blueprint  
+
+---
+
+### **2.3. Layer 3: Refactor & Optimization Engine**
+- **Component Splitting:**  
+  Separate stream-rendering (`BlueprintViewer`) from input logic (`ChatInput`) and state management (`StreamContext`).
+
+- **Streaming Optimizations:**  
+  - Debounce small token bursts to batch renders every 50ms  
+  - Use `React.memo` on child components to prevent re-renders  
+  - Implement text-fade animations with CSS transitions for new lines  
+
+- **Performance Bottlenecks:**  
+  Large blueprints may overwhelm the DOM—use virtualization (e.g., `react-window`) when content exceeds 500 lines.
+
+---
+
+### **2.4. Layer 4: Error Recovery & Resilience**
+- **Error Patterns:**  
+  - **AI Timeout:** On SSE connection drop, automatically retry once and switch to Claude fallback if unavailable.  
+  - **Empty Stream:** If no data in 5s, set status to “delayed” and show user a retry button.
+
+- **Debugging Strategies:**  
+  - Enable SSE debug logs in browser console (toggle via `?debug=true`)  
+  - Expose streaming phases (`queued` → `streaming` → `complete`) in DevTools timeline  
+
+---
+
+### **2.5. Layer 5: Platform & Deployment Strategy**
+- **Target Platform(s):** Replit for development and Light production load; Render/Fly.io for scalable backend  
+- **Deployment Workflow:**  
+  1. Push to GitHub → Replit auto-deploy frontend & backend via monorepo config  
+  2. CI on GitHub Actions runs lint/tests → deploy to Render on success  
+- **Environment Variables:**  
+  - `DEEPSEEK_API_KEY`  
+  - `DATABASE_URL`  
+  - `SESSION_SECRET`  
+  - `REPLIT_CLIENT_ID` & `REPLIT_CLIENT_SECRET`  
+
+---
+
+## **3. Quality & Execution Framework**
+
+### **3.1. Development Standards**
+□ **Code Style:** Prettier + ESLint (Airbnb config)  
+□ **Testing:** Vitest + React Testing Library, Aim for ≥ 80% coverage  
+□ **Version Control:** Feature branches, merged via Pull Requests with mandatory code reviews  
+
+### **3.2. Performance Benchmarks**
+□ **First Contentful Paint (FCP):** `< 1.5 s`  
+□ **Largest Contentful Paint (LCP):** `< 2.2 s`  
+□ **API Response Time (p95):** `< 300 ms` for initial SSE handshake  
+
+### **3.3. User Experience & Accessibility (UX/UI)**
+□ **Responsive Design:** Mobile-first with Tailwind utility classes  
+□ **Accessibility:** WCAG 2.1 AA compliance, semantic HTML, ARIA labels  
+□ **UI States:** Clear indicators for “Generating…”, “Complete”, “Error”  
+
+---
+
+## **4. Project Management & Logistics**
+
+### **4.1. Implementation Phases & Timeline**
+- **Phase 1: Backend & SSE Setup (1 Day):** Define routes, implement `invokeDeepSeekStream`, SSE config  
+- **Phase 2: Frontend Components (2 Days):** Build `ChatInput`, `MessageList`, `BlueprintViewer`, `StreamContext`  
+- **Phase 3: Integration & Testing (1 Day):** E2E tests, error scenarios, styling polish, deploy  
+
+### **4.2. Future Scope & Version 2.0 Ideas**
+- Real-time collaborative editing of blueprints  
+- Industry-specific templates (e-commerce, CRM, analytics dashboards)  
+- Export options: PDF, Markdown file, GitHub repo scaffold  
+
+---
+
+*Generated by the NoCodeLos Blueprint Stack v3.1*  
+*"The single document that replaces meetings."*
