@@ -99,7 +99,9 @@ BlueprintForge is an AI-powered web application that transforms simple app conce
 ## Changelog
 
 Changelog:
-- July 03, 2025. Initial setup
+- July 03, 2025: Initial setup of BlueprintForge with real-time streaming
+- July 03, 2025: Integrated NoCodeLos Blueprint Engine system prompt for standardized output format
+- July 03, 2025: Fixed server-side header errors and database schema implementation
 
 ## User Preferences
 
