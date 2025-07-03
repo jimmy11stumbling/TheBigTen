@@ -8,6 +8,8 @@ import { generateBlueprint } from "./services/deepseek";
 export async function registerRoutes(app: Express): Promise<Server> {
   // Blueprint generation endpoint with SSE
   app.post("/api/blueprint/generate", async (req, res) => {
+    let headersSent = false;
+    
     try {
       const generateSchema = z.object({
         prompt: z.string().min(1).max(500),
@@ -25,6 +27,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "Cache-Control",
       });
+      headersSent = true;
 
       // Create blueprint record
       const blueprint = await storage.createBlueprint({
@@ -75,9 +78,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.end();
     } catch (error) {
       console.error("Blueprint generation error:", error);
-      res.status(400).json({ 
-        message: error instanceof Error ? error.message : "Invalid request" 
-      });
+      
+      if (!headersSent) {
+        res.status(400).json({ 
+          message: error instanceof Error ? error.message : "Invalid request" 
+        });
+      } else {
+        // If headers already sent, send error via SSE
+        res.write(`data: ${JSON.stringify({ 
+          type: "error", 
+          message: error instanceof Error ? error.message : "Invalid request"
+        })}\n\n`);
+        res.end();
+      }
     }
   });
 
