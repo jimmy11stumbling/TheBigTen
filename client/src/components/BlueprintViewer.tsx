@@ -42,6 +42,36 @@ export function BlueprintViewer() {
     });
   };
 
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        // Use Web Share API if available
+        await navigator.share({
+          title: "Generated Blueprint",
+          text: "Check out this technical blueprint",
+          url: window.location.href,
+        });
+        toast({
+          title: "Shared successfully",
+          description: "Blueprint has been shared.",
+        });
+      } else {
+        // Fallback: copy URL to clipboard
+        await navigator.clipboard.writeText(window.location.href);
+        toast({
+          title: "Link copied",
+          description: "Blueprint link has been copied to your clipboard.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Share failed",
+        description: "Failed to share the blueprint.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getStatusBadge = () => {
     switch (streamState.status) {
       case "generating":
@@ -136,6 +166,7 @@ export function BlueprintViewer() {
           <Button
             variant="ghost"
             size="sm"
+            onClick={handleShare}
             disabled={!streamState.content}
             title="Share"
           >
