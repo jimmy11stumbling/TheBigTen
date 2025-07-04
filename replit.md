@@ -104,6 +104,8 @@ Changelog:
 - July 03, 2025: Fixed server-side header errors and database schema implementation
 - July 03, 2025: Added user API key management system with settings dialog and local storage
 - July 03, 2025: Implemented API key validation and integration with DeepSeek API
+- July 04, 2025: Removed hardcoded API keys - users must provide personal DeepSeek API key
+- July 04, 2025: Simplified storage interface and removed user authentication for deployment readiness
 
 ## User Preferences
 

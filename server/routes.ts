@@ -36,7 +36,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         platform,
         content: "",
         status: "generating",
-        user_id: user_id || null,
       });
 
       let fullContent = "";
@@ -95,11 +94,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get user's blueprints
+  // Get recent blueprints
   app.get("/api/blueprints", async (req, res) => {
     try {
-      const userId = req.query.user_id as string;
-      const blueprints = await storage.getUserBlueprints(userId);
+      const blueprints = await storage.getAllBlueprints();
       res.json(blueprints);
     } catch (error) {
       console.error("Get blueprints error:", error);
