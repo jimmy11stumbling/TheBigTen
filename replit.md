@@ -109,6 +109,7 @@ Changelog:
 - July 04, 2025: Increased token limits: 4096 minimum input tokens, 8192 maximum output tokens
 - July 04, 2025: Added comprehensive platform-specific databases for tailored blueprint generation
 - July 04, 2025: Implemented comprehensive prompt management system with save, load, copy, and delete functionality
+- July 04, 2025: Enhanced landing page with functional buttons, comprehensive documentation, and removed pricing section
 
 ## User Preferences
 
