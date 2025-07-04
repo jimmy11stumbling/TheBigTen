@@ -12,7 +12,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     try {
       const generateSchema = z.object({
-        prompt: z.string().min(1).max(500),
+        prompt: z.string().min(3000).max(8192),
         platform: platformEnum,
         user_id: z.string().uuid().optional(),
         apiKey: z.string().optional(),
