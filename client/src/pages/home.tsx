@@ -91,7 +91,7 @@ export default function HomePage() {
           
           {/* Left Panel: Input & Configuration */}
           <div className="lg:col-span-1 space-y-6">
-            <ChatInput />
+            <ChatInput onOpenSettings={() => setSettingsOpen(true)} />
             <ProgressIndicator />
             <RecentBlueprints />
           </div>

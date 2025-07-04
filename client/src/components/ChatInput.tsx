@@ -9,7 +9,11 @@ import { useStream } from "@/contexts/StreamContext";
 import { useSettings } from "@/contexts/SettingsContext";
 import { Platform } from "@/lib/types";
 
-export function ChatInput() {
+interface ChatInputProps {
+  onOpenSettings?: () => void;
+}
+
+export function ChatInput({ onOpenSettings }: ChatInputProps) {
   const [prompt, setPrompt] = useState("");
   const [platform, setPlatform] = useState<Platform>("replit");
   const { streamState, generateBlueprint } = useStream();
@@ -45,7 +49,12 @@ export function ChatInput() {
               <AlertDescription>
                 <div className="flex items-center justify-between">
                   <span>Using demo mode. Configure your DeepSeek API key for full functionality.</span>
-                  <Button variant="ghost" size="sm" className="text-primary p-0 h-auto">
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-primary p-0 h-auto"
+                    onClick={onOpenSettings}
+                  >
                     <Settings className="w-3 h-3 mr-1" />
                     Setup
                   </Button>

@@ -76,13 +76,13 @@ Your final output must be the fully populated Markdown document. Do not ask for 
 }
 
 async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platformEnum>, userApiKey?: string): AsyncGenerator<string> {
-  const apiKey = userApiKey || process.env.DEEPSEEK_API_KEY || process.env.DEEPSEEK_API_KEY_ENV_VAR || "demo_key";
-  
-  if (apiKey === "demo_key") {
-    // Fallback to simulated generation for demo
+  if (!userApiKey) {
+    // No API key provided - use simulation
     yield* simulateGeneration(prompt, platform);
     return;
   }
+  
+  const apiKey = userApiKey;
 
   const request: DeepSeekRequest = {
     model: "deepseek-reasoner",
