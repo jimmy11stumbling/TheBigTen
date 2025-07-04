@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useCallback, ReactNode } from "react";
 import { StreamState, StreamEvent, GenerateRequest } from "@/lib/types";
 import { useSettings } from "./SettingsContext";
