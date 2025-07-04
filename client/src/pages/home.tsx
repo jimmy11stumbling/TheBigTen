@@ -3,14 +3,17 @@ import { ChatInput } from "@/components/ChatInput";
 import { BlueprintViewer } from "@/components/BlueprintViewer";
 import { ProgressIndicator } from "@/components/ProgressIndicator";
 import { RecentBlueprints } from "@/components/RecentBlueprints";
+import { Templates } from "@/components/Templates";
 import { SettingsDialog } from "@/components/SettingsDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "wouter";
 import { useSettings } from "@/contexts/SettingsContext";
+import { useStream } from "@/contexts/StreamContext";
+import { Platform } from "@/lib/types";
 import { 
   Compass, 
-  HelpCircle, 
   Settings, 
   User,
   Home,
@@ -20,7 +23,14 @@ import {
 
 export default function HomePage() {
   const { hasApiKey } = useSettings();
+  const { generateBlueprint } = useStream();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("generator");
+
+  const handleUseTemplate = async (prompt: string, platform: Platform) => {
+    setActiveTab("generator");
+    await generateBlueprint({ prompt, platform });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -85,20 +95,45 @@ export default function HomePage() {
 
       {/* Main Content Area */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid lg:grid-cols-3 gap-8">
-          
-          {/* Left Panel: Input & Configuration */}
-          <div className="lg:col-span-1 space-y-6">
-            <ChatInput onOpenSettings={() => setSettingsOpen(true)} />
-            <ProgressIndicator />
-            <RecentBlueprints />
-          </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="generator" className="flex items-center space-x-2">
+              <Home className="w-4 h-4" />
+              <span>Generator</span>
+            </TabsTrigger>
+            <TabsTrigger value="templates" className="flex items-center space-x-2">
+              <LayoutTemplate className="w-4 h-4" />
+              <span>Templates</span>
+            </TabsTrigger>
+            <TabsTrigger value="history" className="flex items-center space-x-2">
+              <History className="w-4 h-4" />
+              <span>History</span>
+            </TabsTrigger>
+          </TabsList>
 
-          {/* Right Panel: Blueprint Viewer */}
-          <div className="lg:col-span-2">
-            <BlueprintViewer />
-          </div>
-        </div>
+          <TabsContent value="generator" className="mt-6">
+            <div className="grid lg:grid-cols-3 gap-8">
+              {/* Left Panel: Input & Configuration */}
+              <div className="lg:col-span-1 space-y-6">
+                <ChatInput onOpenSettings={() => setSettingsOpen(true)} />
+                <ProgressIndicator />
+              </div>
+
+              {/* Right Panel: Blueprint Viewer */}
+              <div className="lg:col-span-2">
+                <BlueprintViewer />
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="templates" className="mt-6">
+            <Templates onUseTemplate={handleUseTemplate} />
+          </TabsContent>
+
+          <TabsContent value="history" className="mt-6">
+            <RecentBlueprints />
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Settings Dialog */}
