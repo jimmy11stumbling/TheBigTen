@@ -130,7 +130,7 @@ export default function Landing() {
               <div className="w-8 h-8 bg-gradient-to-br from-primary to-purple-600 rounded-lg flex items-center justify-center">
                 <Compass className="text-white w-4 h-4" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900">BlueprintForge</h1>
+              <h1 className="text-xl font-bold text-gray-900">NoCodeLos</h1>
             </div>
             <nav className="hidden md:flex items-center space-x-8">
               <button 
@@ -208,7 +208,7 @@ export default function Landing() {
                   <div className="w-3 h-3 bg-red-400 rounded-full"></div>
                   <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
                   <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                  <span className="text-sm text-gray-500 ml-4">BlueprintForge Generator</span>
+                  <span className="text-sm text-gray-500 ml-4">NoCodeLos Generator</span>
                 </div>
                 <CardContent className="p-6">
                   <div className="mb-4">
@@ -244,7 +244,7 @@ export default function Landing() {
               Everything You Need to Go From Idea to Implementation
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Powered by advanced AI, BlueprintForge generates comprehensive technical documentation that development teams can immediately act upon.
+              Powered by advanced AI, NoCodeLos generates comprehensive technical documentation that development teams can immediately act upon.
             </p>
           </div>
           
@@ -280,7 +280,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              How BlueprintForge Works
+              How NoCodeLos Works
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               From idea to implementation-ready blueprint in four simple steps. Our AI-powered process ensures comprehensive technical documentation every time.
@@ -327,7 +327,7 @@ export default function Landing() {
               Comprehensive Documentation
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Everything you need to know about using BlueprintForge effectively, from basic usage to advanced features.
+              Everything you need to know about using NoCodeLos effectively, from basic usage to advanced features.
             </p>
           </div>
 
@@ -464,7 +464,7 @@ export default function Landing() {
                 <AccordionItem value="item-1">
                   <AccordionTrigger>What is the minimum prompt length required?</AccordionTrigger>
                   <AccordionContent>
-                    BlueprintForge requires a minimum of 3000 characters in your prompt to ensure comprehensive analysis and detailed blueprint generation. This ensures the AI has enough context to create meaningful technical documentation.
+                    NoCodeLos requires a minimum of 3000 characters in your prompt to ensure comprehensive analysis and detailed blueprint generation. This ensures the AI has enough context to create meaningful technical documentation.
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-2">
@@ -488,7 +488,7 @@ export default function Landing() {
                 <AccordionItem value="item-5">
                   <AccordionTrigger>Which platforms are supported?</AccordionTrigger>
                   <AccordionContent>
-                    BlueprintForge supports Replit, Cursor, Lovable, and Windsurf. Each platform has tailored recommendations based on their unique capabilities, integrations, and development workflows.
+                    NoCodeLos supports Replit, Cursor, Lovable, and Windsurf. Each platform has tailored recommendations based on their unique capabilities, integrations, and development workflows.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
