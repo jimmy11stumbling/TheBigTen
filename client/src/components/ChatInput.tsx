@@ -69,11 +69,12 @@ export function ChatInput({ onOpenSettings }: ChatInputProps) {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="min-h-[128px] resize-none focus:ring-2 focus:ring-primary focus:border-transparent"
+              className="min-h-[200px] resize-y focus:ring-2 focus:ring-primary focus:border-transparent"
               disabled={isGenerating}
+              maxLength={2000}
             />
             <div className="absolute bottom-3 right-3 text-xs text-muted-foreground">
-              {prompt.length}/500
+              {prompt.length}/2000
             </div>
           </div>
           
