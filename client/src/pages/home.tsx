@@ -56,10 +56,7 @@ export default function HomePage() {
                   <History className="w-4 h-4 mr-2" />
                   History
                 </Button>
-                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
-                  <LayoutTemplate className="w-4 h-4 mr-2" />
-                  Templates
-                </Button>
+                
               </div>
             </div>
             <div className="flex items-center space-x-4">
