@@ -66,9 +66,7 @@ export default function HomePage() {
                 )}
               </div>
               
-              <Button variant="ghost" size="sm" className="text-gray-400 hover:text-gray-600">
-                <HelpCircle className="w-4 h-4" />
-              </Button>
+              
               <Button 
                 variant="ghost" 
                 size="sm" 
