@@ -97,7 +97,7 @@ export function RecentBlueprints() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     toast({
       title: "Download started",
       description: "Blueprint is being downloaded as a Markdown file.",
@@ -223,7 +223,7 @@ export function RecentBlueprints() {
             View All
           </Button>
         </div>
-        
+
         <div className="space-y-3">
           {displayBlueprints.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
