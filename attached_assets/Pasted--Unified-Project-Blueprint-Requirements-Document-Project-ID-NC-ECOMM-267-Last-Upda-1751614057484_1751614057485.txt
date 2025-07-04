@@ -1,0 +1,240 @@
+### Unified Project Blueprint & Requirements Document  
+**Project ID:** NC-ECOMM-267  
+**Last Updated:** 2023-10-15  
+
+---
+
+### EXECUTIVE SUMMARY  
+**Project Name:** MarketHub  
+**Core Concept:** Cloud-native multi-vendor e-commerce platform for SMBs  
+**Target Audience:** Small-to-medium businesses (SMBs) selling physical/digital products  
+**Revenue Model:** 5% transaction fee + premium vendor subscriptions  
+**Unique Value:**  
+1. Turnkey marketplace solution with built-in vendor management  
+2. AI-driven product recommendations & abandoned cart recovery  
+3. Replit-optimized infrastructure for rapid deployment  
+
+---
+
+### TECHNICAL ARCHITECTURE  
+**Frontend Stack:**  
+- React 18 + TypeScript + Vite  
+- Tailwind CSS + Headless UI  
+- React Query (Data Fetching)  
+- Stripe.js (Payment Elements)  
+
+**Backend Stack:**  
+- Node.js 20 + Express.js  
+- TypeScript (Strict Mode)  
+- PostgreSQL (Neon Serverless)  
+- Redis (Upstash)  
+
+**Infrastructure:**  
+```mermaid
+graph TD
+    A[React Frontend] -->|API Calls| B[Express API]
+    B --> C[PostgreSQL]
+    B --> D[Redis Cache]
+    B --> E[Stripe Payments]
+    B --> F[Cloudinary CDN]
+    C --> G[Neon Serverless DB]
+    D --> H[Upstash Redis]
+    F --> I[AWS S3]
+```
+
+**Key Integrations:**  
+1. **Auth:** JWT + Refresh Tokens (30m expiry)  
+2. **Payments:** Stripe Connect (Multi-vendor settlements)  
+3. **Search:** PostgreSQL Full-Text Search + pg_trgm  
+4. **Email:** Resend with React Email templates  
+5. **Storage:** Cloudinary for image transformations  
+6. **Analytics:** Plausible (GDPR-compliant)  
+
+---
+
+### CORE BUILD PROMPTS & TASKS  
+1. **Prompt:** "Create a React/TS component for product filtering with:  
+   - Dynamic category tree (3-level nesting)  
+   - Price range slider with currency formatting  
+   - Attribute filters (size/color/brand) with counters  
+   - Mobile-optimized collapsible UI (Tailwind)"  
+   *Files:* `/frontend/components/ProductFilters.tsx`
+
+2. **Prompt:** "Build Express middleware for cart persistence:  
+   - Redis storage for guest carts (TTL: 7 days)  
+   - JWT-authenticated user cart merging  
+   - Atomic updates for inventory checks  
+   - Abandoned cart detection after 1h"  
+   *Files:* `/backend/src/middleware/cartSession.ts`
+
+3. **Prompt:** "Implement Stripe Connect onboarding flow:  
+   - Vendor KYC form (React Hook Form + Zod)  
+   - Express webhooks for account updates  
+   - Payout scheduling (weekly/monthly)  
+   - Multi-currency support (USD/EUR/GBP)"  
+   *Files:* `/backend/src/services/paymentService.ts`
+
+4. **Prompt:** "Generate product recommendation engine:  
+   - Collaborative filtering (user behavior)  
+   - Content-based similarity (product attributes)  
+   - Trending products (Redis sorted sets)  
+   - API endpoint: GET /api/recommendations"  
+   *Files:* `/backend/src/controllers/recommendationController.ts`
+
+---
+
+### DATA ARCHITECTURE  
+**PostgreSQL Schema (Key Tables):**  
+```sql
+-- Products (Vendor-owned)
+CREATE TABLE products (
+  id UUID PRIMARY KEY,
+  vendor_id UUID REFERENCES vendors(id),
+  title VARCHAR(120) NOT NULL,
+  description TEXT,
+  price NUMERIC(10,2) CHECK (price > 0),
+  inventory_count INT DEFAULT 0,
+  tsvector TSVECTOR -- For full-text search
+);
+
+-- Multi-vendor relationships
+CREATE TABLE vendors (
+  id UUID PRIMARY KEY,
+  stripe_account_id TEXT UNIQUE,
+  commission_rate NUMERIC(5,2) DEFAULT 5.0
+);
+
+-- Order fulfillment flow
+CREATE TABLE orders (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES users(id),
+  status VARCHAR(20) 
+    CHECK (status IN ('pending','paid','shipped','delivered','cancelled')),
+  total NUMERIC(12,2),
+  stripe_payment_intent_id TEXT UNIQUE
+);
+```
+
+**Redis Data Models:**  
+- `cart:{sessionId}`: Hash of `productId:quantity`  
+- `recs:{userId}`: Sorted set of `productId:score`  
+- `rate_limit:{ip}`: Fixed window counter  
+
+---
+
+### API SPECIFICATION  
+**Key Endpoints:**  
+| Method | Path                     | Functionality                     | Auth     |  
+|--------|--------------------------|-----------------------------------|----------|  
+| POST   | /api/auth/register       | Vendor/user registration          | None     |  
+| POST   | /api/auth/login          | JWT token issuance                | None     |  
+| GET    | /api/products            | Search + filters                  | Optional |  
+| POST   | /api/cart                | Add/update cart items             | JWT      |  
+| POST   | /api/checkout            | Create Stripe payment intent      | JWT      |  
+| POST   | /api/webhooks/stripe     | Process payment events            | Webhook  |  
+
+**Sample Response (Product Search):**  
+```json
+{
+  "data": [
+    {
+      "id": "prod_01HXYZ9...",
+      "title": "Wireless Headphones",
+      "price": 89.99,
+      "vendor": "TechGadgets Inc",
+      "rating": 4.5
+    }
+  ],
+  "meta": {
+    "totalResults": 124,
+    "filters": {
+      "category": ["Electronics", "Audio"],
+      "priceRange": [10, 200]
+    }
+  }
+}
+```
+
+---
+
+### REPLIT DEPLOYMENT CONFIG  
+**.replit File:**  
+```ini
+language = "nodejs"
+run = "npm run deploy"
+
+[env]
+DATABASE_URL = "$NEON_DB_URL"
+REDIS_URL = "$UPSTASH_REDIS_URL"
+STRIPE_SECRET = "$STRIPE_SECRET"
+CLOUDINARY_URL = "$CLOUDINARY_URL"
+```
+
+**Start Script (package.json):**  
+```json
+"scripts": {
+  "dev": "concurrently 'npm:dev:backend' 'npm:dev:frontend'",
+  "dev:backend": "nodemon --watch backend backend/src/index.ts",
+  "dev:frontend": "vite --port 3000",
+  "build": "npm run build:frontend && npm run build:backend",
+  "deploy": "node backend/dist/index.js"
+}
+```
+
+**Replit-Specific Optimizations:**  
+1. Single-port architecture (Frontend: 3000, Backend: 5000)  
+2. Environment secrets via Replit Secrets  
+3. Neon PostgreSQL connection pooling  
+4. Upstash Redis for serverless caching  
+5. Cloudinary for image CDN (free tier)  
+
+---
+
+### QUALITY & EXECUTION FRAMEWORK  
+**Testing Strategy:**  
+- Unit: Jest (85% coverage)  
+- Integration: Supertest (API endpoints)  
+- E2E: Playwright (Critical user flows)  
+- Load: k6 (1,000 VU simulation)  
+
+**Security Protocols:**  
+1. Data: Row-Level Security (RLS) in PostgreSQL  
+2. Payments: PCI-DSS compliant via Stripe  
+3. Auth: Refresh token rotation + HTTP-only cookies  
+4. Monitoring: Sentry error tracking  
+
+**Performance Targets:**  
+- Page Load: <1.2s (LCP)  
+- API Response: <200ms (p99)  
+- Concurrent Users: 1,000+  
+- Uptime SLA: 99.95%  
+
+---
+
+### PROJECT MANAGEMENT & LOGISTICS  
+**Phase Timeline:**  
+| Phase       | Duration | Deliverables                     |  
+|-------------|----------|----------------------------------|  
+| Core MVP    | 4 weeks  | Auth, Product Catalog, Checkout  |  
+| Vendor Dash | 2 weeks  | Inventory, Order Management      |  
+| Growth Tools| 2 weeks  | Recommendations, Email Automations |  
+
+**Success Metrics:**  
+- Conversion Rate: >3.5%  
+- Cart Recovery: >15% of abandoned carts  
+- Vendor Onboarding: <10 minutes  
+
+**Risks/Mitigation:**  
+1. **Payment Failures:** Webhook idempotency keys + retry queue  
+2. **Inventory Oversell:** Redis-backed reservation system  
+3. **Vendor Payout Delays:** Daily balance reconciliations  
+
+**Cost Projection:**  
+- Infrastructure: $120/mo (Neon Pro + Upstash)  
+- Stripe Fees: 2.9% + $0.30/transaction  
+- Cloudinary: Free tier (up to 1,000 images)  
+
+--- 
+
+*Document generated by NoCodeLos Blueprint Engine v3.1*  
+**Next Step:** Execute /frontend and /backend build prompts in parallel
