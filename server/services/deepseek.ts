@@ -1,4 +1,5 @@
 import { platformEnum } from "@shared/schema";
+import { getPlatformDatabase } from "@shared/platform-databases";
 import { z } from "zod";
 
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
@@ -17,6 +18,38 @@ interface DeepSeekRequest {
 }
 
 function getSystemPrompt(platform: z.infer<typeof platformEnum>): string {
+  const platformDB = getPlatformDatabase(platform);
+  
+  const platformContext = platformDB ? `
+
+## TARGET PLATFORM: ${platformDB.name}
+
+**Platform Overview:**
+- Vendor: ${platformDB.vendor}
+- Primary Function: ${platformDB.primaryFunction}
+- Target Audience: ${platformDB.targetAudience}
+- Key Differentiator: ${platformDB.keyDifferentiator}
+
+**Recommended Tech Stack:**
+- Frontend: ${platformDB.techStack.frontend.join(', ')}
+- Backend: ${platformDB.techStack.backend.join(', ')}
+- Database: ${platformDB.techStack.database.join(', ')}
+- Deployment: ${platformDB.techStack.deployment.join(', ')}
+
+**Platform-Specific Integrations:**
+- Authentication: ${platformDB.integrations.auth.join(', ')}
+- Payments: ${platformDB.integrations.payments.join(', ')}
+- AI Services: ${platformDB.integrations.ai.join(', ')}
+- Databases: ${platformDB.integrations.databases.join(', ')}
+
+**Best Use Cases:**
+${platformDB.bestFor.map(use => `- ${use}`).join('\n')}
+
+**Platform Limitations:**
+${platformDB.limitations.map(limit => `- ${limit}`).join('\n')}
+
+**IMPORTANT:** Tailor ALL technical recommendations to ${platformDB.name}'s capabilities and ecosystem. Use the platform's preferred tech stack, integrations, and deployment methods.
+` : '';
   const basePrompt = `You are an expert AI system architect known as the "NoCodeLos Blueprint Engine". Your purpose is to receive a user's application idea and generate a complete, production-ready "Unified Project Blueprint & Requirements Document" based on the proprietary NoCodeLos methodology.
 
 Your entire output MUST be a single, complete Markdown document based on the template provided below.
@@ -72,7 +105,7 @@ Your final output must be the fully populated Markdown document. Do not ask for 
 - Include distributed system considerations`
   };
 
-  return basePrompt + platformSpecific[platform];
+  return platformContext + basePrompt + platformSpecific[platform];
 }
 
 async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platformEnum>, userApiKey?: string): AsyncGenerator<string> {
