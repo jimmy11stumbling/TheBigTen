@@ -8,6 +8,7 @@ export interface IStorage {
   updateBlueprintContent(id: string, content: string, status: string): Promise<Blueprint>;
   getBlueprintById(id: string): Promise<Blueprint | undefined>;
   getAllBlueprints(): Promise<Blueprint[]>;
+  deleteBlueprintById(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -39,6 +40,10 @@ export class DatabaseStorage implements IStorage {
 
   async getAllBlueprints(): Promise<Blueprint[]> {
     return await db.select().from(blueprints).orderBy(desc(blueprints.created_at)).limit(10);
+  }
+
+  async deleteBlueprintById(id: string): Promise<void> {
+    await db.delete(blueprints).where(eq(blueprints.id, id));
   }
 }
 

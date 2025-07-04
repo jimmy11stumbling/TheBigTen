@@ -122,6 +122,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete specific blueprint
+  app.delete("/api/blueprints/:id", async (req, res) => {
+    try {
+      const blueprintId = req.params.id;
+      const blueprint = await storage.getBlueprintById(blueprintId);
+      
+      if (!blueprint) {
+        return res.status(404).json({ message: "Blueprint not found" });
+      }
+
+      await storage.deleteBlueprintById(blueprintId);
+      res.json({ message: "Blueprint deleted successfully" });
+    } catch (error) {
+      console.error("Delete blueprint error:", error);
+      res.status(500).json({ message: "Failed to delete blueprint" });
+    }
+  });
+
   // Test API key endpoint
   app.post("/api/test-api-key", async (req, res) => {
     try {
