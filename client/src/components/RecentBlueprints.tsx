@@ -97,7 +97,7 @@ export function RecentBlueprints() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     toast({
       title: "Download started",
       description: "Blueprint is being downloaded as a Markdown file.",
@@ -189,7 +189,8 @@ export function RecentBlueprints() {
     );
   }
 
-  const displayBlueprints = blueprints || [];
+  const blueprintsData = blueprints || [];
+  const limitedBlueprints = blueprintsData.slice(0, 3);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -223,16 +224,16 @@ export function RecentBlueprints() {
             View All
           </Button>
         </div>
-        
+
         <div className="space-y-3">
-          {displayBlueprints.length === 0 ? (
+          {limitedBlueprints.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <div className="text-2xl mb-2">📝</div>
               <p className="text-sm">No blueprints yet</p>
               <p className="text-xs">Your generated blueprints will appear here</p>
             </div>
           ) : (
-            displayBlueprints.map((blueprint) => (
+            limitedBlueprints.map((blueprint) => (
               <div
                 key={blueprint.id}
                 className="p-3 border border-gray-100 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
