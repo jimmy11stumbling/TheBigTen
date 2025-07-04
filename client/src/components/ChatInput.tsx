@@ -23,6 +23,12 @@ export function ChatInput({ onOpenSettings }: ChatInputProps) {
 
   const handleSubmit = async () => {
     if (!prompt.trim() || isGenerating) return;
+    
+    // Minimum requirement: approximately 4096 tokens (roughly 3000-4000 characters)
+    if (prompt.trim().length < 3000) {
+      alert("Please provide a more detailed description. Minimum 3000 characters required for comprehensive blueprint generation.");
+      return;
+    }
 
     await generateBlueprint({
       prompt: prompt.trim(),
@@ -71,10 +77,10 @@ export function ChatInput({ onOpenSettings }: ChatInputProps) {
               onKeyDown={handleKeyDown}
               className="min-h-[200px] resize-y focus:ring-2 focus:ring-primary focus:border-transparent"
               disabled={isGenerating}
-              maxLength={2000}
+              maxLength={8192}
             />
             <div className="absolute bottom-3 right-3 text-xs text-muted-foreground">
-              {prompt.length}/2000
+              {prompt.length}/8192
             </div>
           </div>
           

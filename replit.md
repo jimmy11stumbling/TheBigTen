@@ -106,6 +106,7 @@ Changelog:
 - July 03, 2025: Implemented API key validation and integration with DeepSeek API
 - July 04, 2025: Removed hardcoded API keys - users must provide personal DeepSeek API key
 - July 04, 2025: Simplified storage interface and removed user authentication for deployment readiness
+- July 04, 2025: Increased token limits: 4096 minimum input tokens, 8192 maximum output tokens
 
 ## User Preferences
 

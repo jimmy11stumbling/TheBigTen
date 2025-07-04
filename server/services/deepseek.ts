@@ -98,7 +98,7 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
     ],
     stream: true,
     temperature: 0.7,
-    max_tokens: 4000
+    max_tokens: 8192
   };
 
   try {
