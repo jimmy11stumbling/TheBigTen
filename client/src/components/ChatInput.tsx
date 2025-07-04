@@ -52,12 +52,6 @@ export function ChatInput({ onOpenSettings }: ChatInputProps) {
   const handleSubmit = async () => {
     if (!prompt.trim() || isGenerating) return;
     
-    // Minimum requirement: approximately 4096 tokens (roughly 3000-4000 characters)
-    if (prompt.trim().length < 3000) {
-      alert("Please provide a more detailed description. Minimum 3000 characters required for comprehensive blueprint generation.");
-      return;
-    }
-
     await generateBlueprint({
       prompt: prompt.trim(),
       platform,
