@@ -52,8 +52,26 @@ export function ChatInput({ onOpenSettings }: ChatInputProps) {
   const handleSubmit = async () => {
     if (!prompt.trim() || isGenerating) return;
     
+    // Auto-save prompt before generating
+    const trimmedPrompt = prompt.trim();
+    const newPrompt: SavedPrompt = {
+      id: Date.now().toString(),
+      text: trimmedPrompt,
+      timestamp: Date.now(),
+      platform,
+    };
+
+    // Only save if it's not already in the recent saved prompts
+    const isDuplicate = savedPrompts.some(saved => 
+      saved.text === trimmedPrompt && saved.platform === platform
+    );
+    
+    if (!isDuplicate) {
+      setSavedPrompts(prev => [newPrompt, ...prev.slice(0, 9)]); // Keep only 10 most recent
+    }
+    
     await generateBlueprint({
-      prompt: prompt.trim(),
+      prompt: trimmedPrompt,
       platform,
     });
   };
