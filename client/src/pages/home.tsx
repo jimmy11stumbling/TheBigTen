@@ -52,7 +52,12 @@ export default function HomePage() {
                   <Home className="w-4 h-4 mr-2" />
                   Generator
                 </Button>
-                <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-gray-600 hover:text-gray-900"
+                  onClick={() => setActiveTab("history")}
+                >
                   <History className="w-4 h-4 mr-2" />
                   History
                 </Button>
