@@ -24,7 +24,10 @@ export function RecentBlueprints() {
 
   const { data: blueprints, isLoading, error, refetch } = useQuery<Blueprint[]>({
     queryKey: ["/api/blueprints"],
-    queryFn: () => apiRequest("/api/blueprints"),
+    queryFn: async () => {
+      const response = await apiRequest("GET", "/api/blueprints");
+      return response.json();
+    },
     staleTime: 30 * 1000, // 30 seconds
     refetchOnWindowFocus: true,
   });
