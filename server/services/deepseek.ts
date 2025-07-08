@@ -253,35 +253,193 @@ ${platformDB.limitations.map(limit => `- ${limit}`).join('\n')}
 - Every code block must be immediately deployable and solve real business problems
 
 **PRODUCTION CODE REQUIREMENTS:**
-- COMPLETE IMPLEMENTATIONS ONLY - no generic examples or placeholder code
-- Every function must contain real business logic specific to the app domain
-- Write actual component logic with real state management, event handlers, and user interactions
-- Include complete API implementations with real endpoint logic, validation, and error handling
-- Provide specific algorithms for the app's core functionality (not generic templates)
-- All database operations must include real CRUD logic with proper validation
-- Security implementations must be complete with actual authentication and authorization logic
-- Performance optimizations must be specific to the app's requirements and use cases
-- NO generic tutorials - only immediately deployable, production-ready code
+- COMPLETE IMPLEMENTATIONS ONLY - no function signatures without bodies
+- Every function must contain FULL implementation with real algorithms, loops, conditionals, and calculations
+- Write COMPLETE component logic with actual state management, event handlers, and user interactions
+- Include FULL API implementations with actual endpoint logic, validation, error handling, and database operations
+- Provide COMPLETE algorithms for the app's core functionality with actual calculations and business rules
+- All database operations must include FULL CRUD implementations with actual queries and validation
+- Security implementations must be COMPLETE with actual authentication flows and authorization checks
+- Performance optimizations must include ACTUAL optimization code and specific implementations
+- NO function signatures without implementations - every function must have a complete body
 
 **CRITICAL IMPLEMENTATION REQUIREMENTS:**
-- NO GENERIC PLACEHOLDERS - write actual, specific implementation code for the requested app
-- Code must be production-ready with real business logic, not just examples
-- Include complete component implementations, API calls, database operations, and business logic
-- Write actual functions that solve real problems for the specific app domain
-- NO "fetchBackendAPI" or generic functions - write the actual backend endpoints and implementation
-- Include real data models, validation logic, error handling, and edge cases
-- Every code block must be immediately usable and specific to the app being built
+- NO FUNCTION SIGNATURES WITHOUT BODIES - write the complete function implementation
+- NO "async function generateWorkoutPlan(user" - write the FULL function with complete logic
+- Code must include ACTUAL calculations, algorithms, loops, conditionals, and business logic
+- Include COMPLETE component implementations with actual JSX, hooks, and state management
+- Write ACTUAL backend endpoints with full request/response handling and database operations
+- NO "// TODO: implement logic" - write the actual implementation code
+- Include REAL data processing, validation logic, error handling, and edge cases
+- Every code block must be a COMPLETE, WORKING implementation that can be copy-pasted and run
+
+**FORBIDDEN PATTERNS - DO NOT USE:**
+- Function signatures without implementations
+- Incomplete code blocks with placeholder comments
+- Generic functions without full implementation
+- Incomplete API endpoints without full request/response handling
+- Database operations without actual query implementations
 
 **REAL IMPLEMENTATION STANDARDS:**
 - Write complete React components with actual state management and user interactions
 - Include actual API endpoints with real request/response handling
 - Provide specific database schemas with real field validation and relationships
 - Implement actual business logic algorithms (calculations, filtering, sorting, etc.)
-- Include real authentication flows with session management and security
-- Write actual deployment configurations and environment setups
-- NO tutorials or examples - only production-ready implementation code
+- Include COMPLETE authentication flows with full session management and security implementations
+- Write COMPLETE deployment configurations with actual environment setups and full configurations
+- NO tutorials, examples, or function signatures - only COMPLETE, WORKING implementation code
+- EVERY function must have a COMPLETE body with actual logic, calculations, and business rules
+- NO incomplete code blocks or placeholder implementations
 
-Begin generation immediately with complete, specific, production-ready implementations.`;
+**EXAMPLES OF COMPLETE IMPLEMENTATION LOGIC:**
+\`\`\`javascript
+// AI Workout Generator with Complete Business Logic
+async function generateWorkoutPlan(userId, fitnessGoals, currentLevel, availableTime) {
+  // Fetch user data and preferences
+  const user = await db.users.findById(userId);
+  const userHistory = await db.workouts.find({ userId, completedAt: { $exists: true } });
+  
+  // Calculate user's progression and adaptation needs
+  const progressionMultiplier = Math.min(1 + (userHistory.length * 0.1), 2.0);
+  const restDaysNeeded = calculateRestDays(userHistory);
+  
+  // Intelligent exercise selection algorithm
+  const exercisePool = await db.exercises.find({
+    difficulty: { $lte: currentLevel + 1 },
+    targetMuscles: { $in: fitnessGoals },
+    equipment: { $in: user.availableEquipment || ['bodyweight'] }
+  });
+  
+  // Custom workout algorithm based on goals
+  let workoutStructure;
+  if (fitnessGoals.includes('weight_loss')) {
+    workoutStructure = {
+      cardioRatio: 0.4,
+      strengthRatio: 0.4,
+      flexibilityRatio: 0.2,
+      intensityMultiplier: 1.2
+    };
+  } else if (fitnessGoals.includes('muscle_gain')) {
+    workoutStructure = {
+      cardioRatio: 0.2,
+      strengthRatio: 0.6,
+      flexibilityRatio: 0.2,
+      intensityMultiplier: 1.4
+    };
+  } else {
+    workoutStructure = {
+      cardioRatio: 0.33,
+      strengthRatio: 0.34,
+      flexibilityRatio: 0.33,
+      intensityMultiplier: 1.0
+    };
+  }
+  
+  // Generate exercise sequence with proper muscle group rotation
+  const selectedExercises = [];
+  const muscleGroupsUsed = new Set();
+  
+  for (let i = 0; i < Math.floor(availableTime / 5); i++) {
+    const availableExercises = exercisePool.filter(ex => 
+      !muscleGroupsUsed.has(ex.primaryMuscle) || muscleGroupsUsed.size >= 6
+    );
+    
+    const exercise = selectOptimalExercise(availableExercises, workoutStructure, i);
+    if (exercise) {
+      selectedExercises.push({
+        ...exercise,
+        sets: calculateOptimalSets(exercise, user.fitnessLevel, progressionMultiplier),
+        reps: calculateOptimalReps(exercise, user.strength, fitnessGoals),
+        weight: calculateOptimalWeight(exercise, user.maxLifts, progressionMultiplier),
+        restTime: calculateRestTime(exercise.intensity, workoutStructure.intensityMultiplier)
+      });
+      muscleGroupsUsed.add(exercise.primaryMuscle);
+    }
+  }
+  
+  // Calculate nutritional requirements
+  const estimatedCaloriesBurn = selectedExercises.reduce((total, ex) => {
+    const met = getMetabolicEquivalent(ex.type, ex.intensity);
+    return total + (met * user.weight * (ex.sets * ex.duration / 60));
+  }, 0);
+  
+  // Generate recovery recommendations
+  const recoveryPlan = {
+    proteinNeeds: Math.ceil(user.weight * 1.6), // grams
+    hydrationNeeds: Math.ceil(estimatedCaloriesBurn / 25), // ml
+    sleepRecommendation: 7 + Math.floor(estimatedCaloriesBurn / 200),
+    nextWorkoutDelay: calculateOptimalRestPeriod(selectedExercises, user.recoveryRate)
+  };
+  
+  const workoutPlan = {
+    id: generateUniqueId(),
+    userId,
+    exercises: selectedExercises,
+    totalDuration: availableTime,
+    estimatedCaloriesBurn,
+    difficultyScore: calculateDifficultyScore(selectedExercises),
+    recoveryPlan,
+    progressionNotes: generateProgressionAdvice(user, selectedExercises),
+    createdAt: new Date(),
+    completedAt: null
+  };
+  
+  // Save to database and update user's workout history
+  await db.workouts.create(workoutPlan);
+  await db.users.updateOne(
+    { _id: userId },
+    { 
+      $inc: { totalWorkouts: 1 },
+      $set: { lastWorkoutGenerated: new Date() }
+    }
+  );
+  
+  return workoutPlan;
+}
+
+// Helper functions with complete implementations
+function calculateOptimalSets(exercise, fitnessLevel, progressionMultiplier) {
+  const baseSets = exercise.recommendedSets || 3;
+  const levelAdjustment = Math.floor(fitnessLevel / 2);
+  return Math.min(Math.max(baseSets + levelAdjustment * progressionMultiplier, 1), 6);
+}
+
+function calculateOptimalReps(exercise, userStrength, goals) {
+  let baseReps = exercise.recommendedReps || 12;
+  
+  if (goals.includes('strength')) {
+    baseReps = Math.max(6, baseReps - 4); // Lower reps, higher weight
+  } else if (goals.includes('endurance')) {
+    baseReps = Math.min(20, baseReps + 6); // Higher reps, lower weight
+  }
+  
+  return Math.floor(baseReps * (userStrength / 100));
+}
+
+function selectOptimalExercise(exercises, structure, sequenceIndex) {
+  // Prioritize compound movements early in workout
+  if (sequenceIndex < 3) {
+    const compoundExercises = exercises.filter(ex => ex.movementType === 'compound');
+    if (compoundExercises.length > 0) {
+      return compoundExercises[Math.floor(Math.random() * compoundExercises.length)];
+    }
+  }
+  
+  // Balance cardio/strength based on structure
+  const shouldBeCardio = Math.random() < structure.cardioRatio;
+  const filteredExercises = exercises.filter(ex => 
+    shouldBeCardio ? ex.type === 'cardio' : ex.type === 'strength'
+  );
+  
+  return filteredExercises.length > 0 
+    ? filteredExercises[Math.floor(Math.random() * filteredExercises.length)]
+    : exercises[Math.floor(Math.random() * exercises.length)];
+}
+\`\`\`
+
+Generate blueprints with COMPLETE implementations like the example above. Every function must have full business logic with calculations, algorithms, database operations, and real implementation code.
+
+Begin generation immediately with COMPLETE, WORKING implementations that include full function bodies, actual calculations, and real business logic.`;
 
   const platformSpecific = {
     replit: `

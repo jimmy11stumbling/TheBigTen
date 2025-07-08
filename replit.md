@@ -118,6 +118,7 @@ Changelog:
 - July 08, 2025: Enhanced system prompts to prevent [object Object] serialization issues and ensure syntactically correct code generation
 - July 08, 2025: Overhauled system prompts to generate REAL IMPLEMENTATION CODE instead of generic placeholders - blueprints must contain actual business logic, not tutorials
 - July 08, 2025: CRITICAL FIX: Removed rehypeSanitize from BlueprintViewer that was filtering/altering AI-generated implementation code
+- July 08, 2025: Enhanced system prompts with FORBIDDEN PATTERNS section to prevent function signatures without implementations and demand complete function bodies with actual logic
 
 ## User Preferences
 
