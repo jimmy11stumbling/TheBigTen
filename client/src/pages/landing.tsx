@@ -152,7 +152,7 @@ export default function Landing() {
               >
                 Documentation
               </button>
-              <Link href="/app">
+              <Link href="/">
                 <Button className="bg-primary hover:bg-primary/90">
                   <Rocket className="w-4 h-4 mr-2" />
                   Get Started
@@ -186,7 +186,7 @@ export default function Landing() {
                 AI-powered blueprint generation that turns your simple app concept into comprehensive technical specifications, architecture diagrams, and development roadmaps in seconds.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Link href="/app">
+                <Link href="/">
                   <Button size="lg" className="bg-primary hover:bg-primary/90 shadow-lg">
                     Start Building Now
                     <ArrowRight className="w-4 h-4 ml-2" />

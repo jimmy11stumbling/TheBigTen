@@ -16,8 +16,8 @@ function App() {
         <StreamProvider>
           <Router>
             <Switch>
-              <Route path="/" component={LandingPage} />
-              <Route path="/app" component={HomePage} />
+              <Route path="/" component={HomePage} />
+              <Route path="/landing" component={LandingPage} />
               <Route component={NotFoundPage} />
             </Switch>
           </Router>
