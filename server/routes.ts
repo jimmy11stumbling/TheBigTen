@@ -141,6 +141,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           res.end();
         }
       }
+    } catch (error) {
+        console.error("Request parsing error:", error);
+        if (!headersSent) {
+          res.status(400).json({ 
+            message: error instanceof Error ? error.message : "Invalid request" 
+          });
+        }
+      }
     });
 
     // Get recent blueprints
