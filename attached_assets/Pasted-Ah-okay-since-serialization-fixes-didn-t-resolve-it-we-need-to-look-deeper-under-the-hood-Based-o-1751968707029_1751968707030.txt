@@ -1,0 +1,90 @@
+Ah, okay—since serialization fixes didn’t resolve it, we need to look deeper under the hood. Based on everything you’ve shared, here are **other likely culprits** causing those dreaded `[object Object]` ghosts to haunt your blueprint:
+
+---
+
+## 🧠 Other Root Causes of `[object Object]` in Your Blueprint Output
+
+### ⚠️ 1. **Improper Markdown Rendering**
+If your blueprint is **streamed as Markdown**, and somewhere in your rendering pipeline (likely `StreamContext.tsx`) you’re trusting `content` to be a string—but it’s actually a JavaScript object—you’ll see:
+
+```txt
+[object Object]
+```
+
+> Try inspecting the blueprint sections in your stream handler: is it rendering raw objects without serialization?
+
+**Fix:** Use `JSON.stringify(content, null, 2)` before passing any AI section into a Markdown renderer.
+
+---
+
+### 🧩 2. **AI Returning Mixed Output: Code + Object Blobs**
+Your AI (DeepSeek or Claude) may be returning rich mixed output like:
+
+```ts
+const workout = {
+  name: "Push-ups",
+  sets: 3,
+  reps: 12
+}
+```
+
+But if your stream parser mistakenly treats part of that output as a literal JavaScript object rather than code text, it’ll output `[object Object]` during render.
+
+**Fix:** Normalize all incoming AI content to text *before* streaming it. Avoid evaluating/printing actual objects in render.
+
+---
+
+### 🧪 3. **Streaming Chunk Misinterpretation**
+If your SSE/WebSocket stream receives AI output chunks like:
+
+```ts
+[object Object][object Object]
+```
+
+…it’s because the chunk itself is an object but you’re blindly joining it with `.toString()` or rendering without checking type.
+
+**Fix:** In your streaming handler, make sure each chunk is:
+```ts
+typeof chunk === "string" ? chunk : JSON.stringify(chunk)
+```
+
+---
+
+### 🛠️ 4. **Blueprint Engine Using Object Injection Instead of Code Blocks**
+Check your blueprint composer logic (`sections.push(...)`). If you’re doing something like:
+
+```ts
+sections.push({
+  title: "Workout Generator",
+  content: { workoutPlan }
+})
+```
+
+The `content` is an object—not a code string. Markdown won’t know what to do, so it goes: `[object Object]`.
+
+**Fix:** Ensure you're doing:
+```ts
+content: `\`\`\`ts\n${JSON.stringify(workoutPlan, null, 2)}\n\`\`\``
+```
+
+That way, you force the object into properly rendered code blocks.
+
+---
+
+## 🔍 Confirm by Testing This
+
+Try logging the section content directly in your backend before streaming:
+```ts
+console.log("Section Content", typeof section.content, section.content)
+```
+
+If you get:
+```txt
+object { name: "Push-ups", sets: 3 }
+```
+
+Then you know you need to wrap it in `JSON.stringify()` before sending to frontend.
+
+---
+
+Want me to walk through a specific section of your blueprint output and reformat it with correctly-rendered code so you can confirm it’s fixed? I’d love to help debug it live. Let’s banish these objects for good 🔥
