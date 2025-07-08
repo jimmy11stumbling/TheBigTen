@@ -857,12 +857,12 @@ SCALE: Support for millions of users with global server infrastructure`
                       <div>
                         <h4 className="text-sm font-semibold text-gray-900 mb-2">Key Features:</h4>
                         <div className="flex flex-wrap gap-1">
-                          {template.features.slice(0, 4).map((feature, index) => (
+                          {template.features?.slice(0, 4).map((feature, index) => (
                             <Badge key={index} variant="secondary" className="text-xs">
                               {feature}
                             </Badge>
-                          ))}
-                          {template.features.length > 4 && (
+                          )) || <Badge variant="secondary" className="text-xs">Not specified</Badge>}
+                          {template.features && template.features.length > 4 && (
                             <Badge variant="secondary" className="text-xs">
                               +{template.features.length - 4} more
                             </Badge>
@@ -873,12 +873,12 @@ SCALE: Support for millions of users with global server infrastructure`
                       <div>
                         <h4 className="text-sm font-semibold text-gray-900 mb-2">Tech Stack:</h4>
                         <div className="flex flex-wrap gap-1">
-                          {template.techStack.slice(0, 4).map((tech, index) => (
+                          {template.techStack?.slice(0, 4).map((tech, index) => (
                             <Badge key={index} variant="outline" className="text-xs">
                               {tech}
                             </Badge>
-                          ))}
-                          {template.techStack.length > 4 && (
+                          )) || <Badge variant="outline" className="text-xs">Not specified</Badge>}
+                          {template.techStack && template.techStack.length > 4 && (
                             <Badge variant="outline" className="text-xs">
                               +{template.techStack.length - 4} more
                             </Badge>
@@ -889,11 +889,11 @@ SCALE: Support for millions of users with global server infrastructure`
                       <div>
                         <h4 className="text-sm font-semibold text-gray-900 mb-2">Best Platforms:</h4>
                         <div className="flex space-x-2">
-                          {template.bestPlatforms.map((platform, index) => (
+                          {template.bestPlatforms?.map((platform, index) => (
                             <Badge key={index} variant="default" className="text-xs capitalize">
                               {platform}
                             </Badge>
-                          ))}
+                          )) || <Badge variant="default" className="text-xs">replit</Badge>}
                         </div>
                       </div>
                     </div>
