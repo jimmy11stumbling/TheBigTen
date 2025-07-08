@@ -99,11 +99,10 @@ export function PlatformSelector({ value, onChange, disabled }: PlatformSelector
               disabled={disabled}
               className="sr-only peer"
             />
-            <div className="p-3 border-2 border-gray-200 rounded-lg cursor-pointer transition-all peer-checked:border-primary peer-checked:bg-primary/5 hover:border-gray-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 min-h-[80px] flex flex-col justify-center">
-              <div className="flex flex-col items-center text-center space-y-1">
+            <div className="p-3 border-2 border-gray-200 rounded-lg cursor-pointer transition-all peer-checked:border-primary peer-checked:bg-primary/5 hover:border-gray-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-50">
+              <div className="flex items-center space-x-2">
                 <span className="text-lg">{platform.icon}</span>
                 <span className="text-sm font-medium">{platform.name}</span>
-                <span className="text-xs text-gray-500 leading-tight">{platform.description}</span>
               </div>
             </div>
           </label>
