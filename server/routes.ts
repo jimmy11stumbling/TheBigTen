@@ -4,6 +4,8 @@ import { storage } from "./storage";
 import { insertBlueprintSchema, statusEnum, platformEnum } from "@shared/schema";
 import { z } from "zod";
 import { generateBlueprint } from "./services/deepseek";
+import { analytics } from "./services/analytics";
+import { registerAnalyticsRoutes } from "./routes/analytics";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Blueprint generation endpoint with SSE
@@ -39,8 +41,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       let fullContent = "";
+      const startTime = Date.now();
 
       try {
+        // Track generation start
+        await analytics.track('blueprint_generation_started', user_id, { 
+          platform, 
+          promptLength: prompt.length,
+          hasApiKey: !!apiKey 
+        });
+
         // Stream blueprint generation
         for await (const chunk of generateBlueprint(prompt, platform, apiKey)) {
           fullContent += chunk;
@@ -57,6 +67,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Update blueprint with final content
         await storage.updateBlueprintContent(blueprint.id, fullContent, "complete");
 
+        // Track successful generation
+        const duration = Date.now() - startTime;
+        await analytics.track('blueprint_generated', user_id, { 
+          platform, 
+          duration,
+          contentLength: fullContent.length,
+          blueprintId: blueprint.id 
+        });
+
         // Send completion event
         res.write(`data: ${JSON.stringify({ 
           type: "complete", 
@@ -67,6 +86,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("Stream error:", streamError);
         
         await storage.updateBlueprintContent(blueprint.id, fullContent, "error");
+        
+        // Track error
+        await analytics.track('blueprint_error', user_id, { 
+          platform, 
+          error: streamError instanceof Error ? streamError.message : 'Unknown error',
+          blueprintId: blueprint.id 
+        });
         
         res.write(`data: ${JSON.stringify({ 
           type: "error", 
@@ -166,6 +192,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ valid: false, message: "Unable to validate API key" });
     }
   });
+
+  // Register analytics routes
+  registerAnalyticsRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;

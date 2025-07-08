@@ -434,6 +434,7 @@ SCALE: Support for 100,000+ users with real-time data synchronization`
       popularity: 78,
       icon: <Camera className="w-6 h-6 text-indigo-600" />,
       features: ["Photo uploads", "Filters & editing", "Stories", "Following system", "Comments & likes", "Discover feed"],
+      techStack: ["React", "Node.js", "MongoDB", "Cloudinary", "Canvas API", "PWA"],
       bestPlatforms: ["replit", "lovable", "cursor"],
       tags: ["visual", "social", "creative"],
       prompt: `Create a modern photo sharing platform with social networking features:
