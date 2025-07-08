@@ -44,12 +44,15 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
         role: "user",
         content: `Generate a comprehensive technical blueprint for: ${prompt}
 
-CRITICAL COMPLETION REQUIREMENTS:
+CRITICAL ANTI-PLACEHOLDER REQUIREMENTS:
+- NEVER output "[object Object]" or any object serialization
+- NEVER use placeholder text like "implement your logic here"  
+- NEVER output generic variables like "yourVariable" or "someValue"
 - Every function MUST have complete implementation with closing braces
 - Every code block MUST be syntactically complete and runnable
 - Never stop mid-function or leave incomplete implementations
-- Complete all sections with working code examples
-- If you start a function, database schema, or component, finish it completely`
+- Complete all sections with working code examples with REAL implementations
+- If you start a function, database schema, or component, finish it completely with actual working code`
       }
     ],
     stream: true,
