@@ -1,41 +1,30 @@
-import { Switch, Route } from "wouter";
+import { Router, Route, Switch } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { StreamProvider } from "@/contexts/StreamContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
-import { ThemeProvider } from "@/contexts/ThemeContext";
-import Home from "@/pages/home";
-import Landing from "@/pages/landing";
-import NotFound from "@/pages/not-found";
-import "./index.css";
+import HomePage from "@/pages/home";
+import LandingPage from "@/pages/landing";
+import NotFoundPage from "@/pages/not-found";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      retry: false,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <ThemeProvider>
+    <SettingsProvider>
       <QueryClientProvider client={queryClient}>
-        <SettingsProvider>
-          <StreamProvider>
-            <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
-              <Switch>
-                <Route path="/" component={Landing} />
-                <Route path="/home" component={Home} />
-                <Route component={NotFound} />
-              </Switch>
-              <Toaster />
-            </div>
-          </StreamProvider>
-        </SettingsProvider>
+        <StreamProvider>
+          <Router>
+            <Switch>
+              <Route path="/" component={LandingPage} />
+              <Route path="/app" component={HomePage} />
+              <Route component={NotFoundPage} />
+            </Switch>
+          </Router>
+        </StreamProvider>
+        <Toaster />
       </QueryClientProvider>
-    </ThemeProvider>
+    </SettingsProvider>
   );
 }
 

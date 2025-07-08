@@ -4,9 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Link } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BlueprintGenerationDemo } from "@/components/BlueprintGenerationDemo";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { 
   Zap, 
   Code, 
@@ -31,7 +30,6 @@ import {
   ChevronRight,
   ExternalLink
 } from "lucide-react";
-
 
 export default function Landing() {
   const [activeTab, setActiveTab] = useState("features");
@@ -154,7 +152,6 @@ export default function Landing() {
               >
                 Documentation
               </button>
-              <ThemeToggle />
               <Link href="/app">
                 <Button className="bg-primary hover:bg-primary/90">
                   <Rocket className="w-4 h-4 mr-2" />
@@ -223,7 +220,7 @@ export default function Landing() {
               Powered by advanced AI, NoCodeLos generates comprehensive technical documentation that development teams can immediately act upon.
             </p>
           </div>
-
+          
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <Card key={index} className="border border-gray-200 hover:shadow-lg transition-shadow">
@@ -262,7 +259,7 @@ export default function Landing() {
               From idea to implementation-ready blueprint in four simple steps. Our AI-powered process ensures comprehensive technical documentation every time.
             </p>
           </div>
-
+          
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {howItWorksSteps.map((step, index) => (
               <Card key={index} className="border border-gray-200 hover:shadow-lg transition-shadow relative">
@@ -314,7 +311,7 @@ export default function Landing() {
               <TabsTrigger value="api">API Reference</TabsTrigger>
               <TabsTrigger value="faq">FAQ</TabsTrigger>
             </TabsList>
-
+            
             <TabsContent value="features" className="mt-8">
               <div className="grid md:grid-cols-2 gap-8">
                 <Card>
