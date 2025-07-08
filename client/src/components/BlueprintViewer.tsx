@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,13 +11,13 @@ export function BlueprintViewer() {
   const { toast } = useToast();
   const [copiedCodeIndex, setCopiedCodeIndex] = useState<number | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  
+
   // Auto-scroll during generation for smooth experience
   useEffect(() => {
     if (streamState.status === "generating" && scrollContainerRef.current) {
       const container = scrollContainerRef.current;
       const shouldAutoScroll = container.scrollTop + container.clientHeight >= container.scrollHeight - 150;
-      
+
       if (shouldAutoScroll) {
         // Use immediate scroll for better streaming performance
         container.scrollTop = container.scrollHeight;
@@ -70,7 +69,7 @@ export function BlueprintViewer() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     toast({
       title: "Download started",
       description: "Blueprint is being downloaded as a Markdown file.",
@@ -135,7 +134,7 @@ export function BlueprintViewer() {
 
   const formatContent = (content: string) => {
     if (!content) return "";
-    
+
     const lines = content.split("\n");
     const elements: JSX.Element[] = [];
     let currentCodeBlock: string[] = [];
@@ -145,7 +144,7 @@ export function BlueprintViewer() {
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      
+
       // Handle code block start/end
       if (line.startsWith("```")) {
         if (!inCodeBlock) {
@@ -352,14 +351,22 @@ export function BlueprintViewer() {
           </Button>
         </div>
       </div>
-      
+
       {/* Enhanced Content Area - Much Larger */}
       <CardContent 
         ref={scrollContainerRef}
         className="p-0 flex-1 overflow-auto bg-white scroll-smooth" 
         style={{ minHeight: "calc(100vh - 300px)", maxHeight: "calc(100vh - 120px)" }}
       >
-        <div className="p-6">
+        <div className={`transition-all duration-300 ${
+          streamState.content || streamState.status === "generating" 
+            ? "h-[800px]" 
+            : "h-32"
+        } border border-gray-200 rounded-lg overflow-hidden`}>
+          <div 
+            ref={scrollContainerRef}
+            className="h-full overflow-y-auto p-6 bg-gray-50"
+          >
           {streamState.status === "idle" && (
             <div className="text-center text-slate-500 py-20">
               <div className="relative mb-8">
@@ -378,7 +385,7 @@ export function BlueprintViewer() {
               </p>
             </div>
           )}
-          
+
           {streamState.status === "error" && (
             <div className="text-center text-red-500 py-20">
               <div className="w-20 h-20 mx-auto bg-red-50 rounded-2xl flex items-center justify-center mb-6">
@@ -390,13 +397,13 @@ export function BlueprintViewer() {
               </p>
             </div>
           )}
-          
+
           {streamState.content && (
             <div className="max-w-none">
               <div className="space-y-1">
                 {formatContent(streamState.content)}
               </div>
-              
+
               {/* Enhanced typing cursor for active generation */}
               {streamState.status === "generating" && (
                 <div className="flex items-center space-x-3 mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
@@ -410,6 +417,7 @@ export function BlueprintViewer() {
               )}
             </div>
           )}
+        </div>
         </div>
       </CardContent>
     </Card>

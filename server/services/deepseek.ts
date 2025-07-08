@@ -425,65 +425,34 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
       throw new Error("No response body");
     }
 
+    let buffer = '';
     const decoder = new TextDecoder();
-    let buffer = "";
 
-    try {
-      let accumulatedContent = '';
-      let chunkBuffer = '';
-      let lastYieldTime = Date.now();
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') break;
 
-        // Process complete lines, keep incomplete line in buffer
-        buffer = lines.pop() || "";
-
-        for (const line of lines) {
-          const trimmedLine = line.trim();
-          if (trimmedLine.startsWith("data: ")) {
-            const data = trimmedLine.slice(6);
-
-            if (data === "[DONE]") {
-              return;
+          try {
+            const parsed = JSON.parse(data);
+            const content = parsed.choices?.[0]?.delta?.content;
+            if (content) {
+              // Send content immediately for smooth streaming
+              yield content;
             }
-
-            try {
-              const parsed = JSON.parse(data);
-              const content = parsed.choices?.[0]?.delta?.content;
-              if (content) {
-                accumulatedContent += content;
-                chunkBuffer += content;
-
-                const currentTime = Date.now();
-
-                // Send chunks more frequently: every 5 characters OR every 50ms for smoother streaming
-                if (chunkBuffer.length >= 5 || (currentTime - lastYieldTime) >= 50) {
-                  if (chunkBuffer.length > 0) {
-                    yield chunkBuffer;
-                    chunkBuffer = '';
-                    lastYieldTime = currentTime;
-                  }
-                }
-              }
-            } catch (parseError) {
-              // Skip invalid JSON lines
-              continue;
-            }
+          } catch (e) {
+            // Skip invalid JSON
           }
         }
       }
-
-      // Send any remaining content
-      if (chunkBuffer.length > 0) {
-        yield chunkBuffer;
-      }
-    } finally {
-      reader.releaseLock();
     }
   } catch (error) {
     console.error("DeepSeek API error:", error);
@@ -534,7 +503,8 @@ async function* simulateGeneration(prompt: string, platform: z.infer<typeof plat
 
     `**Complete Project Structure:**\n\`\`\`\n${appName.toLowerCase()}/\n├── client/\n│   ├── src/\n│   │   ├── components/\n│   │   │   ├── ui/              # shadcn/ui components\n│   │   │   ├── layout/          # Layout components\n│   │   │   ├── forms/           # Form components\n│   │   │   ├── tables/          # Data table components\n│   │   │   └── charts/          # Analytics components\n│   │   ├── pages/\n│   │   │   ├── auth/            # Authentication pages\n│   │   │   ├── dashboard/       # Dashboard pages\n│   │   │   ├── settings/        # Settings pages\n│   │   │   └── ${prompt.toLowerCase().replace(/\s+/g, '-')}/    # Feature pages\n│   │   ├── hooks/\n│   │   │   ├── auth/            # Authentication hooks\n│   │   │   ├── api/             # API hooks\n│   │   │   └── utils/           # Utility hooks\n│   │   ├── stores/\n│   │   │   ├── auth.ts          # Auth store\n│   │   │   ├── ui.ts            # UI state store\n│   │   │   └── ${prompt.toLowerCase().replace(/\s+/g, '-')}.ts  # Feature store\n│   │   ├── lib/\n│   │   │   ├── api.ts           # API client\n│   │   │   ├── auth.ts          # Auth utilities\n│   │   │   ├── utils.ts         # General utilities\n│   │   │   └── validations.ts   # Form validations\n│   │   └── types/\n│   │       ├── api.ts           # API types\n│   │       ├── auth.ts          # Auth types\n│   │       └── ${prompt.toLowerCase().replace(/\s+/g, '-')}.ts  # Feature types\n├── server/\n│   ├── src/\n│   │   ├── controllers/\n│   │   │   ├── auth.ts          # Auth controller\n│   │   │   ├── users.ts         # Users controller\n│   │   │   └── ${prompt.toLowerCase().replace(/\s+/g, '-')}.ts  # Feature controller\n│   │   ├── middleware/\n│   │   │   ├── auth.ts          # Auth middleware\n│   │   │   ├── validation.ts    # Validation middleware\n│   │   │   ├── rateLimit.ts     # Rate limiting\n│   │   │   └── errorHandler.ts  # Error handling\n│   │   ├── routes/\n│   │   │   ├── auth.ts          # Auth routes\n│   │   │   ├── users.ts         # User routes\n│   │   │   └── ${prompt.toLowerCase().replace(/\s+/g, '-')}.ts  # Feature routes\n│   │   ├── services/\n│   │   │   ├── auth.ts          # Auth service\n│   │   │   ├── email.ts         # Email service\n│   │   │   ├── analytics.ts     # Analytics service\n│   │   │   └── ${prompt.toLowerCase().replace(/\s+/g, '-')}.ts  # Feature service\n│   │   ├── db/\n│   │   │   ├── schema/          # Database schemas\n│   │   │   ├── migrations/      # Database migrations\n│   │   │   ├── seeds/           # Database seeds\n│   │   │   └── index.ts         # Database connection\n│   │   ├── utils/\n│   │   │   ├── logger.ts        # Logging utility\n│   │   │   ├── crypto.ts        # Crypto utilities\n│   │   │   └── helpers.ts       # Helper functions\n│   │   └── types/\n│   │       ├── express.ts       # Express types\n│   │       └── database.ts      # Database types\n├── shared/\n│   ├── types/                   # Shared TypeScript types\n│   ├── validations/             # Shared Zod schemas\n│   └── constants/               # Shared constants\n├── tests/\n│   ├── unit/                    # Unit tests\n│   ├── integration/             # Integration tests\n│   ├── e2e/                     # E2E tests\n│   └── fixtures/                # Test fixtures\n├── docs/\n│   ├── api/                     # API documentation\n│   ├── deployment/              # Deployment guides\n│   └── development/             # Development guides\n├── .github/\n│   └── workflows/               # GitHub Actions\n├── docker/\n│   ├── Dockerfile.client        # Client Dockerfile\n│   ├── Dockerfile.server        # Server Dockerfile\n│   └── docker-compose.yml       # Docker Compose\n└── infrastructure/\n    ├── terraform/               # Infrastructure as Code\n    └── kubernetes/              # Kubernetes manifests\n\`\`\`\n\n`,
 
-    `**Database Schema Design:**\n\`\`\`sql\n-- Users table with comprehensive fields\nCREATE TABLE users (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  email VARCHAR(255) UNIQUE NOT NULL,\n  password_hash VARCHAR(255),\n  first_name VARCHAR(100) NOT NULL,\n  last_name VARCHAR(100) NOT NULL,\n  avatar_url TEXT,\n  role user_role DEFAULT 'user',\n  email_verified BOOLEAN DEFAULT false,\n  two_factor_enabled BOOLEAN DEFAULT false,\n  two_factor_secret VARCHAR(32),\n  last_login_at TIMESTAMP,\n  last_seen_at TIMESTAMP,\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Organizations for multi-tenancy\nCREATE TABLE organizations (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  name VARCHAR(255) NOT NULL,\n  slug VARCHAR(100) UNIQUE NOT NULL,\n  domain VARCHAR(255),\n  settings JSONB DEFAULT '{}',\n  plan organization_plan DEFAULT 'free',\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- User organization memberships\nCREATE TABLE user_organizations (\n  user_id UUID REFERENCES users(id) ON DELETE CASCADE,\n  organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,\n  role organization_role DEFAULT 'member',\n  joined_at TIMESTAMP DEFAULT NOW(),\n  PRIMARY KEY (user_id, organization_id)\n);\n\n-- Main feature table\nCREATE TABLE ${prompt.toLowerCase().replace(/\s+/g, '_')} (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  title VARCHAR(255) NOT NULL,\n  description TEXT,\n  status ${prompt.toLowerCase().replace(/\s+/g, '_')}_status DEFAULT 'active',\n  priority priority_level DEFAULT 'medium',\n  metadata JSONB DEFAULT '{}',\n  user_id UUID REFERENCES users(id) ON DELETE CASCADE,\n  organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Audit logs for compliance\nCREATE TABLE audit_logs (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  user_id UUID REFERENCES users(id),\n  organization_id UUID REFERENCES organizations(id),\n  action VARCHAR(100) NOT NULL,\n  resource_type VARCHAR(100) NOT NULL,\n  resource_id UUID,\n  old_values JSONB,\n  new_values JSONB,\n  ip_address INET,\n  user_agent TEXT,\n  created_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Indexes for performance\nCREATE INDEX idx_users_email ON users(email);\nCREATE INDEX idx_users_organization ON user_organizations(organization_id);\nCREATE INDEX idx_${prompt.toLowerCase().replace(/\s+/g, '_')}_user ON ${prompt.toLowerCase().replace(/\s+/g, '_')}(user_id);\nCREATE INDEX idx_${prompt.toLowerCase().replace(/\s+/g, '_')}_status ON ${prompt.toLowerCase().replace(/\s+/g, '_')}(status);\nCREATE INDEX idx_audit_logs_user ON audit_logs(user_id);\nCREATE INDEX idx_audit_logs_resource ON audit_logs(resource_type, resource_id);\n\`\`\`\n\n`,
+    `**Database Schema Design:**\n\`\`\`sql\n-- Users table with comprehensive fields\nCREATE TABLE users (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  email VARCHAR(255) UNIQUE NOT NULL,\n  password_hash VARCHAR(255),\n  first_name VARCHAR(100) NOT NULL,\n  last_name VARCHAR(100) NOT NULL,\n  avatar_url TEXT,\n  role user_role DEFAULT 'user',\n  email_verified BOOLEAN DEFAULT false,\n  two_factor_enabled BOOLEAN DEFAULT false,\n  two_factor_secret VARCHAR(32),\n  last_login_at TIMESTAMP,\n  last_seen_at TIMESTAMP,\n  last_seen_at TIMESTAMP,\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Organizations for multi-tenancy\nCREATE TABLE organizations (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  name VARCHAR(255) NOT NULL,\n  slug VARCHAR(100) UNIQUE NOT NULL,\n  domain VARCHAR(255),\n  settings JSONB DEFAULT '{}',\n  plan organization_plan DEFAULT 'free',\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- User organization memberships\nCREATE TABLE user_organizations (\n  user_id UUID REFERENCES users(id) ON DELETE CASCADE,\n  organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,\n  role organization_role DEFAULT 'member',\n  joined_at TIMESTAMP DEFAULT NOW(),\n  PRIMARY```text
+KEY (user_id, organization_id)\n);\n\n-- Main feature table\nCREATE TABLE ${prompt.toLowerCase().replace(/\s+/g, '_')} (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  title VARCHAR(255) NOT NULL,\n  description TEXT,\n  status ${prompt.toLowerCase().replace(/\s+/g, '_')}_status DEFAULT 'active',\n  priority priority_level DEFAULT 'medium',\n  metadata JSONB DEFAULT '{}',\n  user_id UUID REFERENCES users(id) ON DELETE CASCADE,\n  organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Audit logs for compliance\nCREATE TABLE audit_logs (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  user_id UUID REFERENCES users(id),\n  organization_id UUID REFERENCES organizations(id),\n  action VARCHAR(100) NOT NULL,\n  resource_type VARCHAR(100) NOT NULL,\n  resource_id UUID,\n  old_values JSONB,\n  new_values JSONB,\n  ip_address INET,\n  user_agent TEXT,\n  created_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Indexes for performance\nCREATE INDEX idx_users_email ON users(email);\nCREATE INDEX idx_users_organization ON user_organizations(organization_id);\nCREATE INDEX idx_${prompt.toLowerCase().replace(/\s+/g, '_')}_user ON ${prompt.toLowerCase().replace(/\s+/g, '_')}(user_id);\nCREATE INDEX idx_${prompt.toLowerCase().replace(/\s+/g, '_')}_status ON ${prompt.toLowerCase().replace(/\s+/g, '_')}(status);\nCREATE INDEX idx_audit_logs_user ON audit_logs(user_id);\nCREATE INDEX idx_audit_logs_resource ON audit_logs(resource_type, resource_id);\n\`\`\`\n\n`,
 
     `**API Endpoints Specification:**\n\n\`\`\`\nPOST   /api/auth/register          # User registration\nPOST   /api/auth/login             # User login\nPOST   /api/auth/logout            # User logout\nPOST   /api/auth/refresh           # Refresh token\nPOST   /api/auth/forgot-password   # Password reset request\nPOST   /api/auth/reset-password    # Password reset confirmation\nPOST   /api/auth/verify-email      # Email verification\nPOST   /api/auth/enable-2fa        # Enable 2FA\nPOST   /api/auth/verify-2fa        # Verify 2FA token\n\`\`\`\n\n**User Management:**\n\`\`\`\nGET    /api/users/profile          # Get current user profile\nPUT    /api/users/profile          # Update user profile\nPOST   /api/users/avatar           # Upload avatar\nGET    /api/users/organizations    # Get user organizations\nPOST   /api/users/organizations    # Create organization\n\`\`\`\n\n**Core Feature Endpoints:**\n\`\`\`\nGET    /api/${prompt.toLowerCase().replace(/\s+/g, '-')}           # List items with pagination\nPOST   /api/${prompt.toLowerCase().replace(/\s+/g, '-')}           # Create new item\nGET    /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/:id       # Get specific item\nPUT    /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/:id       # Update item\nDELETE /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/:id       # Delete item\nPOST   /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/:id/share  # Share item\nGET    /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/analytics  # Get analytics\n\`\`\`\n\n**Real-time WebSocket Events:**\n\`\`\`\n${prompt.toLowerCase().replace(/\s+/g, '_')}_created    # New item created\n${prompt.toLowerCase().replace(/\s+/g, '_')}_updated    # Item updated\n${prompt.toLowerCase().replace(/\s+/g, '_')}_deleted    # Item deleted\nuser_presence         # User online/offline status\ntyping_indicator      # Real-time typing indicators\n\`\`\`\n\n`,
 

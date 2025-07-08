@@ -76,7 +76,7 @@ export function StreamProvider({ children }: StreamProviderProps) {
 
           buffer += decoder.decode(value, { stream: true });
           const lines = buffer.split("\n");
-          
+
           // Process complete lines, keep incomplete line in buffer
           buffer = lines.pop() || "";
 
@@ -84,12 +84,16 @@ export function StreamProvider({ children }: StreamProviderProps) {
             const trimmedLine = line.trim();
             if (trimmedLine.startsWith("data: ")) {
               const data = trimmedLine.slice(6);
-              
+
               try {
                 const event: StreamEvent = JSON.parse(data);
-                
+
                 if (event.type === "chunk" && event.content) {
-                  updateContent(event.content);
+                  // Update state immediately for smooth streaming
+                  setStreamState(prev => ({
+                    ...prev,
+                    content: prev.content + event.content
+                  }));
                 } else if (event.type === "complete") {
                   setStreamState(prev => ({
                     ...prev,
