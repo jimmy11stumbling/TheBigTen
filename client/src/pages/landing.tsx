@@ -4,8 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Link } from "wouter";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { BlueprintGenerationDemo } from "@/components/BlueprintGenerationDemo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { 
   Zap, 
   Code, 
@@ -31,31 +32,6 @@ import {
   ExternalLink
 } from "lucide-react";
 
-// Theme Toggle component (assuming it exists)
-const ThemeToggle = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
-
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-  };
-
-  return (
-    <button
-      onClick={toggleDarkMode}
-      className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
-    >
-      {isDarkMode ? "Light Mode" : "Dark Mode"}
-    </button>
-  );
-};
 
 export default function Landing() {
   const [activeTab, setActiveTab] = useState("features");
