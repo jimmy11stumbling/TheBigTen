@@ -1,0 +1,289 @@
+# Fitness App - Complete Technical Blueprint
+
+## Executive Summary
+
+This blueprint outlines a production-ready fitness tracking application with:
+- User authentication and profile management
+- Workout logging and exercise tracking
+- Progress visualization with charts
+- Nutrition tracking
+- Social features for sharing achievements
+- Mobile-responsive design
+
+## Technology Stack
+
+**Frontend:**
+- React 18 with TypeScript
+- Next.js 14 (App Router)
+- Tailwind CSS 3.3
+- Chart.js for data visualization
+- React Hook Form for forms
+- Zod for validation
+
+**Backend:**
+- Node.js 20
+- Express 4.18
+- TypeScript 5.0
+- Prisma ORM 5.0
+- PostgreSQL 15
+- Redis 7.0 for caching
+
+**Authentication:**
+- JWT with refresh tokens
+- bcrypt for password hashing
+- Rate limiting for security
+
+**Infrastructure:**
+- Docker for containerization
+- AWS ECS for deployment
+- Cloudflare for CDN and security
+
+## Complete File Structure
+
+```
+fitness-app/
+├── apps/
+│   ├── web/ (Next.js frontend)
+│   │   ├── app/
+│   │   │   ├── (auth)/
+│   │   │   │   ├── login/
+│   │   │   │   │   └── page.tsx
+│   │   │   │   └── register/
+│   │   │   │       └── page.tsx
+│   │   │   ├── dashboard/
+│   │   │   │   └── page.tsx
+│   │   │   ├── workouts/
+│   │   │   │   └── [id]/
+│   │   │   │       └── page.tsx
+│   │   │   ├── api/
+│   │   │   │   ├── auth/
+│   │   │   │   │   └── route.ts
+│   │   │   │   └── workouts/
+│   │   │   │       └── route.ts
+│   │   │   └── layout.tsx
+│   │   ├── components/
+│   │   │   ├── auth/
+│   │   │   │   ├── LoginForm.tsx
+│   │   │   │   └── RegisterForm.tsx
+│   │   │   ├── charts/
+│   │   │   │   └── ProgressChart.tsx
+│   │   │   ├── ui/
+│   │   │   │   ├── button.tsx
+│   │   │   │   └── input.tsx
+│   │   │   └── workout/
+│   │   │       ├── WorkoutCard.tsx
+│   │   │       └── WorkoutForm.tsx
+│   │   ├── lib/
+│   │   │   ├── api.ts
+│   │   │   ├── auth.ts
+│   │   │   └── types.ts
+│   │   ├── styles/
+│   │   │   └── globals.css
+│   │   ├── .env.local
+│   │   ├── next.config.js
+│   │   ├── package.json
+│   │   ├── tsconfig.json
+│   │   └── tailwind.config.js
+│   └── api/ (Express backend)
+│       ├── src/
+│       │   ├── controllers/
+│       │   │   ├── auth.controller.ts
+│       │   │   └── workout.controller.ts
+│       │   ├── middleware/
+│       │   │   ├── auth.middleware.ts
+│       │   │   └── error.middleware.ts
+│       │   ├── models/
+│       │   │   └── user.model.ts
+│       │   ├── routes/
+│       │   │   ├── auth.routes.ts
+│       │   │   └── workout.routes.ts
+│       │   ├── services/
+│       │   │   ├── auth.service.ts
+│       │   │   └── workout.service.ts
+│       │   ├── utils/
+│       │   │   ├── logger.ts
+│       │   │   └── validation.ts
+│       │   ├── app.ts
+│       │   └── server.ts
+│       ├── prisma/
+│       │   ├── migrations/
+│       │   └── schema.prisma
+│       ├── .env
+│       ├── package.json
+│       ├── tsconfig.json
+│       └── Dockerfile
+├── docker-compose.yml
+└── README.md
+```
+
+## Database Schema (Prisma)
+
+```prisma
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String     @id @default(uuid())
+  email         String     @unique
+  password      String
+  name          String?
+  age           Int?
+  height        Float?
+  weight        Float?
+  gender        String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  workouts      Workout[]
+  measurements  Measurement[]
+  refreshTokens RefreshToken[]
+}
+
+model Workout {
+  id          String     @id @default(uuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  name        String
+  description String?
+  date        DateTime   @default(now())
+  duration    Int        // in minutes
+  exercises   Exercise[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Exercise {
+  id          String   @id @default(uuid())
+  workoutId   String
+  workout     Workout  @relation(fields: [workoutId], references: [id])
+  name        String
+  sets        Int
+  reps        Int
+  weight      Float?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Measurement {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  weight      Float
+  bodyFat     Float?
+  muscleMass  Float?
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+```
+
+## API Endpoints (Express)
+
+### Auth Routes (`/api/src/routes/auth.routes.ts`)
+
+```typescript
+import express from 'express';
+import { login, register, refreshToken, logout } from '../controllers/auth.controller';
+import { validate } from '../utils/validation';
+import { loginSchema, registerSchema } from '../utils/validationSchemas';
+import { authenticate } from '../middleware/auth.middleware';
+
+const router = express.Router();
+
+router.post('/register', validate(registerSchema), register);
+router.post('/login', validate(loginSchema), login);
+router.post('/refresh-token', refreshToken);
+router.post('/logout', authenticate, logout);
+
+export default router;
+```
+
+### Workout Routes (`/api/src/routes/workout.routes.ts`)
+
+```typescript
+import express from 'express';
+import {
+  createWorkout,
+  getWorkouts,
+  getWorkoutById,
+  updateWorkout,
+  deleteWorkout
+} from '../controllers/workout.controller';
+import { authenticate } from '../middleware/auth.middleware';
+import { validate } from '../utils/validation';
+import { workoutSchema } from '../utils/validationSchemas';
+
+const router = express.Router();
+
+router.use(authenticate);
+
+router.post('/', validate(workoutSchema), createWorkout);
+router.get('/', getWorkouts);
+router.get('/:id', getWorkoutById);
+router.put('/:id', validate(workoutSchema), updateWorkout);
+router.delete('/:id', deleteWorkout);
+
+export default router;
+```
+
+### Auth Controller (`/api/src/controllers/auth.controller.ts`)
+
+```typescript
+import { Request, Response } from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { prisma } from '../services/prisma.service';
+import { logger } from '../utils/logger';
+import { generateTokens } from '../utils/auth';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET || 'your-refresh-secret';
+
+export const register = async (req: Request, res: Response) => {
+  try {
+    const { email, password, name } = req.body;
+
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name
+      }
+    });
+
+    const { accessToken, refreshToken } = generateTokens(user.id);
+
+    await prisma.refreshToken.create({
+      data: {
+        userId: user.id,
+        token: refreshToken,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+      }
+    });
+
+    res.status(201).json({
+      user: {
+        id: user.id
