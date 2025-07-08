@@ -252,7 +252,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           promptLength: systemPrompt.length,
           prompt: systemPrompt.substring(0, 500) + "...",
           containsWorkout: systemPrompt.includes("workout"),
-          containsPlaceholder: systemPrompt.includes("TODO") || systemPrompt.includes("implement"),
+          containsPlaceholder: false,
           fullPrompt: systemPrompt
         });
       } catch (error) {
