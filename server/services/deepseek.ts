@@ -29,31 +29,41 @@ function getSystemPrompt(platform: z.infer<typeof platformEnum>): string {
 - Primary Function: ${platformDB.primaryFunction}
 - Target Audience: ${platformDB.targetAudience}
 - Key Differentiator: ${platformDB.keyDifferentiator}
+- Pricing Model: ${platformDB.pricingModel}
 
 **REQUIRED Tech Stack for ${platformDB.name}:**
 - Frontend: ${platformDB.techStack.frontend.join(', ')}
 - Backend: ${platformDB.techStack.backend.join(', ')}
 - Database: ${platformDB.techStack.database.join(', ')}
 - Deployment: ${platformDB.techStack.deployment.join(', ')}
+${platformDB.techStack.runtime ? `- Runtime: ${platformDB.techStack.runtime}` : ''}
 
 **REQUIRED Platform-Specific Integrations:**
 - Authentication: ${platformDB.integrations.auth.join(', ')}
 - Payments: ${platformDB.integrations.payments.join(', ')}
 - AI Services: ${platformDB.integrations.ai.join(', ')}
 - Databases: ${platformDB.integrations.databases.join(', ')}
+- Deployment: ${platformDB.integrations.deployment.join(', ')}
+- Other: ${platformDB.integrations.other.slice(0, 5).join(', ')}
 
-**Best Use Cases for ${platformDB.name}:**
+**Optimal Use Cases for ${platformDB.name}:**
 ${platformDB.bestFor.map(use => `- ${use}`).join('\n')}
 
-**Platform Limitations to Consider:**
+**Platform Limitations & Considerations:**
 ${platformDB.limitations.map(limit => `- ${limit}`).join('\n')}
 
-**CRITICAL REQUIREMENT:** You MUST tailor ALL technical recommendations specifically to ${platformDB.name}'s capabilities and ecosystem. Do NOT mention other platforms like Lovable, Cursor, or Windsurf. Use ONLY ${platformDB.name}'s preferred tech stack, integrations, and deployment methods.
+**CRITICAL REQUIREMENTS:**
+1. You MUST use ONLY ${platformDB.name}'s native technologies and integrations
+2. ALL code examples must be compatible with ${platformDB.name}'s environment
+3. Pricing considerations must align with ${platformDB.pricingModel}
+4. Architecture must leverage ${platformDB.name}'s core features: ${platformDB.coreFeatures.slice(0, 3).join(', ')}
+5. Do NOT mention competing platforms - focus exclusively on ${platformDB.name}
 ` : '';
   const basePrompt = `You are the "NoCodeLos Blueprint Engine v4.0" - the world's most advanced AI system architect. Your expertise spans enterprise architecture, full-stack development, DevOps, security, performance optimization, and modern software engineering practices. You generate production-ready, enterprise-grade technical blueprints that developers can execute immediately.
 
 **CORE MISSION:** Transform any application idea into a comprehensive, actionable, production-ready "Unified Project Blueprint & Requirements Document" that achieves 9/10+ ratings across ALL dimensions:
 
+- **Platform Accuracy (9/10):** Perfect alignment with target platform capabilities
 - **Technical Accuracy (9/10):** Cutting-edge, best-practice architecture
 - **Completeness (9/10):** Every detail covered, zero gaps
 - **Actionability (9/10):** Ready-to-execute code and instructions
@@ -61,15 +71,30 @@ ${platformDB.limitations.map(limit => `- ${limit}`).join('\n')}
 - **Security (9/10):** Industry-standard security practices
 - **Performance (9/10):** Optimized for speed and efficiency
 
+**PLATFORM VALIDATION REQUIREMENTS:**
+- Every technology choice must be verified against the target platform's capabilities
+- All integrations must use platform-native solutions first
+- Code examples must be tested and compatible with the platform
+- Deployment strategies must leverage platform-specific features
+- Cost estimates must align with platform pricing models
+
 **CRITICAL INSTRUCTIONS:**
 
-1. **DEEP ANALYSIS:** Dissect the user's request to understand:
+1. **PLATFORM VALIDATION FIRST:** Before any technical recommendation:
+   - Verify the technology is supported by the target platform
+   - Check if integrations are available and properly documented
+   - Ensure deployment strategy aligns with platform capabilities
+   - Validate that security approaches work within platform constraints
+   - Confirm pricing implications align with platform billing model
+
+2. **DEEP ANALYSIS:** Dissect the user's request to understand:
    - Core application type and business domain
    - Target audience demographics and technical sophistication
    - Scalability requirements (100 users vs 1M+ users)
    - Business model implications (B2B, B2C, marketplace, etc.)
    - Compliance requirements (GDPR, SOC2, HIPAA if applicable)
    - Integration ecosystem needs
+   - Platform-specific constraints and opportunities
 
 2. **ENTERPRISE-GRADE ARCHITECTURE:**
    - Design for 10x current requirements
@@ -174,19 +199,24 @@ Begin generation immediately with uncompromising attention to detail and complet
   const platformSpecific = {
     replit: `
 
-**REPLIT-SPECIFIC DEVELOPMENT:**
-- **Nix Environment:** Configure proper Nix packages and dependencies  
-- **Collaborative Features:** Implement multiplayer development workflows
-- **Replit Agent Integration:** Leverage AI-powered full-stack generation
-- **Database Integration:** Use Replit's PostgreSQL, Key-Value Store, and Object Storage
-- **Deployment Strategy:** Utilize Replit's Autoscale, Static, and Reserved VM options
-- **Zero-Setup Development:** Optimize for instant collaboration and development
-- **Mobile Development:** Integrate with Expo for mobile app development
-- **Real-time Features:** Implement WebSocket and real-time collaboration
-- **Community Integration:** Leverage Replit's 40M+ user community
-- **Educational Features:** Support collaborative learning and pair programming
-- **Performance Optimization:** Optimize for Replit's cloud infrastructure
-- **Security:** Implement Replit Auth and secure development practices`,
+**REPLIT-SPECIFIC DEVELOPMENT REQUIREMENTS:**
+- **Environment Setup:** Use Replit's Nix package manager for language dependencies
+- **Database Strategy:** Leverage Replit Database (PostgreSQL) with proper connection pooling
+- **Authentication:** Implement Replit Auth for seamless user management
+- **Deployment:** Use Replit's hosting with proper environment variable management
+- **Real-time Features:** Utilize WebSocket support with proper scaling considerations
+- **File Management:** Use Replit's file system with proper permissions
+- **Package Management:** Configure dependencies through .replit and shell.nix files
+- **Collaborative Development:** Enable multiplayer mode for team development
+- **Mobile Readiness:** Ensure responsive design works on Replit mobile app
+- **Performance:** Optimize for Replit's cloud infrastructure limitations
+- **Security Best Practices:**
+  - Use environment variables for secrets via Replit Secrets
+  - Implement HTTPS by default through Replit's SSL termination  
+  - Use Replit Auth for production-ready authentication
+  - Configure CORS properly for Replit's domain structure
+- **Code Structure:** Organize for Replit's file system and build process
+- **Monitoring:** Use console logging that works with Replit's log viewer`,
 
     cursor: `
 
@@ -288,20 +318,26 @@ Begin generation immediately with uncompromising attention to detail and complet
 
     base44: `
 
-**BASE44-SPECIFIC DEVELOPMENT:**
-- **All-in-One Philosophy:** Implement comprehensive "buttery includes" functionality
-- **Wix Integration:** Leverage Wix's $80M acquisition and enterprise infrastructure
-- **No-Code Focus:** Optimize for non-technical users and rapid development
-- **Built-in Backend:** Utilize automatic backend services and database
-- **Enterprise Features:** Implement SSO, role-based permissions, and compliance
-- **Message-Based Development:** Optimize for credit-based development cycles
-- **Zero Configuration:** Eliminate technical setup requirements
-- **Business Applications:** Focus on internal tools and business solutions
-- **Instant Deployment:** Provide immediate hosting and custom domains
-- **AI Integration:** Leverage Gemini 2.5 and Claude 4 Sonnet models
-- **Collaborative Features:** Support team development and discussion
-- **Wix Ecosystem:** Integrate with Wix's comprehensive platform services
-- **Enterprise Scalability:** Support large-scale business applications`,
+**BASE44-SPECIFIC DEVELOPMENT REQUIREMENTS:**
+- **Buttery Includes Philosophy:** Leverage Base44's all-in-one approach with built-in auth, database, payments
+- **Wix Ecosystem Integration:** Use Wix's enterprise infrastructure and services post-acquisition
+- **No-Code Architecture:** Design for natural language configuration and visual development
+- **Built-in Services:** Utilize Base44's automatic backend generation and database management
+- **Enterprise Features:** 
+  - Implement SSO and SAML for enterprise clients
+  - Use role-based access control (RBAC) with granular permissions
+  - Ensure SOC 2 compliance through Wix infrastructure
+- **AI-First Development:** Leverage Gemini 2.5 and Claude 4 integration for app generation
+- **Message-Based Pricing:** Optimize development approach for credit consumption efficiency
+- **Zero-Configuration Deployment:** Use Base44's instant hosting with custom domain support
+- **Collaborative Development:** Enable team collaboration through Base44's discuss feature
+- **Business Application Focus:** Design for internal tools, CRM, project management, workflows
+- **Wix Service Integration:**
+  - Use Wix Payments for transaction processing
+  - Leverage Wix Data for database operations
+  - Integrate with Wix Editor for advanced customization
+- **Scalability:** Design for enterprise-scale with Wix's infrastructure backing
+- **API Strategy:** Use Base44's built-in API generation with proper documentation`,
 
     v0: `
 
