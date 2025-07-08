@@ -1,0 +1,180 @@
+# Fitness App Technical Blueprint
+
+## 1. Executive Summary
+
+This blueprint outlines a production-ready fitness application built for the Lovable 2.0 platform. The app provides workout tracking, exercise libraries, progress analytics, and social features with full authentication. The solution includes:
+
+- User profiles with fitness metrics
+- Workout planning and tracking
+- Exercise database with demonstrations
+- Progress analytics and visualizations
+- Social features for motivation
+- Mobile-responsive UI
+
+## 2. Technology Stack
+
+**Frontend:**
+- React 18.2.0 with TypeScript 5.0.4
+- Vite 4.4.5 build tool
+- Tailwind CSS 3.3.3
+- React Query 4.29.7 for data fetching
+- React Hook Form 7.45.1 for forms
+- Framer Motion 10.16.4 for animations
+- Chart.js 4.4.0 for analytics
+
+**Backend:**
+- Supabase PostgreSQL 15
+- Supabase Edge Functions (Node.js 18)
+- Supabase Auth
+- Supabase Storage for exercise media
+
+**Testing:**
+- Vitest 0.34.6
+- React Testing Library 14.0.0
+- MSW 2.0.1 for API mocking
+
+## 3. System Architecture
+
+```
+┌─────────────────────────────────────────────────┐
+│                 Frontend (Vite)                 │
+│   ┌───────────┐ ┌───────────┐ ┌─────────────┐  │
+│   │  Workout  │ │ Exercise  │ │  Analytics  │  │
+│   │  Tracker  │ │  Library  │ │  Dashboard  │  │
+│   └───────────┘ └───────────┘ └─────────────┘  │
+└──────────────────────┬─────────────────────────┘
+                       │ HTTPS
+                       ▼
+┌─────────────────────────────────────────────────┐
+│               Supabase Backend                  │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────┐ │
+│  │ PostgreSQL  │  │  Auth/JWT   │  │ Storage │ │
+│  │  Database   │  │             │  │         │ │
+│  └─────────────┘  └─────────────┘  └─────────┘ │
+└─────────────────────────────────────────────────┘
+```
+
+## 4. Database Schema (SQL)
+
+```sql
+-- Enable UUID extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Users table
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  email TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- User profiles with fitness metrics
+CREATE TABLE profiles (
+  user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  username TEXT NOT NULL UNIQUE,
+  full_name TEXT,
+  avatar_url TEXT,
+  height_cm NUMERIC(5,2),
+  weight_kg NUMERIC(5,2),
+  birth_date DATE,
+  gender TEXT,
+  fitness_level TEXT CHECK (fitness_level IN ('beginner', 'intermediate', 'advanced')),
+  goals TEXT[],
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Exercises catalog
+CREATE TABLE exercises (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  description TEXT,
+  muscle_group TEXT NOT NULL,
+  equipment_required TEXT[],
+  difficulty TEXT CHECK (difficulty IN ('easy', 'medium', 'hard')),
+  video_url TEXT,
+  image_url TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Workout plans
+CREATE TABLE workout_plans (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  description TEXT,
+  is_public BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Workout sessions (instances of plans)
+CREATE TABLE workout_sessions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  plan_id UUID REFERENCES workout_plans(id) ON DELETE SET NULL,
+  start_time TIMESTAMPTZ NOT NULL,
+  end_time TIMESTAMPTZ,
+  notes TEXT,
+  completed BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Exercise sets within workouts
+CREATE TABLE exercise_sets (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  session_id UUID REFERENCES workout_sessions(id) ON DELETE CASCADE,
+  exercise_id UUID REFERENCES exercises(id) ON DELETE CASCADE,
+  set_number INTEGER NOT NULL,
+  reps INTEGER,
+  weight_kg NUMERIC(5,2),
+  duration_seconds INTEGER,
+  notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- User progress metrics
+CREATE TABLE progress_metrics (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  metric_type TEXT NOT NULL CHECK (metric_type IN ('weight', 'body_fat', 'muscle_mass', 'endurance')),
+  value NUMERIC(6,2) NOT NULL,
+  recorded_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Indexes for performance
+CREATE INDEX idx_workout_sessions_user_id ON workout_sessions(user_id);
+CREATE INDEX idx_exercise_sets_session_id ON exercise_sets(session_id);
+CREATE INDEX idx_progress_metrics_user_id ON progress_metrics(user_id);
+```
+
+## 5. API Endpoints
+
+### Supabase Client Initialization
+
+```typescript
+// src/lib/supabase.ts
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+
+export const supabase = createClient(supabaseUrl, supabaseKey);
+```
+
+### Authentication Endpoints
+
+```typescript
+// Auth Service
+export const authService = {
+  async signUp(email: string, password: string, username: string) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username
