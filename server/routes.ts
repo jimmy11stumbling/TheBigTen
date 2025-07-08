@@ -256,7 +256,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           fullPrompt: systemPrompt
         });
       } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(400).json({ error: error instanceof Error ? error.message : 'Unknown error' });
       }
     });
 
