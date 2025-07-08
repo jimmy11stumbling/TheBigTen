@@ -42,15 +42,15 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
       },
       {
         role: "user",
-        content: `Create a complete technical blueprint for: ${prompt}
+        content: `Create a comprehensive technical blueprint for: ${prompt}
 
 Requirements:
-- Write complete, working code with real implementations
-- Every function must be fully implemented with closing braces
-- All code blocks must be syntactically complete and executable
-- Finish every section completely before moving to the next
-- Use actual business logic, not generic examples
-- Include specific data types in SQL schemas`
+- Use ONLY natural language descriptions
+- NO code examples or snippets
+- Explain architecture and design in plain English
+- Provide step-by-step implementation guidance
+- Focus on planning and strategy, not code
+- Write detailed instructions developers can follow`
       }
     ],
     stream: true,

@@ -123,6 +123,7 @@ Changelog:
 - July 08, 2025: FINAL FIX: Completely rebuilt system prompt architecture to eliminate [object Object] placeholder generation - system now produces actual SQL schemas with proper data types (VARCHAR, INTEGER, TIMESTAMP) and complete implementation code
 - July 08, 2025: CRITICAL TOKEN LIMIT FIX: Increased max_tokens from 8192 to 16384 and enhanced prompts to prevent truncated/incomplete code generation that was causing "object" outputs and cut-off functions
 - July 08, 2025: FINAL OBJECT PLACEHOLDER FIX: Enhanced system prompt with explicit anti-placeholder rules, added platform-specific context, and strengthened forbidden pattern detection to eliminate "[object Object]" and generic placeholder outputs
+- July 08, 2025: CRITICAL APPROACH CHANGE: Switched to natural language-only blueprints with NO CODE EXAMPLES to completely eliminate placeholder issues - blueprints now use descriptive language and step-by-step instructions instead of code
 
 ## User Preferences
 
