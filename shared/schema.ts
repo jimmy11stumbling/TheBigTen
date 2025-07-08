@@ -51,5 +51,5 @@ export type User = typeof users.$inferSelect;
 export type InsertBlueprint = z.infer<typeof insertBlueprintSchema>;
 export type Blueprint = typeof blueprints.$inferSelect;
 
-export const platformEnum = z.enum(["replit", "cursor", "lovable", "windsurf"]);
+export const platformEnum = z.enum(["replit", "cursor", "lovable", "windsurf", "bolt", "claude", "gemini", "base44", "v0", "rork"]);
 export const statusEnum = z.enum(["idle", "generating", "complete", "error"]);

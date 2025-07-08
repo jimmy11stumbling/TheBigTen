@@ -13,7 +13,7 @@ export interface StreamState {
   blueprintId?: string;
 }
 
-export type Platform = "replit" | "cursor" | "lovable" | "windsurf";
+export type Platform = "replit" | "cursor" | "lovable" | "windsurf" | "bolt" | "claude" | "gemini" | "base44" | "v0" | "rork";
 
 export interface GenerateRequest {
   prompt: string;

@@ -210,6 +210,12 @@ export function RecentBlueprints() {
       case "cursor": return "🖱️";
       case "lovable": return "❤️";
       case "windsurf": return "🏄‍♀️";
+      case "bolt": return "⚡";
+      case "claude": return "🤖";
+      case "gemini": return "♊";
+      case "base44": return "🏗️";
+      case "v0": return "🎨";
+      case "rork": return "📱";
       default: return "💻";
     }
   };

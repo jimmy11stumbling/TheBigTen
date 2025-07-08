@@ -207,7 +207,9 @@ Begin generation immediately with uncompromising attention to detail and complet
 - **Documentation:** Comprehensive JSDoc comments for better AI context
 - **Testing Strategy:** AI-friendly test structures and naming conventions
 - **Code Quality:** ESLint/Prettier configurations optimized for AI workflows
-- **Import Organization:** Clean import statements that AI can easily understand`,
+- **Import Organization:** Clean import statements that AI can easily understand
+- **Model Context Protocol:** Leverage MCP for external tool integration
+- **Codebase Indexing:** Optimize for deep project understanding and contextual suggestions`,
 
     lovable: `
 
@@ -221,21 +223,118 @@ Begin generation immediately with uncompromising attention to detail and complet
 - **API Integration:** Visual API connection points and data flow
 - **Responsive Design:** Mobile-first, grid-based layouts
 - **Animation Framework:** Smooth transitions and micro-interactions
-- **No-Code Extensions:** Plugin architecture for visual feature additions`,
+- **Supabase Integration:** Native Supabase integration with AI-managed schemas
+- **Security Scanning:** Built-in security vulnerability detection
+- **Multiplayer Collaboration:** Real-time team development workflows`,
 
     windsurf: `
 
-**WINDSURF CLOUD-NATIVE EXCELLENCE:**
-- **Serverless Architecture:** Function-based microservices with auto-scaling
-- **Edge Computing:** CDN integration with edge functions for global performance
-- **Container Orchestration:** Kubernetes-ready container configurations
-- **Service Mesh:** Istio/Envoy integration for service communication
-- **Event-Driven Design:** Message queues and event streaming (Kafka, Redis Streams)
-- **API Gateway:** Centralized API management with rate limiting and monitoring
-- **Distributed Caching:** Multi-layer caching strategy with Redis Cluster
-- **Monitoring Stack:** Prometheus, Grafana, and distributed tracing
-- **Security Framework:** Zero-trust architecture with service-to-service encryption
-- **Auto-Scaling:** Horizontal pod autoscaling based on custom metrics`
+**WINDSURF AGENTIC DEVELOPMENT:**
+- **Cascade Agent Integration:** Leverage Windsurf's powerful Cascade agent for complex tasks
+- **Model Context Protocol:** Utilize MCP for external tool and service integration
+- **Enterprise Security:** FedRAMP High & SOC 2 compliance considerations
+- **Multi-Model Support:** Leverage multiple AI models (OpenAI, Claude, Gemini, xAI)
+- **Database-First Design:** Optimize for database-heavy applications
+- **Agentic Workflows:** Design for autonomous AI completion of complex tasks
+- **Windsurf Rules:** Create .windsurfrules for project-specific AI behavior
+- **Supercomplete Optimization:** Code patterns that work with advanced autocompletion
+- **Image-to-Code Support:** Design workflows that support visual design input
+- **Enterprise Deployment:** On-premise and hybrid deployment strategies`,
+
+    bolt: `
+
+**BOLT WEBCONTAINER OPTIMIZATION:**
+- **Full-Stack Generation:** Leverage Bolt's unique ability to control entire environment
+- **WebContainer Architecture:** Optimize for Node.js in-browser execution
+- **Real-Time Development:** Design for live code execution and immediate feedback
+- **Token Efficiency:** Optimize prompts to minimize token consumption
+- **Open Source Integration:** Leverage Bolt's open-source codebase for customization
+- **Iterative Development:** Design for conversational refinement and improvement
+- **Visual Editor Support:** Create layouts that work with Bolt's visual editor
+- **One-Click Integrations:** Utilize Bolt's built-in service integrations
+- **JavaScript Focus:** Optimize for JavaScript/TypeScript full-stack applications
+- **Export Readiness:** Ensure generated code is clean and production-ready`,
+
+    claude: `
+
+**CLAUDE CODE SECURITY-FIRST DEVELOPMENT:**
+- **Terminal-Native Workflows:** Optimize for command-line development
+- **Security by Design:** Implement granular permission systems
+- **CLAUDE.md Integration:** Create project-specific context and instructions
+- **Agentic Coding:** Design for complex, multi-step automated tasks
+- **Custom Slash Commands:** Create reusable workflow commands
+- **Headless Operation:** Support for CI/CD and automated environments
+- **Context Management:** Efficient use of large context windows
+- **Cross-File Refactoring:** Optimize for codebase-wide changes
+- **Test-Driven Development:** Integrate TDD workflows
+- **Model Context Protocol:** Leverage MCP for external tool integration
+- **High-Quality Prompting:** Optimize for Claude's reasoning capabilities
+- **Cost Optimization:** Strategies to minimize token usage while maintaining quality`,
+
+    gemini: `
+
+**GEMINI CLI OPEN-SOURCE DEVELOPMENT:**
+- **Massive Context Windows:** Leverage 1 million token context for large codebases
+- **Web Integration:** Utilize built-in Google Search and web-fetch capabilities
+- **Cross-Platform Support:** Native Windows support without WSL
+- **Open Source Benefits:** Leverage community contributions and extensions
+- **Built-in Tools:** Utilize grep, file operations, and terminal integration
+- **GEMINI.md Configuration:** Project-specific AI behavior configuration
+- **Free Tier Optimization:** Maximize free usage limits effectively
+- **Model Context Protocol:** Extend capabilities with MCP servers
+- **CI/CD Integration:** Automate development workflows
+- **Community Ecosystem:** Leverage open-source integrations and tools
+- **Real-Time Information:** Integrate current web data and documentation
+- **Multi-Modal Capabilities:** Support for text, image, and code inputs`,
+
+    base44: `
+
+**BASE44 BUTTERY INCLUDES DEVELOPMENT:**
+- **All-in-One Philosophy:** Leverage built-in database, auth, and hosting
+- **No-Code Focus:** Optimize for non-technical user workflows
+- **Instant Deployment:** Design for immediate hosting and sharing
+- **Enterprise Features:** Utilize SSO, permissions, and compliance tools
+- **Multiple AI Models:** Leverage Gemini 2.5 and Claude 4 Sonnet
+- **Collaborative Development:** Support team-based development workflows
+- **Built-in Integrations:** Utilize native email, SMS, and API capabilities
+- **Wix Ecosystem:** Leverage Wix's infrastructure and services
+- **Rapid Prototyping:** Optimize for quick MVP development
+- **Business Applications:** Focus on internal tools and business workflows
+- **Zero Configuration:** Eliminate setup and configuration complexity
+- **Custom Domains:** Professional deployment with custom branding`,
+
+    v0: `
+
+**V0 VERCEL ECOSYSTEM OPTIMIZATION:**
+- **React/Next.js Focus:** Optimize for Vercel's core technology stack
+- **UI Component Generation:** Specialize in high-quality React components
+- **Tailwind CSS Integration:** Leverage Vercel's preferred styling framework
+- **Three Design Options:** Always provide multiple design variations
+- **Image-to-Code Workflows:** Support Figma and mockup conversion
+- **Responsive Design:** Mobile-first, cross-device optimization
+- **Component Libraries:** Integrate Material UI, Framer Motion, react-three-fiber
+- **One-Click Deployment:** Seamless Vercel deployment integration
+- **Iterative Refinement:** Conversational component improvement
+- **Framework Flexibility:** Support Vue, Svelte, and HTML/CSS options
+- **Performance Optimization:** Core Web Vitals and loading optimization
+- **Design System Integration:** Consistent branding and theming`,
+
+    rork: `
+
+**RORK MOBILE-FIRST DEVELOPMENT:**
+- **React Native Focus:** Optimize for cross-platform mobile development
+- **Expo Integration:** Leverage Expo's build and deployment tools
+- **Native UI Components:** Use platform-specific mobile components
+- **App Store Optimization:** Prepare for iOS and Android store submission
+- **Mobile UX Patterns:** Implement native mobile navigation and interactions
+- **Cross-Platform Compatibility:** Ensure iOS and Android consistency
+- **Real-Time Testing:** Support TestFlight and device testing workflows
+- **Backend Integration:** Connect with Supabase, Firebase, and Airtable
+- **Performance Optimization:** Mobile-specific performance considerations
+- **Push Notifications:** Implement mobile notification strategies
+- **Offline Support:** Mobile-first offline capabilities
+- **App Store Guidelines:** Comply with platform-specific requirements
+- **Mobile Security:** Implement mobile-specific security measures`
   };
 
   return platformContext + basePrompt + platformSpecific[platform];
