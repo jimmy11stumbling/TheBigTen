@@ -1,0 +1,89 @@
+### Rork Blueprint: Real-Time Streaming Chat with DeepSeek Integration
+
+#### **Validated Platform Constraints**
+- ✅ React Native 0.72+ supported by Rork
+- ✅ Expo SDK 49+ compatible
+- ✅ Serverless functions for backend proxy
+- ✅ Environment variable management
+- ❌ No native EventSource - requires fetch-based stream handling
+- ❌ No free tier - message costs apply ($20/100 messages)
+
+---
+
+### **Architecture Overview**
+```mermaid
+graph TD
+    A[React Native App] --> B{Stream Handler}
+    B --> C[Rork Serverless Function]
+    C --> D[DeepSeek API]
+    D --> C
+    C --> B
+    B --> E[UI Rendering]
+    F[Token Stream] --> G[Message Buffer]
+    G --> H[Realtime Display]
+```
+
+---
+
+### **1. Backend Proxy (Rork Serverless Function)**
+**File**: `/functions/deepseek-proxy.js`
+```javascript
+import fetch from 'node-fetch';
+
+export default async (req, res) => {
+  try {
+    const { messages } = req.body;
+    const deepseekResponse = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.DEEPSEEK_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages,
+        temperature: 0.7,
+        stream: true
+      })
+    });
+
+    // Set proper streaming headers
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    
+    // Pipe stream directly to client
+    deepseekResponse.body.pipe(res);
+  } catch (error) {
+    console.error('Proxy Error:', error);
+    res.status(500).json({ error: 'Stream processing failed' });
+  }
+};
+```
+
+**Security Implementation**:
+1. Environment variables for API keys
+2. Input validation with Zod:
+```typescript
+// /lib/validation.ts
+import { z } from 'zod';
+
+export const MessageSchema = z.object({
+  role: z.enum(['user', 'assistant', 'system']),
+  content: z.string().max(2000)
+});
+
+export const ChatRequestSchema = z.object({
+  messages: z.array(MessageSchema).max(20)
+});
+```
+
+---
+
+### **2. Mobile Stream Handler (React Native)**
+**File**: `/src/services/streamService.ts`
+```typescript
+import { Platform } from 'react-native';
+
+const API_ENDPOINT = Platform.select({
+  ios: 'https://yourapp.xyz/functions/deepseek-pro
