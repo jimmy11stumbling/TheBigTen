@@ -1,7 +1,35 @@
 import { z } from "zod";
 import { platformEnum } from "../../shared/schema.js";
 
+interface ContentStrategy {
+  language: string;
+  structure: string;
+  examples: string;
+  complexity: string;
+}
+
+function getContentStrategy(platform: string, audience: string): ContentStrategy {
+  const strategies = {
+    technical: {
+      language: "Technical precision with implementation details",
+      structure: "Modular architecture with clear separation of concerns",
+      examples: "Production-ready code with complete business logic",
+      complexity: "Enterprise-grade with scalability considerations"
+    },
+    business: {
+      language: "Business-focused with technical depth",
+      structure: "Feature-driven development approach",
+      examples: "Real-world implementations with ROI metrics",
+      complexity: "Production-ready with business impact focus"
+    }
+  };
+
+  return audience.includes("Enterprise") ? strategies.technical : strategies.business;
+}
+
 export function buildSystemPrompt(platform: z.infer<typeof platformEnum>, platformDB: any): string {
+  const contentStrategy = getContentStrategy(platform, platformDB?.targetAudience || 'Professional Developers');
+
   const corePrompt = `You are an expert technical architect generating comprehensive, production-ready blueprints for building complete full-stack applications from scratch.
 
 **MISSION:** Create detailed implementation blueprints that enable developers to build complete, working applications without any guesswork.
@@ -16,12 +44,12 @@ export function buildSystemPrompt(platform: z.infer<typeof platformEnum>, platfo
 7. **Business Logic** - All core features with actual algorithms and calculations
 
 **CRITICAL CODE REQUIREMENTS:**
-- Write complete SQL CREATE TABLE statements with actual data types like VARCHAR(255), INTEGER, TIMESTAMP
+- NEVER use [object Object] or any placeholder syntax in SQL schemas
+- Write complete SQL CREATE TABLE statements with actual data types
 - Every function must contain actual implementation logic with real variables and calculations
 - API endpoints must have complete request/response handling code
 - React components must have actual JSX and event handlers
-- Use only specific, concrete data types and values in all code output
-- NO placeholder syntax, NO generic templates, NO dynamic content markers
+- NO [object Object], NO placeholders, NO template syntax in any code output
 
 **CORRECT SQL EXAMPLE:**
 CREATE TABLE users (
@@ -38,26 +66,26 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
-**FORBIDDEN OUTPUT PATTERNS:**
-- JavaScript object serialization errors in SQL
-- Template placeholders or dynamic content markers
-- Incomplete SQL schemas without proper data types
-- Function signatures without implementation bodies
-- Generic variable names without actual values
-
-**REQUIRED OUTPUT QUALITY:**
-- All SQL must use specific data types: VARCHAR(255), INTEGER, TIMESTAMP, DECIMAL(10,2)
-- All functions must have complete implementation with real business logic
-- All components must have actual JSX with proper event handlers
+**FORBIDDEN SQL PATTERNS:**
+- [object Object] anywhere in SQL
+- Template variables like [variable] or placeholders
+- Incomplete data type specifications
 
 **BLUEPRINT STRUCTURE:**
 1. **Executive Summary** - Project overview and key features
 2. **Technical Architecture** - System design and technology stack
-3. **Database Design** - Complete SQL schemas with proper data types
+3. **Database Design** - Complete SQL schemas with proper data types (VARCHAR, INTEGER, TIMESTAMP)
 4. **Backend Implementation** - Complete API endpoints with actual request/response code
 5. **Frontend Implementation** - Full React components with real JSX and state management
 6. **Deployment Guide** - Step-by-step deployment instructions
 7. **Feature Implementation** - Complete business logic with actual algorithms
+
+**FORBIDDEN OUTPUT PATTERNS:**
+- [object Object] in any context
+- Template placeholders like [variable] or any dynamic content
+- Incomplete SQL schemas without proper data types
+- Function signatures without implementation bodies
+- Generic variable names without actual values
 
 Generate blueprints with complete, executable code that can be immediately implemented.`;
 

@@ -33,8 +33,9 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
 
   const systemPrompt = getSystemPrompt(platform);
   console.log(`[DEBUG] System prompt length: ${systemPrompt.length}`);
+  console.log(`[DEBUG] Contains serialization errors: ${systemPrompt.includes('object Object')}`);
   console.log(`[DEBUG] Contains workout: ${systemPrompt.includes('workout')}`);
-  console.log(`[DEBUG] Contains placeholder: ${systemPrompt.includes('TODO') || systemPrompt.includes('implement')}`);
+  console.log(`[DEBUG] Contains SQL example: ${systemPrompt.includes('CREATE TABLE users')}`);
   console.log(`[DEBUG] First 200 chars: ${systemPrompt.substring(0, 200)}...`);
 
   const request: DeepSeekRequest = {
