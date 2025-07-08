@@ -37,13 +37,16 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
   console.log(`[DEBUG] Contains object serialization: ${systemPrompt.includes('object Object')}`);
   console.log(`[DEBUG] Contains workout: ${systemPrompt.includes('workout')}`);
   console.log(`[DEBUG] Contains SQL example: ${systemPrompt.includes('CREATE TABLE users')}`);
+  const platformDB = getPlatformDatabase(platform);
   console.log(`[DEBUG] Platform DB type: ${typeof platformDB}`);
+  console.log(`[DEBUG] Platform DB exists: ${!!platformDB}`);
   console.log(`[DEBUG] First 200 chars: ${systemPrompt.substring(0, 200)}...`);
   
   // Check if system prompt contains serialization errors
   if (systemPrompt.includes('[object Object]') || systemPrompt.includes('object Object')) {
     console.error('[ERROR] System prompt contains object serialization errors!');
     console.error('[ERROR] This will cause AI to generate placeholder text instead of real code');
+    console.error('[ERROR] Platform DB:', platformDB ? 'exists' : 'is undefined');
   }
 
   const request: DeepSeekRequest = {

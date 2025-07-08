@@ -14,7 +14,7 @@ export function buildSystemPrompt(platform: z.infer<typeof platformEnum>, platfo
 
 **PLATFORM CONTEXT: ${platformInfo.name}**
 ${platformInfo.description ? `Platform Description: ${platformInfo.description}` : ''}
-${platformInfo.techStack ? `Tech Stack: ${JSON.stringify(platformInfo.techStack, null, 2)}` : ''}
+${platformDB && platformInfo.techStack && Object.keys(platformInfo.techStack).length > 0 ? `Tech Stack: ${JSON.stringify(platformInfo.techStack, null, 2)}` : ''}
 
 **CRITICAL: NEVER OUTPUT [object Object] OR PLACEHOLDER TEXT**
 
