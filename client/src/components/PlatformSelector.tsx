@@ -87,7 +87,7 @@ export function PlatformSelector({ value, onChange, disabled }: PlatformSelector
       <Label className="block text-sm font-medium text-gray-700 mb-3">
         Target Platform
       </Label>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {platforms.map((platform) => (
           <label key={platform.id} className="relative">
             <input
@@ -99,10 +99,10 @@ export function PlatformSelector({ value, onChange, disabled }: PlatformSelector
               disabled={disabled}
               className="sr-only peer"
             />
-            <div className="p-4 border-2 border-gray-200 rounded-lg cursor-pointer transition-all peer-checked:border-primary peer-checked:bg-primary/5 hover:border-gray-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 min-h-[80px] flex flex-col items-center justify-center text-center">
-              <div className="flex flex-col items-center space-y-2">
-                <span className="text-2xl">{platform.icon}</span>
-                <span className="text-sm font-medium leading-tight">{platform.name}</span>
+            <div className="p-4 border-2 border-gray-200 rounded-lg cursor-pointer transition-all peer-checked:border-primary peer-checked:bg-primary/5 hover:border-gray-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 min-h-[110px] w-full flex flex-col items-center justify-center text-center">
+              <div className="flex flex-col items-center space-y-3">
+                <span className="text-3xl">{platform.icon}</span>
+                <span className="text-sm font-semibold leading-relaxed whitespace-nowrap">{platform.name}</span>
               </div>
             </div>
           </label>
