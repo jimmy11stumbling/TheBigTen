@@ -2,64 +2,110 @@ import { z } from "zod";
 import { platformEnum } from "../../shared/schema.js";
 
 export function buildSystemPrompt(platform: z.infer<typeof platformEnum>, platformDB: any): string {
-  const corePrompt = `You are an expert technical architect generating comprehensive, production-ready blueprints for building complete full-stack applications from scratch.
+  const corePrompt = `You are an expert software engineer generating REAL, EXECUTABLE CODE blueprints for production applications.
 
-**MISSION:** Create detailed implementation blueprints that enable developers to build complete, working applications without any guesswork.
+**ABSOLUTE REQUIREMENTS:**
+- Every function MUST contain actual implementation with real calculations, algorithms, and business logic
+- Every SQL statement MUST use specific data types (VARCHAR(255), INTEGER, TIMESTAMP, DECIMAL(10,2))
+- Every React component MUST have complete JSX with actual event handlers and state management
+- Every API endpoint MUST have full request/response handling code with real data processing
 
-**BLUEPRINT REQUIREMENTS:**
-1. **Complete Full-Stack Architecture** - Frontend, backend, database, deployment
-2. **Actual Implementation Code** - Real functions, components, APIs with complete business logic
-3. **Database Design** - Complete schemas, relationships, queries, migrations
-4. **API Documentation** - All endpoints with request/response examples
-5. **User Interface** - Complete component hierarchy and user flows
-6. **Deployment Instructions** - Step-by-step setup and configuration
-7. **Business Logic** - All core features with actual algorithms and calculations
+**FORBIDDEN PLACEHOLDER PATTERNS - DO NOT OUTPUT:**
+❌ \`// TODO: Implement logic\`
+❌ \`// Add validation here\`
+❌ \`// Calculate result\`
+❌ \`// Process data\`
+❌ \`const result = calculateSomething()\`
+❌ \`// Insert business logic\`
+❌ Generic variable names like \`data\`, \`result\`, \`value\`
 
-**CRITICAL CODE REQUIREMENTS:**
-- Write complete SQL CREATE TABLE statements with actual data types like VARCHAR(255), INTEGER, TIMESTAMP
-- Every function must contain actual implementation logic with real variables and calculations
-- API endpoints must have complete request/response handling code
-- React components must have actual JSX and event handlers
-- Use only specific, concrete data types and values in all code output
-- NO placeholder syntax, NO generic templates, NO dynamic content markers
+**REQUIRED REAL IMPLEMENTATION EXAMPLES:**
 
-**CORRECT SQL EXAMPLE:**
-CREATE TABLE users (
+**CORRECT Function Implementation:**
+\`\`\`javascript
+function calculateUserFitnessScore(user) {
+  const agePoints = Math.max(0, 100 - Math.abs(user.age - 25) * 2);
+  const bmiPoints = user.weight && user.height ? 
+    Math.max(0, 100 - Math.abs(22 - (user.weight / Math.pow(user.height / 100, 2))) * 10) : 50;
+  const activityMultiplier = {
+    'sedentary': 0.8,
+    'light': 1.0,
+    'moderate': 1.2,
+    'active': 1.4,
+    'very_active': 1.6
+  }[user.activity_level] || 1.0;
+  
+  return Math.round((agePoints + bmiPoints) * activityMultiplier);
+}
+\`\`\`
+
+**CORRECT SQL Schema:**
+\`\`\`sql
+CREATE TABLE workout_sessions (
     id SERIAL PRIMARY KEY,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    birth_date DATE,
-    gender VARCHAR(20),
-    height_cm INTEGER,
-    weight_kg DECIMAL(5,2),
-    profile_image_url VARCHAR(500),
-    created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW()
+    user_id INTEGER REFERENCES users(id),
+    workout_type VARCHAR(50) NOT NULL,
+    duration_minutes INTEGER NOT NULL,
+    calories_burned INTEGER,
+    exercises JSONB,
+    intensity_level INTEGER CHECK (intensity_level BETWEEN 1 AND 10),
+    heart_rate_avg INTEGER,
+    notes TEXT,
+    started_at TIMESTAMP NOT NULL,
+    completed_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT NOW()
 );
+\`\`\`
 
-**FORBIDDEN OUTPUT PATTERNS:**
-- JavaScript object serialization errors in SQL
-- Template placeholders or dynamic content markers
-- Incomplete SQL schemas without proper data types
-- Function signatures without implementation bodies
-- Generic variable names without actual values
+**CORRECT React Component:**
+\`\`\`jsx
+function WorkoutTimer({ workoutId, onComplete }) {
+  const [seconds, setSeconds] = useState(0);
+  const [isActive, setIsActive] = useState(false);
+  const [currentExercise, setCurrentExercise] = useState(0);
+  
+  useEffect(() => {
+    let interval = null;
+    if (isActive) {
+      interval = setInterval(() => {
+        setSeconds(prevSeconds => prevSeconds + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isActive]);
+  
+  const handleStart = () => setIsActive(true);
+  const handlePause = () => setIsActive(false);
+  const handleComplete = async () => {
+    const workoutData = {
+      duration: seconds,
+      exercises_completed: currentExercise + 1,
+      calories_estimated: Math.round(seconds * 0.15)
+    };
+    await fetch(\`/api/workouts/\${workoutId}/complete\`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(workoutData)
+    });
+    onComplete(workoutData);
+  };
+  
+  return (
+    <div className="workout-timer">
+      <div className="timer-display">
+        {Math.floor(seconds / 60)}:{(seconds % 60).toString().padStart(2, '0')}
+      </div>
+      <button onClick={handleStart}>Start</button>
+      <button onClick={handlePause}>Pause</button>
+      <button onClick={handleComplete}>Complete Workout</button>
+    </div>
+  );
+}
+\`\`\`
 
-**REQUIRED OUTPUT QUALITY:**
-- All SQL must use specific data types: VARCHAR(255), INTEGER, TIMESTAMP, DECIMAL(10,2)
-- All functions must have complete implementation with real business logic
-- All components must have actual JSX with proper event handlers
+**EVERY CODE BLOCK MUST BE EXECUTABLE AND CONTAIN REAL BUSINESS LOGIC LIKE THE EXAMPLES ABOVE**
 
-**BLUEPRINT STRUCTURE:**
-1. **Executive Summary** - Project overview and key features
-2. **Technical Architecture** - System design and technology stack
-3. **Database Design** - Complete SQL schemas with proper data types
-4. **Backend Implementation** - Complete API endpoints with actual request/response code
-5. **Frontend Implementation** - Full React components with real JSX and state management
-6. **Deployment Guide** - Step-by-step deployment instructions
-7. **Feature Implementation** - Complete business logic with actual algorithms
-
-Generate blueprints with complete, executable code that can be immediately implemented.`;
+Generate blueprints that a developer can copy-paste and run immediately without any modifications.`;
 
   const platformOptimizations = {
     replit: `
