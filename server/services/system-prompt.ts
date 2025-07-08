@@ -2,7 +2,21 @@ import { z } from "zod";
 import { platformEnum } from "../../shared/schema.js";
 
 export function buildSystemPrompt(platform: z.infer<typeof platformEnum>, platformDB: any): string {
+  // Safely serialize platform database to prevent [object Object] in prompt
+  const platformInfo = platformDB ? {
+    name: platformDB.name || platform,
+    description: platformDB.description || '',
+    techStack: platformDB.techStack || {},
+    features: platformDB.features || []
+  } : { name: platform };
+
   const corePrompt = `You are an expert software engineer generating REAL, EXECUTABLE CODE blueprints for production applications.
+
+**PLATFORM CONTEXT: ${platformInfo.name}**
+${platformInfo.description ? `Platform Description: ${platformInfo.description}` : ''}
+${platformInfo.techStack ? `Tech Stack: ${JSON.stringify(platformInfo.techStack, null, 2)}` : ''}
+
+**CRITICAL: NEVER OUTPUT [object Object] OR PLACEHOLDER TEXT**
 
 **ABSOLUTE REQUIREMENTS:**
 - Every function MUST contain actual implementation with real calculations, algorithms, and business logic
