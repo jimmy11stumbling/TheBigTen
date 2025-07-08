@@ -61,7 +61,7 @@ export default function HomePage() {
                   <History className="w-4 h-4 mr-2" />
                   History
                 </Button>
-                
+
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -77,8 +77,8 @@ export default function HomePage() {
                   </Badge>
                 )}
               </div>
-              
-              
+
+
               <Button 
                 variant="ghost" 
                 size="sm" 

@@ -5,12 +5,30 @@ import { Badge } from "@/components/ui/badge";
 import { Copy, Download, Share, CheckCircle, Loader2, AlertCircle, Code } from "lucide-react";
 import { useStream } from "@/contexts/StreamContext";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 export function BlueprintViewer() {
   const { streamState } = useStream();
   const { toast } = useToast();
   const [copiedCodeIndex, setCopiedCodeIndex] = useState<number | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Auto-scroll during generation for smooth experience
+  useEffect(() => {
+    if (streamState.status === "generating" && scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const shouldAutoScroll = container.scrollTop + container.clientHeight >= container.scrollHeight - 100;
+      
+      if (shouldAutoScroll) {
+        setTimeout(() => {
+          container.scrollTo({
+            top: container.scrollHeight,
+            behavior: 'smooth'
+          });
+        }, 50);
+      }
+    }
+  }, [streamState.content, streamState.status]);
 
   const handleCopy = async () => {
     try {
@@ -294,14 +312,14 @@ export function BlueprintViewer() {
   };
 
   return (
-    <Card className="h-full shadow-lg">
+    <Card className="h-full shadow-lg flex flex-col">
       {/* Enhanced Header */}
-      <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+      <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50 flex-shrink-0">
         <div className="flex items-center space-x-3">
-          <div className="w-2 h-8 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
+          <div className="w-2 h-6 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
           <div>
-            <h2 className="text-xl font-bold text-slate-900">Generated Blueprint</h2>
-            <p className="text-sm text-slate-600">Production-ready technical documentation</p>
+            <h2 className="text-lg font-bold text-slate-900">Generated Blueprint</h2>
+            <p className="text-xs text-slate-600">Production-ready technical documentation</p>
           </div>
           {getStatusBadge()}
         </div>
@@ -339,9 +357,13 @@ export function BlueprintViewer() {
         </div>
       </div>
       
-      {/* Enhanced Content Area */}
-      <CardContent className="p-0 h-full overflow-auto bg-white" style={{ maxHeight: "calc(100vh - 200px)" }}>
-        <div className="p-8">
+      {/* Enhanced Content Area - Much Larger */}
+      <CardContent 
+        ref={scrollContainerRef}
+        className="p-0 flex-1 overflow-auto bg-white scroll-smooth" 
+        style={{ minHeight: "calc(100vh - 300px)", maxHeight: "calc(100vh - 120px)" }}
+      >
+        <div className="p-6">
           {streamState.status === "idle" && (
             <div className="text-center text-slate-500 py-20">
               <div className="relative mb-8">

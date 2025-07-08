@@ -77,7 +77,8 @@ ${platformDB.limitations.map(limit => `- ${limit}`).join('\n')}
 - All integrations must use platform-native solutions first
 - Code examples must be tested and compatible with the platform
 - Deployment strategies must leverage platform-specific features
-- Cost estimates must align with platform pricing models
+- Validate that security approaches work within platform constraints
+- Confirm pricing implications align with platform billing model
 
 **CRITICAL INSTRUCTIONS:**
 
@@ -428,6 +429,10 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
     let buffer = "";
 
     try {
+      let accumulatedContent = '';
+      let chunkBuffer = '';
+      let lastYieldTime = Date.now();
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -451,7 +456,19 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
               const parsed = JSON.parse(data);
               const content = parsed.choices?.[0]?.delta?.content;
               if (content) {
-                yield content;
+                accumulatedContent += content;
+                chunkBuffer += content;
+
+                const currentTime = Date.now();
+
+                // Send chunks more frequently: every 5 characters OR every 50ms for smoother streaming
+                if (chunkBuffer.length >= 5 || (currentTime - lastYieldTime) >= 50) {
+                  if (chunkBuffer.length > 0) {
+                    yield chunkBuffer;
+                    chunkBuffer = '';
+                    lastYieldTime = currentTime;
+                  }
+                }
               }
             } catch (parseError) {
               // Skip invalid JSON lines
@@ -459,6 +476,11 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
             }
           }
         }
+      }
+
+      // Send any remaining content
+      if (chunkBuffer.length > 0) {
+        yield chunkBuffer;
       }
     } finally {
       reader.releaseLock();
