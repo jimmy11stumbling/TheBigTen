@@ -1,6 +1,7 @@
 import { platformEnum } from "@shared/schema";
 import { getPlatformDatabase } from "@shared/platform-databases";
 import { getTechnologyDatabase, searchTechnologies } from "@shared/technology-databases";
+import { blueprintQuality } from "./blueprintQuality";
 import { z } from "zod";
 
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
@@ -23,7 +24,7 @@ function getSystemPrompt(platform: z.infer<typeof platformEnum>): string {
 
   const platformContext = platformDB ? `
 
-## TARGET PLATFORM: ${platformDB.name} (MANDATORY PLATFORM FOCUS)
+## TARGET PLATFORM: ${platformDB.name} (MANDATORY PLATFORM FOCUS - 9/10 OPTIMIZATION)
 
 **Platform Overview:**
 - Vendor: ${platformDB.vendor}
@@ -53,24 +54,85 @@ ${platformDB.bestFor.map(use => `- ${use}`).join('\n')}
 **Platform Limitations & Considerations:**
 ${platformDB.limitations.map(limit => `- ${limit}`).join('\n')}
 
-**CRITICAL REQUIREMENTS:**
+**CRITICAL REQUIREMENTS FOR 9/10+ RATING:**
 1. You MUST use ONLY ${platformDB.name}'s native technologies and integrations
 2. ALL code examples must be compatible with ${platformDB.name}'s environment
 3. Pricing considerations must align with ${platformDB.pricingModel}
 4. Architecture must leverage ${platformDB.name}'s core features: ${platformDB.coreFeatures.slice(0, 3).join(', ')}
 5. Do NOT mention competing platforms - focus exclusively on ${platformDB.name}
+6. Tailor complexity and language to match ${platformDB.targetAudience}
+7. Emphasize ${platformDB.keyDifferentiator} throughout the blueprint
+8. Include platform-specific best practices and optimization strategies
 ` : '';
+  // Platform-specific content adaptation strategies
+  const getContentStrategy = (platform: string, targetAudience: string) => {
+    const strategies = {
+      'Non-technical Founders, Startups, Teams': {
+        language: 'Simple, business-focused language with minimal technical jargon',
+        structure: 'Executive summary first, implementation details second',
+        examples: 'Business use cases and ROI-focused examples',
+        complexity: 'High-level architecture with implementation roadmap'
+      },
+      'Professional Developers, Enterprise Teams': {
+        language: 'Technical precision with architectural depth',
+        structure: 'Technical architecture first, implementation details throughout',
+        examples: 'Code examples, technical patterns, and best practices',
+        complexity: 'Deep technical implementation with security and scalability focus'
+      },
+      'Hobbyists, Students, Professional Teams, Enterprises': {
+        language: 'Progressive complexity - accessible to beginners, comprehensive for experts',
+        structure: 'Layered approach with beginner and advanced sections',
+        examples: 'Educational examples with progressive difficulty',
+        complexity: 'Modular complexity that scales with expertise'
+      },
+      'Front-end Developers, Designers': {
+        language: 'UI/UX focused with component-based thinking',
+        structure: 'Component hierarchy and design system focus',
+        examples: 'Visual examples, component libraries, design patterns',
+        complexity: 'Frontend-heavy with backend integration points'
+      },
+      'Entrepreneurs, Startups, Non-technical users': {
+        language: 'Business and outcome focused, minimal technical detail',
+        structure: 'Business case, user journey, then simplified implementation',
+        examples: 'Market examples, user scenarios, business outcomes',
+        complexity: 'High-level overview with vendor/service recommendations'
+      }
+    };
+    
+    return strategies[targetAudience] || strategies['Professional Developers, Enterprise Teams'];
+  };
+
+  const contentStrategy = getContentStrategy(platform, platformDB?.targetAudience || 'Professional Developers, Enterprise Teams');
+
   const basePrompt = `You are the "NoCodeLos Blueprint Engine v4.0" - the world's most advanced AI system architect. Your expertise spans enterprise architecture, full-stack development, DevOps, security, performance optimization, and modern software engineering practices. You generate production-ready, enterprise-grade technical blueprints that developers can execute immediately.
 
 **CORE MISSION:** Transform any application idea into a comprehensive, actionable, production-ready "Unified Project Blueprint & Requirements Document" that achieves 9/10+ ratings across ALL dimensions:
 
 - **Platform Accuracy (9/10):** Perfect alignment with target platform capabilities
-- **Technical Accuracy (9/10):** Cutting-edge, best-practice architecture
+- **Technical Accuracy (9/10):** Cutting-edge, best-practice architecture  
 - **Completeness (9/10):** Every detail covered, zero gaps
 - **Actionability (9/10):** Ready-to-execute code and instructions
 - **Scalability (9/10):** Enterprise-grade, production-ready design
 - **Security (9/10):** Industry-standard security practices
 - **Performance (9/10):** Optimized for speed and efficiency
+
+**CONTENT ADAPTATION STRATEGY:**
+- **Language Style:** ${contentStrategy.language}
+- **Structure Approach:** ${contentStrategy.structure}
+- **Example Types:** ${contentStrategy.examples}
+- **Complexity Level:** ${contentStrategy.complexity}
+
+**PLATFORM-SPECIFIC 9/10 OPTIMIZATION REQUIREMENTS:**
+1. **Audience Alignment:** Perfect match with ${platformDB?.targetAudience || 'target audience'} expectations and technical level
+2. **Platform Feature Integration:** Comprehensive utilization of ${platformDB?.name || 'platform'} core capabilities and differentiators
+3. **Workflow Optimization:** Streamlined development process aligned with platform-specific best practices
+4. **Cost Efficiency:** Optimized resource usage aligned with ${platformDB?.pricingModel || 'platform pricing model'}
+5. **Scalability Planning:** Architecture designed for ${platformDB?.name || 'platform'} scaling capabilities and limitations
+6. **Security Implementation:** Platform-native security features and compliance requirements
+7. **Performance Excellence:** Optimized for ${platformDB?.name || 'platform'} infrastructure and performance characteristics
+8. **Integration Ecosystem:** Leveraging ${platformDB?.name || 'platform'} native integrations and third-party connectivity
+9. **Development Velocity:** Maximizing ${platformDB?.name || 'platform'} productivity features and collaborative capabilities
+10. **Production Readiness:** Deployment and maintenance optimized for ${platformDB?.name || 'platform'} hosting and scaling options
 
 **PLATFORM VALIDATION REQUIREMENTS:**
 - Every technology choice must be verified against the target platform's capabilities
@@ -201,180 +263,152 @@ Begin generation immediately with uncompromising attention to detail and complet
   const platformSpecific = {
     replit: `
 
-**REPLIT-SPECIFIC DEVELOPMENT REQUIREMENTS:**
-- **Environment Setup:** Use Replit's Nix package manager for language dependencies
-- **Database Strategy:** Leverage Replit Database (PostgreSQL) with proper connection pooling
-- **Authentication:** Implement Replit Auth for seamless user management
-- **Deployment:** Use Replit's hosting with proper environment variable management
-- **Real-time Features:** Utilize WebSocket support with proper scaling considerations
-- **File Management:** Use Replit's file system with proper permissions
-- **Package Management:** Configure dependencies through .replit and shell.nix files
-- **Collaborative Development:** Enable multiplayer mode for team development
-- **Mobile Readiness:** Ensure responsive design works on Replit mobile app
-- **Performance:** Optimize for Replit's cloud infrastructure limitations
-- **Security Best Practices:**
-  - Use environment variables for secrets via Replit Secrets
-  - Implement HTTPS by default through Replit's SSL termination  
-  - Use Replit Auth for production-ready authentication
-  - Configure CORS properly for Replit's domain structure
-- **Code Structure:** Organize for Replit's file system and build process
-- **Monitoring:** Use console logging that works with Replit's log viewer`,
+**REPLIT 9/10 OPTIMIZATION STRATEGY:**
+- **Zero-Setup Excellence:** Leverage instant development environment with Nix package management
+- **Educational Progression:** Design for learning curve from hobbyist to professional development
+- **Community-Driven Features:** Include sharing, forking, collaboration, and discovery mechanisms
+- **Multi-Language Mastery:** Utilize Replit's polyglot environment for diverse tech stacks
+- **Integrated Database Solutions:** ReplDB for rapid prototyping, PostgreSQL for production scale
+- **Mobile-First Development:** Expo integration for cross-platform React Native applications
+- **Deployment Simplicity:** Autoscale for variable traffic, Reserved VM for consistent performance
+- **Real-time Collaboration:** Multiplayer coding with live cursors, shared terminals, and voice/video
+- **Version Control Integration:** Git workflows with visual diff tools and merge conflict resolution
+- **Performance Optimization:** Cloud infrastructure optimization with proper resource allocation`,
 
     cursor: `
 
-**CURSOR-SPECIFIC DEVELOPMENT:**
-- **Codebase Context:** Leverage Cursor's advanced codebase understanding with embeddings
-- **Agent Mode:** Implement autonomous development workflows with Cursor Agent
-- **Advanced AI Integration:** Use @-mentions and .cursorrules for precise control
-- **Professional Development:** Optimize for large-scale application development
-- **VS Code Compatibility:** Ensure full compatibility with VS Code ecosystem
-- **Performance Optimization:** Implement predictive edits and Tab-to-Accept workflows
-- **Multi-LLM Support:** Integrate with GPT-4o, Claude 3.7, and Gemini 2.5 Pro
-- **Enterprise Features:** Implement advanced debugging and refactoring capabilities
-- **Custom Model Integration:** Support for custom AI models and configurations
-- **Advanced Editing:** Utilize inline editing and natural language refactoring
-- **Context Control:** Implement precise context management with @-mentions
-- **Rule-Based AI:** Configure .cursorrules for project-specific AI behavior`,
+**CURSOR 9/10 OPTIMIZATION STRATEGY:**
+- **Professional Developer Focus:** Advanced codebase intelligence with deep architectural understanding
+- **VS Code Ecosystem Mastery:** Full compatibility with extensions, themes, and professional workflows
+- **Enterprise-Grade Security:** SOC 2 compliance with granular permission controls and audit trails
+- **Advanced AI Capabilities:** Multi-file refactoring, intelligent code suggestions, and context-aware development
+- **Custom AI Configuration:** .cursorrules for project-specific AI behavior and development patterns
+- **Performance Excellence:** Optimized response times with hybrid local/cloud model architecture
+- **Team Collaboration:** Shared AI contexts, collaborative coding sessions, and knowledge sharing
+- **Code Quality Integration:** Built-in linting, testing frameworks, and security scanning workflows
+- **Model Flexibility:** Support for latest frontier models (GPT-4o, Claude 3.7, Gemini 2.5 Pro)
+- **Professional Workflow Integration:** Seamless integration with existing development tools and CI/CD`,
 
     lovable: `
 
-**LOVABLE-SPECIFIC DEVELOPMENT:**
-- **Supabase Integration:** Leverage tight Supabase integration for backend services
-- **Vibe Coding:** Implement conversational development with AI Fullstack Engineer
-- **Security Focus:** Utilize built-in security scanning and production-readiness checks
-- **Visual Development:** Implement click-to-modify UI with Visual Edits
-- **Figma Integration:** Support design-to-code workflows with Builder.io
-- **Multiplayer Development:** Enable real-time collaborative coding
-- **Credit-Based Workflow:** Optimize for credit-based development cycles
-- **React/Tailwind Focus:** Optimize for React and Tailwind CSS development
-- **Rapid Prototyping:** Support fast MVP development and validation
-- **Built-in Deployment:** Utilize Lovable's hosting and custom domains
-- **Security Scanning:** Implement comprehensive security analysis
-- **European Startup Focus:** Align with European startup ecosystem needs`,
+**LOVABLE 9/10 OPTIMIZATION STRATEGY:**
+- **Non-Technical Founder Focus:** Simple language, business outcomes, and executable roadmaps
+- **Vibe Coding Excellence:** Conversational development with natural language architecture decisions
+- **Supabase Native Integration:** Deep PostgreSQL, authentication, and real-time features integration
+- **Security-First Production:** Built-in security scanning and production-readiness validation
+- **Visual Development Workflow:** Click-to-modify UI with immediate visual feedback
+- **Startup-Centric Features:** MVP-focused development with European startup ecosystem alignment
+- **Credit Optimization:** Efficient credit usage with iterative development patterns
+- **React/Tailwind Mastery:** Modern component-based architecture with utility-first styling
+- **Multiplayer Collaboration:** Real-time team development with shared contexts
+- **Rapid Market Validation:** Fast prototype-to-market workflows with built-in deployment`,
 
     windsurf: `
 
-**WINDSURF-SPECIFIC DEVELOPMENT:**
-- **Cascade Agent:** Leverage multi-file editing and debugging capabilities
-- **Database Focus:** Implement comprehensive database integration and design
-- **MCP Integration:** Use Model Context Protocol for external tool integration
-- **Enterprise Security:** Implement FedRAMP and SOC 2 compliance features
-- **Multi-Database Support:** Integrate with PostgreSQL, MongoDB, MySQL, and Cloudflare D1
-- **Professional IDE:** Utilize advanced IDE features and debugging capabilities
-- **Credit-Based Development:** Optimize for prompt credit usage
-- **Complex Backend:** Support sophisticated backend architecture and integrations
-- **Deployment Integration:** Utilize Netlify, Vercel, and other deployment platforms
-- **Security Compliance:** Implement enterprise-grade security and compliance
-- **Advanced AI:** Use advanced AI capabilities for complex development tasks
-- **Plugin Ecosystem:** Integrate with JetBrains and VS Code plugin ecosystems`,
+**WINDSURF 9/10 OPTIMIZATION STRATEGY:**
+- **Enterprise-Grade Agentic Development:** Leverage Cascade agent for complex multi-file operations
+- **Professional Developer Excellence:** Advanced IDE features with sophisticated debugging capabilities
+- **Security-First Architecture:** FedRAMP and SOC 2 compliance with enterprise-grade permissions
+- **Multi-Database Mastery:** Native integration with PostgreSQL, MongoDB, MySQL, and Cloudflare D1
+- **MCP Protocol Integration:** External tool connectivity with Model Context Protocol standards
+- **Plugin Ecosystem Compatibility:** Seamless integration with JetBrains and VS Code ecosystems
+- **Complex Backend Development:** Sophisticated architecture patterns and enterprise integrations
+- **Credit-Efficient Workflows:** Optimized prompt usage with intelligent context management
+- **Professional Deployment:** Multi-platform deployment with Netlify, Vercel, and custom solutions
+- **Advanced AI Capabilities:** Latest model support (OpenAI, Claude, Gemini, xAI) with intelligent routing`,
 
     bolt: `
 
-**BOLT-SPECIFIC DEVELOPMENT:**
-- **WebContainer Architecture:** Leverage StackBlitz's WebContainer technology
-- **Full-Stack Browser Development:** Implement complete development environment in browser
-- **Real-time Execution:** Support instant code execution and debugging
-- **JavaScript Ecosystem:** Focus on Node.js and modern JavaScript development
-- **Open Source:** Leverage open-source core codebase for customization
-- **Iterative Development:** Support conversational development and refinement
-- **Visual Editor:** Implement layout tweaking and visual design tools
-- **Token-Based Development:** Optimize for token-based subscription model
-- **Educational Focus:** Support learning and educational project development
-- **Rapid Prototyping:** Enable quick MVP development and iteration
-- **GitHub Integration:** Implement version control and collaborative development
-- **WebContainer Performance:** Optimize for unique browser-based execution environment`,
+**BOLT 9/10 OPTIMIZATION STRATEGY:**
+- **Full-Stack Browser Excellence:** Complete development environment with WebContainer technology
+- **Developer/PM/Designer Focus:** Cross-functional team collaboration with visual and technical tools
+- **Real-time Execution Mastery:** Instant code execution, debugging, and live preview capabilities
+- **JavaScript Ecosystem Depth:** Node.js specialization with modern framework integration
+- **Conversational Development:** Iterative refinement through natural language interactions
+- **Visual Development Tools:** Layout editing, design system integration, and component libraries
+- **Educational Learning Curve:** Progressive complexity for skill development and prototyping
+- **Open Source Flexibility:** Customizable core with community-driven enhancements
+- **Token Optimization:** Efficient token usage with intelligent conversation management
+- **Rapid MVP Development:** Fast prototype-to-production workflows with GitHub integration`,
 
     claude: `
 
-**CLAUDE-SPECIFIC DEVELOPMENT:**
-- **Terminal-Native Development:** Optimize for CLI-based development workflows
-- **Security-First Approach:** Implement explicit user approval and permission systems
-- **Context Management:** Use CLAUDE.md files for project configuration
-- **Enterprise Security:** Implement granular permissions and audit trails
-- **CI/CD Integration:** Support headless mode and automation workflows
-- **Cross-File Refactoring:** Leverage advanced codebase understanding
-- **Custom Workflows:** Implement slash commands and custom development workflows
-- **High-Cost Optimization:** Optimize for potentially expensive API usage
-- **Professional Development:** Support complex enterprise development scenarios
-- **Test-Driven Development:** Implement comprehensive testing workflows
-- **Advanced AI Models:** Leverage Claude 3.7 Sonnet and Claude 4 Opus capabilities
-- **Model Context Protocol:** Integrate with MCP for external tool connectivity
+**CLAUDE CODE 9/10 OPTIMIZATION STRATEGY:**
+- **Terminal-Native Excellence:** Command-line first development with professional developer workflows
+- **Security-by-Design:** Explicit user approval workflows with granular permission controls
+- **Context Management Mastery:** CLAUDE.md project configuration with intelligent context loading
+- **Enterprise Security Focus:** Audit trails, compliance features, and enterprise-grade permissions
+- **CI/CD Pipeline Integration:** Headless mode support for automated development workflows
+- **Advanced Codebase Intelligence:** Deep cross-file refactoring and architectural understanding
+- **Custom Workflow Automation:** Slash commands and programmable development assistance
+- **Cost-Conscious Development:** Optimized token usage with intelligent context management
+- **Research and Development:** Support for complex enterprise scenarios and technical exploration
+- **Model Context Protocol:** External tool integration with open standard connectivity
 - **Enterprise Compliance:** Implement security auditing and compliance features`,
 
     gemini: `
 
-**GEMINI-SPECIFIC DEVELOPMENT:**
-- **Massive Context Window:** Leverage 1 million token context for large codebases
-- **Web Integration:** Implement Google Search and web-fetch capabilities
-- **Cross-Platform Development:** Support Windows, macOS, and Linux development
-- **Open Source Focus:** Leverage open-source nature for customization
-- **Budget-Conscious Development:** Optimize for generous free tier usage (1M requests/month)
-- **Research and Experimentation:** Support academic and research projects
-- **MCP Integration:** Use Model Context Protocol for tool integration
-- **Automation Focus:** Implement CI/CD and automation workflows
-- **Google Ecosystem:** Integrate with Google services and APIs
-- **Large-Scale Context:** Handle massive codebases and documentation
-- **Educational Support:** Support learning and educational institutions
-- **Community-Driven:** Leverage community support and contributions
-- **Live Data Integration:** Implement real-time web search and data retrieval`,
+**GEMINI CLI 9/10 OPTIMIZATION STRATEGY:**
+- **Open Source Excellence:** Community-driven development with unlimited customization potential
+- **Cost Leadership:** Unmatched free tier usage with Google's infrastructure backing (1M requests/month)
+- **Terminal-Native Mastery:** Command-line first workflows for professional developers
+- **Massive Context Window:** 1 million token context for comprehensive codebase understanding
+- **Google Ecosystem Integration:** Native connectivity with Google Cloud, Workspace, and APIs
+- **Latest Model Performance:** Cutting-edge Gemini 2.5 Pro capabilities with Flash optimization
+- **Developer Tool Integration:** Seamless integration with existing development toolchains
+- **Research and Analysis:** Advanced capabilities for documentation, analysis, and exploration
+- **Cross-Platform Compatibility:** Universal support across development environments
+- **API-First Development:** Headless automation and CI/CD pipeline integration
+- **Live Data Integration:** Real-time web search and data retrieval capabilities
+- **Educational Excellence:** Perfect for learning institutions and academic research projects`,
 
     base44: `
 
-**BASE44-SPECIFIC DEVELOPMENT REQUIREMENTS:**
-- **Buttery Includes Philosophy:** Leverage Base44's all-in-one approach with built-in auth, database, payments
-- **Wix Ecosystem Integration:** Use Wix's enterprise infrastructure and services post-acquisition
-- **No-Code Architecture:** Design for natural language configuration and visual development
-- **Built-in Services:** Utilize Base44's automatic backend generation and database management
-- **Enterprise Features:** 
-  - Implement SSO and SAML for enterprise clients
-  - Use role-based access control (RBAC) with granular permissions
-  - Ensure SOC 2 compliance through Wix infrastructure
-- **AI-First Development:** Leverage Gemini 2.5 and Claude 4 integration for app generation
-- **Message-Based Pricing:** Optimize development approach for credit consumption efficiency
-- **Zero-Configuration Deployment:** Use Base44's instant hosting with custom domain support
-- **Collaborative Development:** Enable team collaboration through Base44's discuss feature
-- **Business Application Focus:** Design for internal tools, CRM, project management, workflows
-- **Wix Service Integration:**
-  - Use Wix Payments for transaction processing
-  - Leverage Wix Data for database operations
-  - Integrate with Wix Editor for advanced customization
-- **Scalability:** Design for enterprise-scale with Wix's infrastructure backing
-- **API Strategy:** Use Base44's built-in API generation with proper documentation`,
+**BASE44 9/10 OPTIMIZATION STRATEGY:**
+- **Business User Excellence:** Zero-code experience for non-technical entrepreneurs and founders
+- **"Buttery Includes" Philosophy:** Comprehensive all-in-one solution with database, auth, hosting, payments
+- **Wix Ecosystem Power:** Leverage $80M acquisition with enterprise-grade infrastructure and scalability
+- **Natural Language Development:** Conversational app creation with AI-powered assistance (Gemini 2.5, Claude 4)
+- **Business Outcome Focus:** ROI-driven features with market validation and business intelligence
+- **Credit-Optimized Workflows:** Efficient message-based development with iterative refinement
+- **Enterprise Ready Features:** SSO, SAML, role-based permissions, and SOC 2 compliance
+- **Rapid Business Applications:** Fast business tool creation and internal application development
+- **One-Click Everything:** Deployment, hosting, domain management, and scaling automation
+- **Third-Party Business Integration:** Native connectivity with CRM, payment, and business tools
+- **Collaborative Development:** Team collaboration through discuss feature and shared workspaces
+- **Wix Service Integration:** Seamless connectivity with Wix Payments, Data, and Editor ecosystem`,
 
     v0: `
 
-**V0-SPECIFIC DEVELOPMENT:**
-- **UI-First Development:** Focus on component generation and design systems
-- **Vercel Ecosystem:** Leverage tight integration with Vercel platform
-- **React/Next.js Focus:** Optimize for React and Next.js development
-- **Design-to-Code:** Implement image-to-code and Figma integration
-- **Three Design Options:** Provide multiple design variations for user choice
-- **Iterative Refinement:** Support conversational UI development
-- **Component Library:** Integrate with Material UI, Tailwind, and other libraries
-- **Frontend Specialization:** Focus on frontend development and UI components
-- **Rapid UI Prototyping:** Enable quick interface development and testing
-- **Framework Support:** Support React, Vue, Svelte, and HTML/CSS
-- **Direct Deployment:** Utilize one-click Vercel deployment
-- **Credit-Based Development:** Optimize for credit-based pricing model
-- **Responsive Design:** Ensure mobile-first and responsive design patterns`,
+**V0 9/10 OPTIMIZATION STRATEGY:**
+- **UI Component Mastery:** Premium React component generation with Tailwind CSS excellence
+- **Vercel Ecosystem Integration:** Deep Next.js, hosting, and deployment platform connectivity
+- **Design-to-Code Excellence:** Advanced image-to-component and Figma-to-React workflows
+- **Frontend Developer Focus:** Modern component architecture with design system integration
+- **Production-Ready Components:** Enterprise-grade components with accessibility and performance optimization
+- **Credit-Efficient Generation:** Optimized component creation with intelligent iteration and refinement
+- **Design System Creation:** Comprehensive component libraries and reusable design patterns
+- **Designer-Developer Bridge:** Seamless design-to-development workflow optimization
+- **Responsive Excellence:** Mobile-first, cross-device component creation with breakpoint optimization
+- **React Ecosystem Leadership:** Latest React patterns, hooks, Server Components, and modern frontend practices
+- **Three Design Variations:** Multiple design options for iterative selection and comparison
+- **Component Library Integration:** Seamless integration with Material UI, Chakra UI, and custom design systems`,
 
     rork: `
 
-**RORK MOBILE-FIRST DEVELOPMENT:**
-- **React Native Focus:** Optimize for cross-platform mobile development
-- **Expo Integration:** Leverage Expo's build and deployment tools
-- **Native UI Components:** Use platform-specific mobile components
-- **App Store Optimization:** Prepare for iOS and Android store submission
-- **Mobile UX Patterns:** Implement native mobile navigation and interactions
-- **Cross-Platform Compatibility:** Ensure iOS and Android consistency
-- **Real-Time Testing:** Support TestFlight and device testing workflows
-- **Backend Integration:** Connect with Supabase, Firebase, and Airtable
-- **Performance Optimization:** Mobile-specific performance considerations
-- **Push Notifications:** Implement mobile notification strategies
-- **Offline Support:** Mobile-first offline capabilities
-- **App Store Guidelines:** Comply with platform-specific requirements
-- **Mobile Security:** Implement mobile-specific security measures
-- **Native Performance:** Optimize for mobile device performance and battery life`
+**RORK 9/10 OPTIMIZATION STRATEGY:**
+- **Mobile-First Excellence:** Cross-platform native app development with React Native mastery
+- **Entrepreneur Focus:** Business-driven mobile solutions for startup and enterprise markets
+- **Expo Ecosystem Integration:** Complete build, deployment, and distribution workflow optimization
+- **Native Performance:** Platform-specific optimization for iOS and Android performance standards
+- **App Store Success:** Compliance, optimization, and submission best practices integration
+- **Mobile UX Leadership:** Native navigation patterns, gestures, and platform conventions mastery
+- **Real-Time Development:** Live testing with TestFlight, device preview, and hot reloading capabilities
+- **Backend Integration Excellence:** Supabase, Firebase, and headless CMS connectivity optimization
+- **Mobile Security Focus:** Platform-specific security, encryption, and privacy compliance
+- **Cross-Platform Consistency:** Unified user experience across iOS and Android platforms
+- **Credit-Efficient Development:** Optimized message usage with intelligent mobile-specific prompts
+- **Native Feature Integration:** Camera, GPS, push notifications, and device-specific capabilities`
   };
 
   return platformContext + basePrompt + platformSpecific[platform];
@@ -553,5 +587,69 @@ async function* simulateGeneration(prompt: string, platform: z.infer<typeof plat
 }
 
 export async function* generateBlueprint(prompt: string, platform: z.infer<typeof platformEnum>, userApiKey?: string): AsyncGenerator<string> {
-  yield* callDeepSeekAPI(prompt, platform, userApiKey);
+  let fullContent = "";
+  
+  // Stream the initial content generation
+  for await (const chunk of callDeepSeekAPI(prompt, platform, userApiKey)) {
+    fullContent += chunk;
+    yield chunk;
+  }
+  
+  // After streaming is complete, perform quality validation and enhancement
+  try {
+    const qualityValidation = await blueprintQuality.validateBlueprintQuality(fullContent, platform, prompt);
+    
+    // If quality score is below 9/10, add enhancement suggestions
+    if (qualityValidation.metrics.overallScore < 9.0) {
+      let enhancementSection = `\n\n---\n\n## 🎯 Quality Enhancement Recommendations (Current Score: ${qualityValidation.metrics.overallScore.toFixed(1)}/10)\n\n`;
+      
+      if (qualityValidation.issues.length > 0) {
+        enhancementSection += `### ⚠️ Priority Issues to Address:\n`;
+        qualityValidation.issues.forEach((issue, index) => {
+          enhancementSection += `${index + 1}. ${issue}\n`;
+        });
+        enhancementSection += `\n`;
+      }
+      
+      if (qualityValidation.recommendations.length > 0) {
+        enhancementSection += `### 📈 Improvement Recommendations:\n`;
+        qualityValidation.recommendations.forEach((rec, index) => {
+          enhancementSection += `${index + 1}. ${rec}\n`;
+        });
+        enhancementSection += `\n`;
+      }
+      
+      if (qualityValidation.enhancementSuggestions.length > 0) {
+        enhancementSection += `### 🚀 Platform-Specific Enhancements:\n`;
+        qualityValidation.enhancementSuggestions.forEach((suggestion, index) => {
+          enhancementSection += `${index + 1}. ${suggestion}\n`;
+        });
+        enhancementSection += `\n`;
+      }
+      
+      enhancementSection += `### 📊 Quality Metrics Breakdown:\n`;
+      enhancementSection += `- **Platform Accuracy**: ${qualityValidation.metrics.platformAccuracy.toFixed(1)}/10\n`;
+      enhancementSection += `- **Technical Accuracy**: ${qualityValidation.metrics.technicalAccuracy.toFixed(1)}/10\n`;
+      enhancementSection += `- **Completeness**: ${qualityValidation.metrics.completeness.toFixed(1)}/10\n`;
+      enhancementSection += `- **Actionability**: ${qualityValidation.metrics.actionability.toFixed(1)}/10\n`;
+      enhancementSection += `- **Scalability**: ${qualityValidation.metrics.scalability.toFixed(1)}/10\n`;
+      enhancementSection += `- **Security**: ${qualityValidation.metrics.security.toFixed(1)}/10\n`;
+      enhancementSection += `- **Performance**: ${qualityValidation.metrics.performance.toFixed(1)}/10\n\n`;
+      
+      enhancementSection += `*To achieve 9/10+ rating, address the priority issues and implement the recommended enhancements.*\n`;
+      
+      // Stream the enhancement section
+      yield enhancementSection;
+    } else {
+      // High-quality blueprint, add validation badge
+      const validationBadge = `\n\n---\n\n## ✅ Quality Validation Passed\n\n`;
+      const scoreInfo = `**Overall Quality Score: ${qualityValidation.metrics.overallScore.toFixed(1)}/10** 🎉\n\n`;
+      const confirmationMsg = `This blueprint meets the 9/10+ quality standard for ${platform} development.\n`;
+      
+      yield validationBadge + scoreInfo + confirmationMsg;
+    }
+  } catch (error) {
+    console.warn("Quality validation failed:", error);
+    // Continue without quality enhancement if validation fails
+  }
 }
