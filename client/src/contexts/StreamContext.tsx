@@ -89,11 +89,13 @@ export function StreamProvider({ children }: StreamProviderProps) {
                 const event: StreamEvent = JSON.parse(data);
 
                 if (event.type === "chunk" && event.content) {
-                  // Update state immediately for smooth streaming
-                  setStreamState(prev => ({
-                    ...prev,
-                    content: prev.content + event.content
-                  }));
+                  // Use requestAnimationFrame for smoother updates
+                  requestAnimationFrame(() => {
+                    setStreamState(prev => ({
+                      ...prev,
+                      content: prev.content + event.content
+                    }));
+                  });
                 } else if (event.type === "complete") {
                   setStreamState(prev => ({
                     ...prev,
@@ -109,6 +111,15 @@ export function StreamProvider({ children }: StreamProviderProps) {
                 }
               } catch (parseError) {
                 console.error("Failed to parse SSE data:", parseError);
+                // If JSON parsing fails, treat as raw content for smoother streaming
+                if (data && data !== "[DONE]") {
+                  requestAnimationFrame(() => {
+                    setStreamState(prev => ({
+                      ...prev,
+                      content: prev.content + data
+                    }));
+                  });
+                }
               }
             }
           }

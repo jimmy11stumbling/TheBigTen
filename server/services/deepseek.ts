@@ -468,6 +468,9 @@ async function* simulateGeneration(prompt: string, platform: z.infer<typeof plat
   const platformDB = getPlatformDatabase(platform);
   const platformName = platformDB?.name || platform.charAt(0).toUpperCase() + platform.slice(1);
 
+  // Add initial delay for better visual effect
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   const sections = [
     `# **Unified Project Blueprint & Requirements Document (PRD)**\n## ${platformName}-Optimized Enterprise Architecture\n\n**Project ID:** \`${projectId}\`  \n**Blueprint Engine:** NoCodeLos v4.0 Enhanced  \n**Generated:** ${currentDate}  \n**Target Platform:** ${platformName}  \n**Platform Focus:** ${platformDB?.primaryFunction || 'Full-stack development'}  \n**Complexity:** Production-Ready Enterprise\n\n---\n\n`,
 
@@ -525,16 +528,27 @@ async function* simulateGeneration(prompt: string, platform: z.infer<typeof plat
   ];
 
   for (const section of sections) {
-    // Simulate realistic typing speed
-    const words = section.split(" ");
-    for (let i = 0; i < words.length; i++) {
-      const chunk = i === 0 ? words[i] : " " + words[i];
-      yield chunk;
+    // Simulate realistic typing speed with character-by-character streaming
+    for (let i = 0; i < section.length; i++) {
+      const char = section[i];
+      yield char;
 
-      // Variable delay to simulate natural generation
-      const delay = Math.random() * 50 + 25; // 25-75ms per word
+      // Faster streaming for better visual effect
+      let delay = 15; // Base delay of 15ms per character
+      
+      // Add slight variations for natural feel
+      if (char === ' ') delay = 25; // Slightly longer for spaces
+      if (char === '\n') delay = 50; // Longer for line breaks
+      if (char === '.') delay = 100; // Pause at sentence ends
+      
+      // Add small random variation
+      delay += Math.random() * 10;
+      
       await new Promise(resolve => setTimeout(resolve, delay));
     }
+    
+    // Small pause between sections
+    await new Promise(resolve => setTimeout(resolve, 200));
   }
 }
 

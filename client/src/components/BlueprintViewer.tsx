@@ -358,14 +358,14 @@ export function BlueprintViewer() {
         className="p-0 flex-1 overflow-auto bg-white scroll-smooth" 
         style={{ minHeight: "calc(100vh - 300px)", maxHeight: "calc(100vh - 120px)" }}
       >
-        <div className={`transition-all duration-300 ${
+        <div className={`transition-all duration-500 ease-in-out ${
           streamState.content || streamState.status === "generating" 
-            ? "h-[800px]" 
+            ? "min-h-[800px]" 
             : "h-32"
         } border border-gray-200 rounded-lg overflow-hidden`}>
           <div 
             ref={scrollContainerRef}
-            className="h-full overflow-y-auto p-6 bg-gray-50"
+            className="h-full overflow-y-auto p-6 bg-gray-50 relative"
           >
           {streamState.status === "idle" && (
             <div className="text-center text-slate-500 py-20">
@@ -380,6 +380,165 @@ export function BlueprintViewer() {
               <h3 className="text-2xl font-bold text-slate-900 mb-3">Ready to Generate</h3>
               <p className="text-lg text-slate-600 mb-2">Your technical blueprint awaits</p>
               <p className="text-sm text-slate-500 max-w-md mx-auto">
+                Enter your app idea and select a platform to generate a comprehensive technical blueprint
+              </p>
+            </div>
+          )}
+
+          {streamState.status === "generating" && !streamState.content && (
+            <div className="text-center text-slate-500 py-20">
+              <div className="relative mb-8">
+                <div className="w-24 h-24 mx-auto bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl flex items-center justify-center">
+                  <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-3">Generating Blueprint</h3>
+              <p className="text-lg text-slate-600 mb-2">AI is analyzing your requirements</p>
+              <p className="text-sm text-slate-500">This may take a few moments...</p>
+            </div>
+          )}
+
+          {streamState.content && (
+            <div className="prose prose-slate max-w-none">
+              <div 
+                className="relative overflow-hidden"
+                style={{ 
+                  minHeight: "200px",
+                  background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)"
+                }}
+              >
+                <div className="absolute inset-0 bg-white/50"></div>
+                <div className="relative z-10 p-6">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeHighlight, rehypeSanitize]}
+                    components={{
+                      code({ node, inline, className, children, ...props }) {
+                        const match = /language-(\w+)/.exec(className || '');
+                        return !inline && match ? (
+                          <div className="relative group">
+                            <SyntaxHighlighter
+                              style={tomorrow}
+                              language={match[1]}
+                              PreTag="div"
+                              className="rounded-lg shadow-sm border border-gray-200"
+                              {...props}
+                            >
+                              {String(children).replace(/\n$/, '')}
+                            </SyntaxHighlighter>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => copyToClipboard(String(children))}
+                            >
+                              <Copy className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <code className={`${className} bg-gray-100 px-2 py-1 rounded text-sm`} {...props}>
+                            {children}
+                          </code>
+                        );
+                      },
+                      h1: ({ children }) => (
+                        <h1 className="text-3xl font-bold text-gray-900 mb-6 border-b border-gray-200 pb-3">
+                          {children}
+                        </h1>
+                      ),
+                      h2: ({ children }) => (
+                        <h2 className="text-2xl font-semibold text-gray-800 mb-4 mt-8">
+                          {children}
+                        </h2>
+                      ),
+                      h3: ({ children }) => (
+                        <h3 className="text-xl font-semibold text-gray-800 mb-3 mt-6">
+                          {children}
+                        </h3>
+                      ),
+                      p: ({ children }) => (
+                        <p className="text-gray-700 mb-4 leading-relaxed">
+                          {children}
+                        </p>
+                      ),
+                      ul: ({ children }) => (
+                        <ul className="list-disc list-inside mb-4 space-y-2 text-gray-700">
+                          {children}
+                        </ul>
+                      ),
+                      ol: ({ children }) => (
+                        <ol className="list-decimal list-inside mb-4 space-y-2 text-gray-700">
+                          {children}
+                        </ol>
+                      ),
+                      li: ({ children }) => (
+                        <li className="text-gray-700">
+                          {children}
+                        </li>
+                      ),
+                      table: ({ children }) => (
+                        <div className="overflow-x-auto mb-4">
+                          <table className="min-w-full divide-y divide-gray-200 border border-gray-200 rounded-lg">
+                            {children}
+                          </table>
+                        </div>
+                      ),
+                      thead: ({ children }) => (
+                        <thead className="bg-gray-50">
+                          {children}
+                        </thead>
+                      ),
+                      th: ({ children }) => (
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          {children}
+                        </th>
+                      ),
+                      td: ({ children }) => (
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {children}
+                        </td>
+                      ),
+                      blockquote: ({ children }) => (
+                        <blockquote className="border-l-4 border-blue-500 pl-4 py-2 mb-4 bg-blue-50 text-gray-700 italic">
+                          {children}
+                        </blockquote>
+                      )
+                    }}
+                  >
+                    {streamState.content}
+                  </ReactMarkdown>
+                  
+                  {streamState.status === "generating" && (
+                    <div className="mt-4 flex items-center justify-center">
+                      <div className="bg-white rounded-full px-4 py-2 shadow-sm border border-gray-200">
+                        <div className="flex items-center space-x-2">
+                          <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                          <span className="text-sm text-gray-600">Generating...</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {streamState.status === "error" && (
+            <div className="text-center text-red-500 py-20">
+              <div className="relative mb-8">
+                <div className="w-24 h-24 mx-auto bg-gradient-to-br from-red-100 to-pink-100 rounded-2xl flex items-center justify-center">
+                  <AlertCircle className="w-8 h-8 text-red-600" />
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-red-900 mb-3">Generation Failed</h3>
+              <p className="text-lg text-red-600 mb-2">Something went wrong</p>
+              <p className="text-sm text-red-500">
+                {streamState.error || "Please try again"}
+              </p>
+            </div>
+          )}
+        </div>
+      </CardContent>o">
                 Enter your app idea and select a platform to generate a comprehensive 
                 technical blueprint with architecture diagrams, code snippets, and deployment guides.
               </p>

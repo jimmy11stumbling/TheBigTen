@@ -11,8 +11,8 @@ const queryClient = new QueryClient();
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <SettingsProvider>
+    <SettingsProvider>
+      <QueryClientProvider client={queryClient}>
         <StreamProvider>
           <Router>
             <Switch>
@@ -20,11 +20,11 @@ function App() {
               <Route path="/app" component={HomePage} />
               <Route component={NotFoundPage} />
             </Switch>
-            <Toaster />
           </Router>
         </StreamProvider>
-      </SettingsProvider>
-    </QueryClientProvider>
+        <Toaster />
+      </QueryClientProvider>
+    </SettingsProvider>
   );
 }
 
