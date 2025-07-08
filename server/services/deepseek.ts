@@ -415,17 +415,14 @@ Begin generation immediately with uncompromising attention to detail and complet
 }
 
 async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platformEnum>, userApiKey?: string): AsyncGenerator<string> {
-  // Use environment API key if available, otherwise user-provided key
-  const apiKey = process.env.DEEPSEEK_API_KEY || userApiKey;
-  
-  if (!apiKey) {
-    // No API key available - use simulation
+  if (!userApiKey) {
+    // No API key provided - use simulation
     yield "\n\n> **⚠️ Using Demo Mode**: No DeepSeek API key provided. Add your API key in Settings for real AI generation.\n\n";
     yield* simulateGeneration(prompt, platform);
     return;
   }
 
-  console.log("Using API key:", apiKey ? "YES" : "NO", "- Source:", process.env.DEEPSEEK_API_KEY ? "env" : "user");
+  const apiKey = userApiKey;
 
   const request: DeepSeekRequest = {
     model: "deepseek-chat",
