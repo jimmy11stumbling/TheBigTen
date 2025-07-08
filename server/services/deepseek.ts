@@ -807,69 +807,7 @@ async function* simulateGeneration(prompt: string, platform: z.infer<typeof plat
 }
 
 export async function* generateBlueprint(prompt: string, platform: z.infer<typeof platformEnum>, userApiKey?: string): AsyncGenerator<string> {
-  let fullContent = "";
-  
-  // Stream the initial content generation
-  for await (const chunk of callDeepSeekAPI(prompt, platform, userApiKey)) {
-    fullContent += chunk;
-    yield chunk;
-  }
-  
-  // After streaming is complete, perform quality validation and enhancement
-  try {
-    const qualityValidation = await blueprintQuality.validateBlueprintQuality(fullContent, platform, prompt);
-    
-    // If quality score is below 9/10, add enhancement suggestions
-    if (qualityValidation.metrics.overallScore < 9.0) {
-      let enhancementSection = `\n\n---\n\n## 🎯 Quality Enhancement Recommendations (Current Score: ${qualityValidation.metrics.overallScore.toFixed(1)}/10)\n\n`;
-      
-      if (qualityValidation.issues.length > 0) {
-        enhancementSection += `### ⚠️ Priority Issues to Address:\n`;
-        qualityValidation.issues.forEach((issue, index) => {
-          enhancementSection += `${index + 1}. ${issue}\n`;
-        });
-        enhancementSection += `\n`;
-      }
-      
-      if (qualityValidation.recommendations.length > 0) {
-        enhancementSection += `### 📈 Improvement Recommendations:\n`;
-        qualityValidation.recommendations.forEach((rec, index) => {
-          enhancementSection += `${index + 1}. ${rec}\n`;
-        });
-        enhancementSection += `\n`;
-      }
-      
-      if (qualityValidation.enhancementSuggestions.length > 0) {
-        enhancementSection += `### 🚀 Platform-Specific Enhancements:\n`;
-        qualityValidation.enhancementSuggestions.forEach((suggestion, index) => {
-          enhancementSection += `${index + 1}. ${suggestion}\n`;
-        });
-        enhancementSection += `\n`;
-      }
-      
-      enhancementSection += `### 📊 Quality Metrics Breakdown:\n`;
-      enhancementSection += `- **Platform Accuracy**: ${qualityValidation.metrics.platformAccuracy.toFixed(1)}/10\n`;
-      enhancementSection += `- **Technical Accuracy**: ${qualityValidation.metrics.technicalAccuracy.toFixed(1)}/10\n`;
-      enhancementSection += `- **Completeness**: ${qualityValidation.metrics.completeness.toFixed(1)}/10\n`;
-      enhancementSection += `- **Actionability**: ${qualityValidation.metrics.actionability.toFixed(1)}/10\n`;
-      enhancementSection += `- **Scalability**: ${qualityValidation.metrics.scalability.toFixed(1)}/10\n`;
-      enhancementSection += `- **Security**: ${qualityValidation.metrics.security.toFixed(1)}/10\n`;
-      enhancementSection += `- **Performance**: ${qualityValidation.metrics.performance.toFixed(1)}/10\n\n`;
-      
-      enhancementSection += `*To achieve 9/10+ rating, address the priority issues and implement the recommended enhancements.*\n`;
-      
-      // Stream the enhancement section
-      yield enhancementSection;
-    } else {
-      // High-quality blueprint, add validation badge
-      const validationBadge = `\n\n---\n\n## ✅ Quality Validation Passed\n\n`;
-      const scoreInfo = `**Overall Quality Score: ${qualityValidation.metrics.overallScore.toFixed(1)}/10** 🎉\n\n`;
-      const confirmationMsg = `This blueprint meets the 9/10+ quality standard for ${platform} development.\n`;
-      
-      yield validationBadge + scoreInfo + confirmationMsg;
-    }
-  } catch (error) {
-    console.warn("Quality validation failed:", error);
-    // Continue without quality enhancement if validation fails
-  }
+  // Stream AI content directly without any post-processing or quality validation
+  yield* callDeepSeekAPI(prompt, platform, userApiKey);
+
 }
