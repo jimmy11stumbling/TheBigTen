@@ -4,7 +4,7 @@ import { getTechnologyDatabase, searchTechnologies } from "@shared/technology-da
 import { blueprintQuality } from "./blueprintQuality";
 import { z } from "zod";
 
-const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
+const DEEPSEEK_API_URL = "https://api.deepseek.com/chat/completions";
 
 interface DeepSeekMessage {
   role: "system" | "user" | "assistant";
@@ -417,6 +417,7 @@ Begin generation immediately with uncompromising attention to detail and complet
 async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platformEnum>, userApiKey?: string): AsyncGenerator<string> {
   if (!userApiKey) {
     // No API key provided - use simulation
+    yield "\n\n> **⚠️ Using Demo Mode**: No DeepSeek API key provided. Add your API key in Settings for real AI generation.\n\n";
     yield* simulateGeneration(prompt, platform);
     return;
   }
@@ -424,7 +425,7 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
   const apiKey = userApiKey;
 
   const request: DeepSeekRequest = {
-    model: "deepseek-reasoner",
+    model: "deepseek-chat",
     messages: [
       {
         role: "system",
@@ -451,7 +452,10 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
     });
 
     if (!response.ok) {
-      throw new Error(`DeepSeek API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`DeepSeek API error: ${response.status} - ${response.statusText}`);
+      console.error("Error response:", errorText);
+      throw new Error(`DeepSeek API error: ${response.status} - ${errorText}`);
     }
 
     const reader = response.body?.getReader();
@@ -460,36 +464,59 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
     }
 
     let buffer = '';
-    const decoder = new TextDecoder();
+    const decoder = new TextDecoder('utf-8');
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
 
       buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
-
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const data = line.slice(6).trim();
-          if (data === '[DONE]') break;
-
+      const parts = buffer.split('\n\n');
+      
+      for (let i = 0; i < parts.length - 1; i++) {
+        const part = parts[i].trim();
+        if (part.startsWith('data:')) {
+          const jsonStr = part.slice(5).trim();
+          if (jsonStr === '[DONE]') return;
+          
           try {
-            const parsed = JSON.parse(data);
+            const parsed = JSON.parse(jsonStr);
             const content = parsed.choices?.[0]?.delta?.content;
             if (content) {
-              // Send content immediately for smooth streaming
               yield content;
             }
           } catch (e) {
-            // Skip invalid JSON
+            console.warn("JSON parse error:", e);
           }
         }
       }
+      buffer = parts[parts.length - 1];
     }
   } catch (error) {
     console.error("DeepSeek API error:", error);
+    console.error("API Key provided:", !!apiKey);
+    console.error("Request details:", JSON.stringify({
+      url: DEEPSEEK_API_URL,
+      model: "deepseek-chat",
+      hasAuth: !!apiKey
+    }));
+    
+    // Provide user-friendly error message
+    yield "\n\n> **⚠️ API Error**: Failed to connect to DeepSeek API. ";
+    if (error instanceof Error) {
+      if (error.message.includes("401")) {
+        yield "Invalid API key. Please check your DeepSeek API key in Settings.\n\n";
+      } else if (error.message.includes("429")) {
+        yield "Rate limit exceeded. Please try again in a few minutes.\n\n";
+      } else if (error.message.includes("403")) {
+        yield "Access forbidden. Check your API key permissions.\n\n";
+      } else {
+        yield `Error: ${error.message}. Falling back to demo content.\n\n`;
+      }
+    } else {
+      yield "Unknown error occurred. Falling back to demo content.\n\n";
+    }
+    
     // Fallback to simulated generation
     yield* simulateGeneration(prompt, platform);
   }
@@ -506,7 +533,7 @@ async function* simulateGeneration(prompt: string, platform: z.infer<typeof plat
   await new Promise(resolve => setTimeout(resolve, 500));
 
   const sections = [
-    `# **Unified Project Blueprint & Requirements Document (PRD)**\n## ${platformName}-Optimized Enterprise Architecture\n\n**Project ID:** \`${projectId}\`  \n**Blueprint Engine:** NoCodeLos v4.0 Enhanced  \n**Generated:** ${currentDate}  \n**Target Platform:** ${platformName}  \n**Platform Focus:** ${platformDB?.primaryFunction || 'Full-stack development'}  \n**Complexity:** Production-Ready Enterprise\n\n---\n\n`,
+    `# **🎬 DEMO: Unified Project Blueprint & Requirements Document**\n## ${platformName}-Optimized Enterprise Architecture\n\n> **⚠️ This is demo content.** Add your DeepSeek API key in Settings for real AI-generated blueprints.\n\n**Project ID:** \`${projectId}\`  \n**Blueprint Engine:** NoCodeLos v4.0 Enhanced (Demo Mode)  \n**Generated:** ${currentDate}  \n**Target Platform:** ${platformName}  \n**Platform Focus:** ${platformDB?.primaryFunction || 'Full-stack development'}  \n**Complexity:** Production-Ready Enterprise\n\n---\n\n`,
 
     `## **🎯 1. Executive Summary & Vision**\n\n### **1.1. Project Overview**\n**Application Name:** ${appName}  \n**Core Concept:** ${prompt}  \n**Business Model:** Scalable SaaS platform with freemium/enterprise tiers  \n**Target Market Size:** $2.5B+ addressable market  \n\n`,
 
