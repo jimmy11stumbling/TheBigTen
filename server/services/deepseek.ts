@@ -1,6 +1,5 @@
 import { platformEnum } from "@shared/schema";
 import { getPlatformDatabase } from "@shared/platform-databases";
-import { getTechnologyDatabase, searchTechnologies } from "@shared/technology-databases";
 import { z } from "zod";
 
 const DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions";
@@ -20,393 +19,87 @@ interface DeepSeekRequest {
 
 function getSystemPrompt(platform: z.infer<typeof platformEnum>): string {
   const platformDB = getPlatformDatabase(platform);
+  const platformName = platformDB?.name || platform.charAt(0).toUpperCase() + platform.slice(1);
 
-  const platformContext = platformDB ? `
-
-## TARGET PLATFORM: ${platformDB.name} (MANDATORY PLATFORM FOCUS)
-
-**Platform Overview:**
-- Vendor: ${platformDB.vendor}
-- Primary Function: ${platformDB.primaryFunction}
-- Target Audience: ${platformDB.targetAudience}
-- Key Differentiator: ${platformDB.keyDifferentiator}
-- Pricing Model: ${platformDB.pricingModel}
-
-**REQUIRED Tech Stack for ${platformDB.name}:**
-- Frontend: ${platformDB.techStack.frontend.join(', ')}
-- Backend: ${platformDB.techStack.backend.join(', ')}
-- Database: ${platformDB.techStack.database.join(', ')}
-- Deployment: ${platformDB.techStack.deployment.join(', ')}
-${platformDB.techStack.runtime ? `- Runtime: ${platformDB.techStack.runtime}` : ''}
-
-**REQUIRED Platform-Specific Integrations:**
-- Authentication: ${platformDB.integrations.auth.join(', ')}
-- Payments: ${platformDB.integrations.payments.join(', ')}
-- AI Services: ${platformDB.integrations.ai.join(', ')}
-- Databases: ${platformDB.integrations.databases.join(', ')}
-- Deployment: ${platformDB.integrations.deployment.join(', ')}
-- Other: ${platformDB.integrations.other.slice(0, 5).join(', ')}
-
-**Optimal Use Cases for ${platformDB.name}:**
-${platformDB.bestFor.map(use => `- ${use}`).join('\n')}
-
-**Platform Limitations & Considerations:**
-${platformDB.limitations.map(limit => `- ${limit}`).join('\n')}
+  return `You are an expert technical architect and software engineer. Generate a comprehensive, production-ready technical blueprint for the given application idea.
 
 **CRITICAL REQUIREMENTS:**
-1. You MUST use ONLY ${platformDB.name}'s native technologies and integrations
-2. ALL code examples must be compatible with ${platformDB.name}'s environment
-3. Pricing considerations must align with ${platformDB.pricingModel}
-4. Architecture must leverage ${platformDB.name}'s core features: ${platformDB.coreFeatures.slice(0, 3).join(', ')}
-5. Do NOT mention competing platforms - focus exclusively on ${platformDB.name}
-` : '';
-  const basePrompt = `You are the "NoCodeLos Blueprint Engine v4.0" - the world's most advanced AI system architect. Your expertise spans enterprise architecture, full-stack development, DevOps, security, performance optimization, and modern software engineering practices. You generate production-ready, enterprise-grade technical blueprints that developers can execute immediately.
+1. Generate REAL, WORKING code examples - no placeholders or "[object]" content
+2. Provide specific implementation details, not generic descriptions
+3. Include actual file structures, database schemas, and API endpoints
+4. Use modern best practices and technologies for ${platformName}
+5. Make everything production-ready and scalable
 
-**CORE MISSION:** Transform any application idea into a comprehensive, actionable, production-ready "Unified Project Blueprint & Requirements Document" that achieves 9/10+ ratings across ALL dimensions:
+**TARGET PLATFORM: ${platformName}**
+${platformDB ? `
+- Primary Function: ${platformDB.primaryFunction}
+- Tech Stack: ${platformDB.techStack.frontend.join(', ')} | ${platformDB.techStack.backend.join(', ')}
+- Database: ${platformDB.techStack.database.join(', ')}
+- Deployment: ${platformDB.techStack.deployment.join(', ')}
+` : ''}
 
-- **Platform Accuracy (9/10):** Perfect alignment with target platform capabilities
-- **Technical Accuracy (9/10):** Cutting-edge, best-practice architecture
-- **Completeness (9/10):** Every detail covered, zero gaps
-- **Actionability (9/10):** Ready-to-execute code and instructions
-- **Scalability (9/10):** Enterprise-grade, production-ready design
-- **Security (9/10):** Industry-standard security practices
-- **Performance (9/10):** Optimized for speed and efficiency
+**OUTPUT FORMAT:**
+Generate a comprehensive technical blueprint with:
+1. Executive Summary with clear project scope
+2. Complete Technology Stack with specific versions
+3. Detailed System Architecture with diagrams
+4. Complete Database Schema with actual SQL
+5. API Endpoints with real request/response examples
+6. Frontend Components with actual React/TypeScript code
+7. Security Implementation with real authentication code
+8. Deployment Strategy specific to ${platformName}
+9. Testing Strategy with actual test examples
+10. Performance Optimization techniques
 
-**PLATFORM VALIDATION REQUIREMENTS:**
-- Every technology choice must be verified against the target platform's capabilities
-- All integrations must use platform-native solutions first
-- Code examples must be tested and compatible with the platform
-- Deployment strategies must leverage platform-specific features
-- Validate that security approaches work within platform constraints
-- Confirm pricing implications align with platform billing model
+**CODE QUALITY REQUIREMENTS:**
+- All code must be syntactically correct and runnable
+- Include proper error handling and validation
+- Use TypeScript for type safety
+- Follow modern React patterns (hooks, context, etc.)
+- Include proper database relationships and indexes
+- Implement real authentication and authorization
+- Add comprehensive logging and monitoring
 
-**CRITICAL INSTRUCTIONS:**
-
-1. **PLATFORM VALIDATION FIRST:** Before any technical recommendation:
-   - Verify the technology is supported by the target platform
-   - Check if integrations are available and properly documented
-   - Ensure deployment strategy aligns with platform capabilities
-   - Validate that security approaches work within platform constraints
-   - Confirm pricing implications align with platform billing model
-
-2. **DEEP ANALYSIS:** Dissect the user's request to understand:
-   - Core application type and business domain
-   - Target audience demographics and technical sophistication
-   - Scalability requirements (100 users vs 1M+ users)
-   - Business model implications (B2B, B2C, marketplace, etc.)
-   - Compliance requirements (GDPR, SOC2, HIPAA if applicable)
-   - Integration ecosystem needs
-   - Platform-specific constraints and opportunities
-
-2. **ENTERPRISE-GRADE ARCHITECTURE:**
-   - Design for 10x current requirements
-   - Include microservices patterns where appropriate
-   - Plan for horizontal scaling, load balancing, and CDN
-   - Implement proper separation of concerns
-   - Design database schemas with proper indexing, relationships, and constraints
-   - Include caching strategies (Redis, memcache)
-   - Plan for real-time features (WebSockets, Server-Sent Events)
-
-3. **SECURITY-FIRST APPROACH:**
-   - Authentication: Multi-factor, OAuth2, JWT with refresh tokens
-   - Authorization: Role-based access control (RBAC)
-   - Data protection: Encryption at rest and in transit
-   - Input validation and sanitization
-   - Rate limiting and DDoS protection
-   - Security headers (CORS, CSP, HSTS)
-   - API security (API keys, throttling, monitoring)
-
-4. **PERFORMANCE OPTIMIZATION:**
-   - Database query optimization
-   - CDN implementation for static assets
-   - Image optimization and lazy loading
-   - Code splitting and bundle optimization
-   - Server-side rendering (SSR) or static generation where appropriate
-   - Monitoring and observability (logging, metrics, tracing)
-
-5. **ACTIONABLE BUILD PROMPTS (Layer 1):**
-   Generate 8-12 specific, executable prompts covering:
-   - Database schema with migrations
-   - Authentication and authorization system
-   - Core business logic components
-   - API endpoints with proper error handling
-   - Frontend components with state management
-   - Real-time features implementation
-   - Testing strategies (unit, integration, e2e)
-   - Deployment and CI/CD pipeline
-
-6. **COMPREHENSIVE ARCHITECTURE (Layer 2):**
-   - Technology stack with specific versions
-   - Detailed system architecture with Mermaid diagrams
-   - Complete folder structure (20+ directories/files)
-   - Database schema with relationships, indexes, constraints
-   - API specification with request/response examples
-   - Component hierarchy and state management
-   - Third-party integrations and APIs
-   - Environment configuration and secrets management
-
-7. **MODERN TECH STACK DEFAULTS:**
-   - Frontend: React 18+ with TypeScript, Zustand/Redux Toolkit, React Query
-   - Styling: Tailwind CSS with shadcn/ui components
-   - Backend: Node.js with Express/Fastify, TypeScript, Zod validation
-   - Database: PostgreSQL with Prisma/Drizzle ORM
-   - Authentication: NextAuth.js or custom JWT implementation
-   - Real-time: Socket.io or native WebSockets
-   - Testing: Vitest, React Testing Library, Playwright
-   - Monitoring: Sentry for error tracking, analytics integration
-
-8. **PRODUCTION READINESS:**
-   - Docker containerization
-   - CI/CD pipeline configuration
-   - Environment-specific configurations
-   - Health checks and monitoring
-   - Backup and disaster recovery
-   - Performance benchmarks and SLAs
-   - Documentation and API specs
-
-9. **QUALITY ASSURANCE:**
-   - Code quality standards (ESLint, Prettier, SonarQube)
-   - Testing coverage requirements (>85%)
-   - Security scanning and vulnerability assessment
-   - Performance testing and load testing
-   - Accessibility compliance (WCAG 2.1 AA)
-   - Cross-browser and mobile responsiveness
-
-10. **SCALABILITY PLANNING:**
-    - Horizontal scaling strategies
-    - Database sharding considerations
-    - Caching layers and strategies
-    - CDN and edge computing
-    - Microservices migration path
-    - Auto-scaling and load balancing
-
-**OUTPUT REQUIREMENTS:**
-- Generate a complete, gap-free Markdown document
-- Include specific code examples and configurations
-- Provide realistic timelines and resource estimates
-- Include cost considerations and optimization strategies
-- Add troubleshooting guides and common pitfalls
-- Ensure every section is comprehensive and actionable
-
-**QUALITY STANDARDS:**
-- Zero placeholders or "TODO" items
-- Production-ready code snippets
-- Industry best practices throughout
-- Scalable from day one
-- Security-hardened by default
-- Performance-optimized architecture
-
-Begin generation immediately with uncompromising attention to detail and completeness.`;
-
-  const platformSpecific = {
-    replit: `
-
-**REPLIT-SPECIFIC DEVELOPMENT REQUIREMENTS:**
-- **Environment Setup:** Use Replit's Nix package manager for language dependencies
-- **Database Strategy:** Leverage Replit Database (PostgreSQL) with proper connection pooling
-- **Authentication:** Implement Replit Auth for seamless user management
-- **Deployment:** Use Replit's hosting with proper environment variable management
-- **Real-time Features:** Utilize WebSocket support with proper scaling considerations
-- **File Management:** Use Replit's file system with proper permissions
-- **Package Management:** Configure dependencies through .replit and shell.nix files
-- **Collaborative Development:** Enable multiplayer mode for team development
-- **Mobile Readiness:** Ensure responsive design works on Replit mobile app
-- **Performance:** Optimize for Replit's cloud infrastructure limitations
-- **Security Best Practices:**
-  - Use environment variables for secrets via Replit Secrets
-  - Implement HTTPS by default through Replit's SSL termination  
-  - Use Replit Auth for production-ready authentication
-  - Configure CORS properly for Replit's domain structure
-- **Code Structure:** Organize for Replit's file system and build process
-- **Monitoring:** Use console logging that works with Replit's log viewer`,
-
-    cursor: `
-
-**CURSOR-SPECIFIC DEVELOPMENT:**
-- **Codebase Context:** Leverage Cursor's advanced codebase understanding with embeddings
-- **Agent Mode:** Implement autonomous development workflows with Cursor Agent
-- **Advanced AI Integration:** Use @-mentions and .cursorrules for precise control
-- **Professional Development:** Optimize for large-scale application development
-- **VS Code Compatibility:** Ensure full compatibility with VS Code ecosystem
-- **Performance Optimization:** Implement predictive edits and Tab-to-Accept workflows
-- **Multi-LLM Support:** Integrate with GPT-4o, Claude 3.7, and Gemini 2.5 Pro
-- **Enterprise Features:** Implement advanced debugging and refactoring capabilities
-- **Custom Model Integration:** Support for custom AI models and configurations
-- **Advanced Editing:** Utilize inline editing and natural language refactoring
-- **Context Control:** Implement precise context management with @-mentions
-- **Rule-Based AI:** Configure .cursorrules for project-specific AI behavior`,
-
-    lovable: `
-
-**LOVABLE-SPECIFIC DEVELOPMENT:**
-- **Supabase Integration:** Leverage tight Supabase integration for backend services
-- **Vibe Coding:** Implement conversational development with AI Fullstack Engineer
-- **Security Focus:** Utilize built-in security scanning and production-readiness checks
-- **Visual Development:** Implement click-to-modify UI with Visual Edits
-- **Figma Integration:** Support design-to-code workflows with Builder.io
-- **Multiplayer Development:** Enable real-time collaborative coding
-- **Credit-Based Workflow:** Optimize for credit-based development cycles
-- **React/Tailwind Focus:** Optimize for React and Tailwind CSS development
-- **Rapid Prototyping:** Support fast MVP development and validation
-- **Built-in Deployment:** Utilize Lovable's hosting and custom domains
-- **Security Scanning:** Implement comprehensive security analysis
-- **European Startup Focus:** Align with European startup ecosystem needs`,
-
-    windsurf: `
-
-**WINDSURF-SPECIFIC DEVELOPMENT:**
-- **Cascade Agent:** Leverage multi-file editing and debugging capabilities
-- **Database Focus:** Implement comprehensive database integration and design
-- **MCP Integration:** Use Model Context Protocol for external tool integration
-- **Enterprise Security:** Implement FedRAMP and SOC 2 compliance features
-- **Multi-Database Support:** Integrate with PostgreSQL, MongoDB, MySQL, and Cloudflare D1
-- **Professional IDE:** Utilize advanced IDE features and debugging capabilities
-- **Credit-Based Development:** Optimize for prompt credit usage
-- **Complex Backend:** Support sophisticated backend architecture and integrations
-- **Deployment Integration:** Utilize Netlify, Vercel, and other deployment platforms
-- **Security Compliance:** Implement enterprise-grade security and compliance
-- **Advanced AI:** Use advanced AI capabilities for complex development tasks
-- **Plugin Ecosystem:** Integrate with JetBrains and VS Code plugin ecosystems`,
-
-    bolt: `
-
-**BOLT-SPECIFIC DEVELOPMENT:**
-- **WebContainer Architecture:** Leverage StackBlitz's WebContainer technology
-- **Full-Stack Browser Development:** Implement complete development environment in browser
-- **Real-time Execution:** Support instant code execution and debugging
-- **JavaScript Ecosystem:** Focus on Node.js and modern JavaScript development
-- **Open Source:** Leverage open-source core codebase for customization
-- **Iterative Development:** Support conversational development and refinement
-- **Visual Editor:** Implement layout tweaking and visual design tools
-- **Token-Based Development:** Optimize for token-based subscription model
-- **Educational Focus:** Support learning and educational project development
-- **Rapid Prototyping:** Enable quick MVP development and iteration
-- **GitHub Integration:** Implement version control and collaborative development
-- **WebContainer Performance:** Optimize for unique browser-based execution environment`,
-
-    claude: `
-
-**CLAUDE-SPECIFIC DEVELOPMENT:**
-- **Terminal-Native Development:** Optimize for CLI-based development workflows
-- **Security-First Approach:** Implement explicit user approval and permission systems
-- **Context Management:** Use CLAUDE.md files for project configuration
-- **Enterprise Security:** Implement granular permissions and audit trails
-- **CI/CD Integration:** Support headless mode and automation workflows
-- **Cross-File Refactoring:** Leverage advanced codebase understanding
-- **Custom Workflows:** Implement slash commands and custom development workflows
-- **High-Cost Optimization:** Optimize for potentially expensive API usage
-- **Professional Development:** Support complex enterprise development scenarios
-- **Test-Driven Development:** Implement comprehensive testing workflows
-- **Advanced AI Models:** Leverage Claude 3.7 Sonnet and Claude 4 Opus capabilities
-- **Model Context Protocol:** Integrate with MCP for external tool connectivity
-- **Enterprise Compliance:** Implement security auditing and compliance features`,
-
-    gemini: `
-
-**GEMINI-SPECIFIC DEVELOPMENT:**
-- **Massive Context Window:** Leverage 1 million token context for large codebases
-- **Web Integration:** Implement Google Search and web-fetch capabilities
-- **Cross-Platform Development:** Support Windows, macOS, and Linux development
-- **Open Source Focus:** Leverage open-source nature for customization
-- **Budget-Conscious Development:** Optimize for generous free tier usage (1M requests/month)
-- **Research and Experimentation:** Support academic and research projects
-- **MCP Integration:** Use Model Context Protocol for tool integration
-- **Automation Focus:** Implement CI/CD and automation workflows
-- **Google Ecosystem:** Integrate with Google services and APIs
-- **Large-Scale Context:** Handle massive codebases and documentation
-- **Educational Support:** Support learning and educational institutions
-- **Community-Driven:** Leverage community support and contributions
-- **Live Data Integration:** Implement real-time web search and data retrieval`,
-
-    base44: `
-
-**BASE44-SPECIFIC DEVELOPMENT REQUIREMENTS:**
-- **Buttery Includes Philosophy:** Leverage Base44's all-in-one approach with built-in auth, database, payments
-- **Wix Ecosystem Integration:** Use Wix's enterprise infrastructure and services post-acquisition
-- **No-Code Architecture:** Design for natural language configuration and visual development
-- **Built-in Services:** Utilize Base44's automatic backend generation and database management
-- **Enterprise Features:** 
-  - Implement SSO and SAML for enterprise clients
-  - Use role-based access control (RBAC) with granular permissions
-  - Ensure SOC 2 compliance through Wix infrastructure
-- **AI-First Development:** Leverage Gemini 2.5 and Claude 4 integration for app generation
-- **Message-Based Pricing:** Optimize development approach for credit consumption efficiency
-- **Zero-Configuration Deployment:** Use Base44's instant hosting with custom domain support
-- **Collaborative Development:** Enable team collaboration through Base44's discuss feature
-- **Business Application Focus:** Design for internal tools, CRM, project management, workflows
-- **Wix Service Integration:**
-  - Use Wix Payments for transaction processing
-  - Leverage Wix Data for database operations
-  - Integrate with Wix Editor for advanced customization
-- **Scalability:** Design for enterprise-scale with Wix's infrastructure backing
-- **API Strategy:** Use Base44's built-in API generation with proper documentation`,
-
-    v0: `
-
-**V0-SPECIFIC DEVELOPMENT:**
-- **UI-First Development:** Focus on component generation and design systems
-- **Vercel Ecosystem:** Leverage tight integration with Vercel platform
-- **React/Next.js Focus:** Optimize for React and Next.js development
-- **Design-to-Code:** Implement image-to-code and Figma integration
-- **Three Design Options:** Provide multiple design variations for user choice
-- **Iterative Refinement:** Support conversational UI development
-- **Component Library:** Integrate with Material UI, Tailwind, and other libraries
-- **Frontend Specialization:** Focus on frontend development and UI components
-- **Rapid UI Prototyping:** Enable quick interface development and testing
-- **Framework Support:** Support React, Vue, Svelte, and HTML/CSS
-- **Direct Deployment:** Utilize one-click Vercel deployment
-- **Credit-Based Development:** Optimize for credit-based pricing model
-- **Responsive Design:** Ensure mobile-first and responsive design patterns`,
-
-    rork: `
-
-**RORK MOBILE-FIRST DEVELOPMENT:**
-- **React Native Focus:** Optimize for cross-platform mobile development
-- **Expo Integration:** Leverage Expo's build and deployment tools
-- **Native UI Components:** Use platform-specific mobile components
-- **App Store Optimization:** Prepare for iOS and Android store submission
-- **Mobile UX Patterns:** Implement native mobile navigation and interactions
-- **Cross-Platform Compatibility:** Ensure iOS and Android consistency
-- **Real-Time Testing:** Support TestFlight and device testing workflows
-- **Backend Integration:** Connect with Supabase, Firebase, and Airtable
-- **Performance Optimization:** Mobile-specific performance considerations
-- **Push Notifications:** Implement mobile notification strategies
-- **Offline Support:** Mobile-first offline capabilities
-- **App Store Guidelines:** Comply with platform-specific requirements
-- **Mobile Security:** Implement mobile-specific security measures
-- **Native Performance:** Optimize for mobile device performance and battery life`
-  };
-
-  return platformContext + basePrompt + platformSpecific[platform];
+Generate the blueprint now with REAL, DETAILED, PRODUCTION-READY content.`;
 }
 
 async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platformEnum>, userApiKey?: string): AsyncGenerator<string> {
-  if (!userApiKey) {
-    // No API key provided - use simulation
-    yield* simulateGeneration(prompt, platform);
+  if (!userApiKey || userApiKey.trim() === '') {
+    console.log("No API key provided, generating detailed blueprint content...");
+    yield* generateDetailedBlueprint(prompt, platform);
     return;
   }
 
-  const apiKey = userApiKey;
+  const apiKey = userApiKey.trim();
+  const systemPrompt = getSystemPrompt(platform);
 
   const request: DeepSeekRequest = {
-    model: "deepseek-reasoner",
+    model: "deepseek-chat",
     messages: [
       {
         role: "system",
-        content: getSystemPrompt(platform)
+        content: systemPrompt
       },
       {
         role: "user",
-        content: `Generate a comprehensive technical blueprint for: ${prompt}`
+        content: `Create a comprehensive technical blueprint for: ${prompt}
+
+Requirements:
+- Include working code examples in TypeScript/React
+- Provide complete database schemas
+- Show real API endpoints with examples
+- Include authentication and security
+- Make it production-ready for ${platform}
+- No placeholders - everything must be functional code`
       }
     ],
     stream: true,
-    temperature: 0.7,
+    temperature: 0.3,
     max_tokens: 8192
   };
 
   try {
+    console.log("Calling DeepSeek API...");
     const response = await fetch(DEEPSEEK_API_URL, {
       method: "POST",
       headers: {
@@ -417,6 +110,8 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`DeepSeek API error: ${response.status} - ${errorText}`);
       throw new Error(`DeepSeek API error: ${response.status}`);
     }
 
@@ -428,127 +123,102 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
     let buffer = '';
     const decoder = new TextDecoder();
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
 
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const data = line.slice(6).trim();
-          if (data === '[DONE]') break;
-
-          try {
-            const parsed = JSON.parse(data);
-            const content = parsed.choices?.[0]?.delta?.content;
-            if (content) {
-              // Send content immediately for smooth streaming
-              yield content;
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6).trim();
+            if (data === '[DONE]') {
+              console.log("DeepSeek stream completed");
+              return;
             }
-          } catch (e) {
-            // Skip invalid JSON
+
+            try {
+              const parsed = JSON.parse(data);
+              const content = parsed.choices?.[0]?.delta?.content;
+              if (content) {
+                yield content;
+              }
+            } catch (e) {
+              // Skip invalid JSON lines
+              continue;
+            }
           }
         }
       }
+    } finally {
+      reader.releaseLock();
     }
   } catch (error) {
     console.error("DeepSeek API error:", error);
-    // Fallback to simulated generation
-    yield* simulateGeneration(prompt, platform);
+    console.log("Falling back to detailed blueprint generation...");
+    yield* generateDetailedBlueprint(prompt, platform);
   }
 }
 
-async function* simulateGeneration(prompt: string, platform: z.infer<typeof platformEnum>): AsyncGenerator<string> {
+async function* generateDetailedBlueprint(prompt: string, platform: z.infer<typeof platformEnum>): AsyncGenerator<string> {
   const appName = prompt.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('').replace(/[^A-Za-z0-9]/g, '');
   const currentDate = new Date().toISOString().split('T')[0];
-  const projectId = `NC-${appName.toUpperCase()}-${Date.now().toString().slice(-6)}`;
   const platformDB = getPlatformDatabase(platform);
   const platformName = platformDB?.name || platform.charAt(0).toUpperCase() + platform.slice(1);
 
-  // Add initial delay for better visual effect
-  await new Promise(resolve => setTimeout(resolve, 500));
+  // Small delay for visual effect
+  await new Promise(resolve => setTimeout(resolve, 300));
 
   const sections = [
-    `# **Unified Project Blueprint & Requirements Document (PRD)**\n## ${platformName}-Optimized Enterprise Architecture\n\n**Project ID:** \`${projectId}\`  \n**Blueprint Engine:** NoCodeLos v4.0 Enhanced  \n**Generated:** ${currentDate}  \n**Target Platform:** ${platformName}  \n**Platform Focus:** ${platformDB?.primaryFunction || 'Full-stack development'}  \n**Complexity:** Production-Ready Enterprise\n\n---\n\n`,
+    `# **${appName} - Production-Ready Technical Blueprint**\n\n**Generated:** ${currentDate}  \n**Platform:** ${platformName}  \n**Architecture:** Enterprise-grade, scalable solution\n\n---\n\n`,
 
-    `## **🎯 1. Executive Summary & Vision**\n\n### **1.1. Project Overview**\n**Application Name:** ${appName}  \n**Core Concept:** ${prompt}  \n**Business Model:** Scalable SaaS platform with freemium/enterprise tiers  \n**Target Market Size:** $2.5B+ addressable market  \n\n`,
+    `## **🎯 Executive Summary**\n\n**Application:** ${appName}  \n**Concept:** ${prompt}  \n**Target Platform:** ${platformName}  \n**Architecture:** Modern full-stack application with real-time capabilities\n\n### **Key Features:**\n- Real-time data synchronization\n- Secure user authentication\n- Scalable microservices architecture\n- Production-ready deployment\n- Comprehensive testing suite\n\n`,
 
-    `### **1.2. Value Propositions**\n- **Primary:** Streamlines complex workflows through intelligent automation\n- **Secondary:** Reduces operational costs by 40-60%\n- **Tertiary:** Provides actionable insights through advanced analytics\n- **Competitive Edge:** AI-powered optimization and real-time collaboration\n\n`,
+    `## **🔧 Technology Stack**\n\n### **Frontend**\n- **Framework:** React 18 with TypeScript\n- **State Management:** Zustand + React Query\n- **UI Library:** Tailwind CSS + shadcn/ui\n- **Build Tool:** Vite\n- **Testing:** Vitest + React Testing Library\n\n### **Backend**\n- **Runtime:** Node.js 20+\n- **Framework:** Express.js with TypeScript\n- **Database:** PostgreSQL with Drizzle ORM\n- **Authentication:** JWT + bcrypt\n- **Validation:** Zod schemas\n- **Testing:** Jest + Supertest\n\n### **Infrastructure**\n- **Hosting:** ${platformName}\n- **Database:** PostgreSQL (managed)\n- **Caching:** Redis\n- **File Storage:** Cloud storage integration\n- **Monitoring:** Built-in analytics\n\n`,
 
-    `### **1.3. Target Audience Analysis**\n**Primary Users (70%):** Enterprise teams, 25-45 years old, $50K+ income  \n**Secondary Users (20%):** SMB decision makers, growth-stage companies  \n**Tertiary Users (10%):** Individual professionals and consultants  \n\n**User Personas:**\n- **Sarah (Product Manager):** Needs workflow visibility, team coordination, metrics tracking\n- **Mike (Engineering Lead):** Requires technical integration, automation, performance monitoring\n- **Lisa (Executive):** Wants high-level insights, ROI tracking, strategic overview\n\n`,
+    `## **🏗️ System Architecture**\n\n\`\`\`mermaid\ngraph TB\n    subgraph "Client Layer"\n        A[React Frontend]\n        B[Mobile PWA]\n    end\n    \n    subgraph "API Gateway"\n        C[Express Server]\n        D[Auth Middleware]\n        E[Rate Limiter]\n    end\n    \n    subgraph "Business Logic"\n        F[${appName} Service]\n        G[User Service]\n        H[Auth Service]\n    end\n    \n    subgraph "Data Layer"\n        I[PostgreSQL]\n        J[Redis Cache]\n        K[File Storage]\n    end\n    \n    A --> C\n    B --> C\n    C --> D\n    D --> E\n    E --> F\n    E --> G\n    E --> H\n    F --> I\n    G --> I\n    H --> I\n    F --> J\n    G --> J\n\`\`\`\n\n`,
 
-    `### **1.4. Success Metrics & KPIs**\n**Adoption Metrics:**\n- 1,000 active users within 3 months\n- 85%+ user retention rate\n- 4.8+ app store rating\n\n**Business Metrics:**\n- $100K ARR within 12 months\n- 15% monthly growth rate\n- 65%+ freemium to paid conversion\n\n**Technical Metrics:**\n- 99.9% uptime SLA\n- <200ms API response time\n- Zero critical security incidents\n\n---\n\n`,
+    `## **🗄️ Database Schema**\n\n\`\`\`sql\n-- Users table\nCREATE TABLE users (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  email VARCHAR(255) UNIQUE NOT NULL,\n  password_hash VARCHAR(255) NOT NULL,\n  first_name VARCHAR(100) NOT NULL,\n  last_name VARCHAR(100) NOT NULL,\n  avatar_url TEXT,\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Main feature table\nCREATE TABLE ${prompt.toLowerCase().replace(/\\s+/g, '_')} (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  title VARCHAR(255) NOT NULL,\n  description TEXT,\n  user_id UUID REFERENCES users(id) ON DELETE CASCADE,\n  status VARCHAR(50) DEFAULT 'active',\n  metadata JSONB DEFAULT '{}',\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Indexes for performance\nCREATE INDEX idx_users_email ON users(email);\nCREATE INDEX idx_${prompt.toLowerCase().replace(/\\s+/g, '_')}_user ON ${prompt.toLowerCase().replace(/\\s+/g, '_')}(user_id);\nCREATE INDEX idx_${prompt.toLowerCase().replace(/\\s+/g, '_')}_status ON ${prompt.toLowerCase().replace(/\\s+/g, '_')}(status);\n\`\`\`\n\n`,
 
-    `## **🏗️ 2. Technical Architecture Blueprint**\n\n### **2.1. Layer 1: Core Development Prompts**\n*Enterprise-grade, production-ready prompts for immediate development*\n\n`,
+    `## **🔐 Authentication System**\n\n### **JWT Authentication Middleware**\n\`\`\`typescript\n// server/middleware/auth.ts\nimport jwt from 'jsonwebtoken';\nimport { Request, Response, NextFunction } from 'express';\nimport { db } from '../db';\nimport { users } from '../schema';\nimport { eq } from 'drizzle-orm';\n\ninterface AuthRequest extends Request {\n  user?: {\n    id: string;\n    email: string;\n  };\n}\n\nexport const authenticateToken = async (\n  req: AuthRequest,\n  res: Response,\n  next: NextFunction\n) => {\n  const authHeader = req.headers['authorization'];\n  const token = authHeader && authHeader.split(' ')[1];\n\n  if (!token) {\n    return res.status(401).json({ error: 'Access token required' });\n  }\n\n  try {\n    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;\n    const [user] = await db\n      .select()\n      .from(users)\n      .where(eq(users.id, decoded.userId));\n\n    if (!user) {\n      return res.status(401).json({ error: 'Invalid token' });\n    }\n\n    req.user = {\n      id: user.id,\n      email: user.email\n    };\n    next();\n  } catch (error) {\n    return res.status(403).json({ error: 'Invalid token' });\n  }\n};\n\`\`\`\n\n### **User Registration & Login**\n\`\`\`typescript\n// server/controllers/auth.ts\nimport bcrypt from 'bcrypt';\nimport jwt from 'jsonwebtoken';\nimport { z } from 'zod';\nimport { db } from '../db';\nimport { users } from '../schema';\nimport { eq } from 'drizzle-orm';\n\nconst registerSchema = z.object({\n  email: z.string().email(),\n  password: z.string().min(8),\n  firstName: z.string().min(1),\n  lastName: z.string().min(1)\n});\n\nconst loginSchema = z.object({\n  email: z.string().email(),\n  password: z.string()\n});\n\nexport const register = async (req: Request, res: Response) => {\n  try {\n    const { email, password, firstName, lastName } = registerSchema.parse(req.body);\n    \n    // Check if user exists\n    const [existingUser] = await db\n      .select()\n      .from(users)\n      .where(eq(users.email, email));\n    \n    if (existingUser) {\n      return res.status(400).json({ error: 'User already exists' });\n    }\n    \n    // Hash password\n    const saltRounds = 12;\n    const passwordHash = await bcrypt.hash(password, saltRounds);\n    \n    // Create user\n    const [newUser] = await db\n      .insert(users)\n      .values({\n        email,\n        password_hash: passwordHash,\n        first_name: firstName,\n        last_name: lastName\n      })\n      .returning();\n    \n    // Generate JWT\n    const token = jwt.sign(\n      { userId: newUser.id },\n      process.env.JWT_SECRET!,\n      { expiresIn: '7d' }\n    );\n    \n    res.status(201).json({\n      token,\n      user: {\n        id: newUser.id,\n        email: newUser.email,\n        firstName: newUser.first_name,\n        lastName: newUser.last_name\n      }\n    });\n  } catch (error) {\n    console.error('Registration error:', error);\n    res.status(500).json({ error: 'Registration failed' });\n  }\n};\n\nexport const login = async (req: Request, res: Response) => {\n  try {\n    const { email, password } = loginSchema.parse(req.body);\n    \n    // Find user\n    const [user] = await db\n      .select()\n      .from(users)\n      .where(eq(users.email, email));\n    \n    if (!user) {\n      return res.status(401).json({ error: 'Invalid credentials' });\n    }\n    \n    // Verify password\n    const isValidPassword = await bcrypt.compare(password, user.password_hash);\n    \n    if (!isValidPassword) {\n      return res.status(401).json({ error: 'Invalid credentials' });\n    }\n    \n    // Generate JWT\n    const token = jwt.sign(\n      { userId: user.id },\n      process.env.JWT_SECRET!,\n      { expiresIn: '7d' }\n    );\n    \n    res.json({\n      token,\n      user: {\n        id: user.id,\n        email: user.email,\n        firstName: user.first_name,\n        lastName: user.last_name\n      }\n    });\n  } catch (error) {\n    console.error('Login error:', error);\n    res.status(500).json({ error: 'Login failed' });\n  }\n};\n\`\`\`\n\n`,
 
-    `**🗄️ Database Architecture:**\n"Design a PostgreSQL database schema with Drizzle ORM featuring users, ${prompt.toLowerCase().replace(/\s+/g, '_')}, organizations, audit_logs, permissions, and settings tables. Include proper foreign keys, indexes on frequently queried columns, JSONB fields for flexible metadata, row-level security policies, and database triggers for audit trails."\n\n`,
+    `## **🌐 API Endpoints**\n\n### **Main Feature Controller**\n\`\`\`typescript\n// server/controllers/${prompt.toLowerCase().replace(/\\s+/g, '-')}.ts\nimport { Request, Response } from 'express';\nimport { z } from 'zod';\nimport { db } from '../db';\nimport { ${prompt.toLowerCase().replace(/\\s+/g, '_')} } from '../schema';\nimport { eq, desc } from 'drizzle-orm';\n\ninterface AuthRequest extends Request {\n  user?: { id: string; email: string };\n}\n\nconst createSchema = z.object({\n  title: z.string().min(1).max(255),\n  description: z.string().optional(),\n  metadata: z.record(z.any()).optional()\n});\n\nconst updateSchema = z.object({\n  title: z.string().min(1).max(255).optional(),\n  description: z.string().optional(),\n  status: z.enum(['active', 'inactive', 'pending']).optional(),\n  metadata: z.record(z.any()).optional()\n});\n\n// GET /${prompt.toLowerCase().replace(/\\s+/g, '-')}\nexport const getAll = async (req: AuthRequest, res: Response) => {\n  try {\n    const page = parseInt(req.query.page as string) || 1;\n    const limit = parseInt(req.query.limit as string) || 10;\n    const offset = (page - 1) * limit;\n    \n    const items = await db\n      .select()\n      .from(${prompt.toLowerCase().replace(/\\s+/g, '_')})\n      .where(eq(${prompt.toLowerCase().replace(/\\s+/g, '_')}.user_id, req.user!.id))\n      .orderBy(desc(${prompt.toLowerCase().replace(/\\s+/g, '_')}.created_at))\n      .limit(limit)\n      .offset(offset);\n    \n    res.json({\n      items,\n      pagination: {\n        page,\n        limit,\n        total: items.length\n      }\n    });\n  } catch (error) {\n    console.error('Get all error:', error);\n    res.status(500).json({ error: 'Failed to fetch items' });\n  }\n};\n\n// POST /${prompt.toLowerCase().replace(/\\s+/g, '-')}\nexport const create = async (req: AuthRequest, res: Response) => {\n  try {\n    const data = createSchema.parse(req.body);\n    \n    const [newItem] = await db\n      .insert(${prompt.toLowerCase().replace(/\\s+/g, '_')})\n      .values({\n        ...data,\n        user_id: req.user!.id\n      })\n      .returning();\n    \n    res.status(201).json(newItem);\n  } catch (error) {\n    console.error('Create error:', error);\n    res.status(500).json({ error: 'Failed to create item' });\n  }\n};\n\n// GET /${prompt.toLowerCase().replace(/\\s+/g, '-')}/:id\nexport const getById = async (req: AuthRequest, res: Response) => {\n  try {\n    const { id } = req.params;\n    \n    const [item] = await db\n      .select()\n      .from(${prompt.toLowerCase().replace(/\\s+/g, '_')})\n      .where(eq(${prompt.toLowerCase().replace(/\\s+/g, '_')}.id, id));\n    \n    if (!item || item.user_id !== req.user!.id) {\n      return res.status(404).json({ error: 'Item not found' });\n    }\n    \n    res.json(item);\n  } catch (error) {\n    console.error('Get by ID error:', error);\n    res.status(500).json({ error: 'Failed to fetch item' });\n  }\n};\n\n// PUT /${prompt.toLowerCase().replace(/\\s+/g, '-')}/:id\nexport const update = async (req: AuthRequest, res: Response) => {\n  try {\n    const { id } = req.params;\n    const data = updateSchema.parse(req.body);\n    \n    const [updatedItem] = await db\n      .update(${prompt.toLowerCase().replace(/\\s+/g, '_')})\n      .set({\n        ...data,\n        updated_at: new Date()\n      })\n      .where(eq(${prompt.toLowerCase().replace(/\\s+/g, '_')}.id, id))\n      .returning();\n    \n    if (!updatedItem || updatedItem.user_id !== req.user!.id) {\n      return res.status(404).json({ error: 'Item not found' });\n    }\n    \n    res.json(updatedItem);\n  } catch (error) {\n    console.error('Update error:', error);\n    res.status(500).json({ error: 'Failed to update item' });\n  }\n};\n\n// DELETE /${prompt.toLowerCase().replace(/\\s+/g, '-')}/:id\nexport const deleteById = async (req: AuthRequest, res: Response) => {\n  try {\n    const { id } = req.params;\n    \n    const [deletedItem] = await db\n      .delete(${prompt.toLowerCase().replace(/\\s+/g, '_')})\n      .where(eq(${prompt.toLowerCase().replace(/\\s+/g, '_')}.id, id))\n      .returning();\n    \n    if (!deletedItem || deletedItem.user_id !== req.user!.id) {\n      return res.status(404).json({ error: 'Item not found' });\n    }\n    \n    res.json({ message: 'Item deleted successfully' });\n  } catch (error) {\n    console.error('Delete error:', error);\n    res.status(500).json({ error: 'Failed to delete item' });\n  }\n};\n\`\`\`\n\n`,
 
-    `**🔐 Authentication System:**\n"Build a comprehensive authentication system with JWT access/refresh tokens, multi-factor authentication (TOTP), OAuth2 providers (Google, GitHub, Microsoft), role-based access control (RBAC), session management, password policies, account verification, and secure password reset flows using Node.js and TypeScript."\n\n`,
+    `## **⚛️ Frontend Components**\n\n### **Main Dashboard Component**\n\`\`\`typescript\n// client/src/components/${appName}Dashboard.tsx\nimport React, { useState, useEffect } from 'react';\nimport { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';\nimport { Card, CardHeader, CardTitle, CardContent } from './ui/card';\nimport { Button } from './ui/button';\nimport { Input } from './ui/input';\nimport { Textarea } from './ui/textarea';\nimport { Plus, Edit, Trash2, Save, X } from 'lucide-react';\nimport { toast } from './ui/use-toast';\n\ninterface ${appName}Item {\n  id: string;\n  title: string;\n  description?: string;\n  status: 'active' | 'inactive' | 'pending';\n  metadata: Record<string, any>;\n  created_at: string;\n  updated_at: string;\n}\n\ninterface CreateItemData {\n  title: string;\n  description?: string;\n  metadata?: Record<string, any>;\n}\n\nconst api = {\n  getItems: async (): Promise<{ items: ${appName}Item[] }> => {\n    const token = localStorage.getItem('authToken');\n    const response = await fetch('/api/${prompt.toLowerCase().replace(/\\s+/g, '-')}', {\n      headers: {\n        'Authorization': \\`Bearer \\${token}\\`,\n        'Content-Type': 'application/json'\n      }\n    });\n    if (!response.ok) throw new Error('Failed to fetch items');\n    return response.json();\n  },\n  \n  createItem: async (data: CreateItemData): Promise<${appName}Item> => {\n    const token = localStorage.getItem('authToken');\n    const response = await fetch('/api/${prompt.toLowerCase().replace(/\\s+/g, '-')}', {\n      method: 'POST',\n      headers: {\n        'Authorization': \\`Bearer \\${token}\\`,\n        'Content-Type': 'application/json'\n      },\n      body: JSON.stringify(data)\n    });\n    if (!response.ok) throw new Error('Failed to create item');\n    return response.json();\n  },\n  \n  updateItem: async (id: string, data: Partial<CreateItemData>): Promise<${appName}Item> => {\n    const token = localStorage.getItem('authToken');\n    const response = await fetch(\\`/api/${prompt.toLowerCase().replace(/\\s+/g, '-')}/\\${id}\\`, {\n      method: 'PUT',\n      headers: {\n        'Authorization': \\`Bearer \\${token}\\`,\n        'Content-Type': 'application/json'\n      },\n      body: JSON.stringify(data)\n    });\n    if (!response.ok) throw new Error('Failed to update item');\n    return response.json();\n  },\n  \n  deleteItem: async (id: string): Promise<void> => {\n    const token = localStorage.getItem('authToken');\n    const response = await fetch(\\`/api/${prompt.toLowerCase().replace(/\\s+/g, '-')}/\\${id}\\`, {\n      method: 'DELETE',\n      headers: {\n        'Authorization': \\`Bearer \\${token}\\`\n      }\n    });\n    if (!response.ok) throw new Error('Failed to delete item');\n  }\n};\n\nexport function ${appName}Dashboard() {\n  const [isCreating, setIsCreating] = useState(false);\n  const [editingId, setEditingId] = useState<string | null>(null);\n  const [formData, setFormData] = useState({ title: '', description: '' });\n  \n  const queryClient = useQueryClient();\n  \n  const { data, isLoading, error } = useQuery({\n    queryKey: ['${prompt.toLowerCase().replace(/\\s+/g, '-')}-items'],\n    queryFn: api.getItems\n  });\n  \n  const createMutation = useMutation({\n    mutationFn: api.createItem,\n    onSuccess: () => {\n      queryClient.invalidateQueries({ queryKey: ['${prompt.toLowerCase().replace(/\\s+/g, '-')}-items'] });\n      setIsCreating(false);\n      setFormData({ title: '', description: '' });\n      toast({ title: 'Success', description: 'Item created successfully' });\n    },\n    onError: () => {\n      toast({ title: 'Error', description: 'Failed to create item', variant: 'destructive' });\n    }\n  });\n  \n  const updateMutation = useMutation({\n    mutationFn: ({ id, data }: { id: string; data: Partial<CreateItemData> }) => \n      api.updateItem(id, data),\n    onSuccess: () => {\n      queryClient.invalidateQueries({ queryKey: ['${prompt.toLowerCase().replace(/\\s+/g, '-')}-items'] });\n      setEditingId(null);\n      setFormData({ title: '', description: '' });\n      toast({ title: 'Success', description: 'Item updated successfully' });\n    },\n    onError: () => {\n      toast({ title: 'Error', description: 'Failed to update item', variant: 'destructive' });\n    }\n  });\n  \n  const deleteMutation = useMutation({\n    mutationFn: api.deleteItem,\n    onSuccess: () => {\n      queryClient.invalidateQueries({ queryKey: ['${prompt.toLowerCase().replace(/\\s+/g, '-')}-items'] });\n      toast({ title: 'Success', description: 'Item deleted successfully' });\n    },\n    onError: () => {\n      toast({ title: 'Error', description: 'Failed to delete item', variant: 'destructive' });\n    }\n  });\n  \n  const handleSubmit = (e: React.FormEvent) => {\n    e.preventDefault();\n    if (!formData.title.trim()) return;\n    \n    if (editingId) {\n      updateMutation.mutate({ id: editingId, data: formData });\n    } else {\n      createMutation.mutate(formData);\n    }\n  };\n  \n  const startEdit = (item: ${appName}Item) => {\n    setEditingId(item.id);\n    setFormData({ title: item.title, description: item.description || '' });\n    setIsCreating(false);\n  };\n  \n  const cancelEdit = () => {\n    setEditingId(null);\n    setIsCreating(false);\n    setFormData({ title: '', description: '' });\n  };\n  \n  if (isLoading) {\n    return (\n      <div className=\"flex items-center justify-center p-8\">\n        <div className=\"animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600\"></div>\n      </div>\n    );\n  }\n  \n  if (error) {\n    return (\n      <div className=\"text-center p-8 text-red-600\">\n        Error loading data. Please try again.\n      </div>\n    );\n  }\n  \n  return (\n    <div className=\"p-6 max-w-6xl mx-auto\">\n      <div className=\"flex justify-between items-center mb-6\">\n        <h1 className=\"text-3xl font-bold\">${appName} Dashboard</h1>\n        <Button \n          onClick={() => setIsCreating(true)}\n          className=\"flex items-center gap-2\"\n        >\n          <Plus className=\"w-4 h-4\" />\n          Add New Item\n        </Button>\n      </div>\n      \n      {(isCreating || editingId) && (\n        <Card className=\"mb-6\">\n          <CardHeader>\n            <CardTitle>\n              {editingId ? 'Edit Item' : 'Create New Item'}\n            </CardTitle>\n          </CardHeader>\n          <CardContent>\n            <form onSubmit={handleSubmit} className=\"space-y-4\">\n              <div>\n                <label className=\"block text-sm font-medium mb-2\">Title</label>\n                <Input\n                  value={formData.title}\n                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}\n                  placeholder=\"Enter title...\"\n                  required\n                />\n              </div>\n              <div>\n                <label className=\"block text-sm font-medium mb-2\">Description</label>\n                <Textarea\n                  value={formData.description}\n                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}\n                  placeholder=\"Enter description...\"\n                  rows={3}\n                />\n              </div>\n              <div className=\"flex gap-2\">\n                <Button type=\"submit\" className=\"flex items-center gap-2\">\n                  <Save className=\"w-4 h-4\" />\n                  {editingId ? 'Update' : 'Create'}\n                </Button>\n                <Button type=\"button\" variant=\"outline\" onClick={cancelEdit}>\n                  <X className=\"w-4 h-4\" />\n                  Cancel\n                </Button>\n              </div>\n            </form>\n          </CardContent>\n        </Card>\n      )}\n      \n      <div className=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6\">\n        {data?.items.map((item) => (\n          <Card key={item.id} className=\"hover:shadow-lg transition-shadow\">\n            <CardHeader>\n              <CardTitle className=\"flex justify-between items-start\">\n                <span className=\"truncate\">{item.title}</span>\n                <div className=\"flex gap-1 ml-2\">\n                  <Button\n                    variant=\"ghost\"\n                    size=\"sm\"\n                    onClick={() => startEdit(item)}\n                  >\n                    <Edit className=\"w-4 h-4\" />\n                  </Button>\n                  <Button\n                    variant=\"ghost\"\n                    size=\"sm\"\n                    onClick={() => deleteMutation.mutate(item.id)}\n                    className=\"text-red-600 hover:text-red-800\"\n                  >\n                    <Trash2 className=\"w-4 h-4\" />\n                  </Button>\n                </div>\n              </CardTitle>\n            </CardHeader>\n            <CardContent>\n              {item.description && (\n                <p className=\"text-gray-600 text-sm mb-3\">{item.description}</p>\n              )}\n              <div className=\"flex justify-between items-center text-xs text-gray-500\">\n                <span className={\\`px-2 py-1 rounded-full text-xs \\${\n                  item.status === 'active' ? 'bg-green-100 text-green-800' :\n                  item.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :\n                  'bg-gray-100 text-gray-800'\n                }\\`}>\n                  {item.status}\n                </span>\n                <span>\n                  {new Date(item.created_at).toLocaleDateString()}\n                </span>\n              </div>\n            </CardContent>\n          </Card>\n        ))}\n      </div>\n      \n      {data?.items.length === 0 && (\n        <div className=\"text-center py-12\">\n          <p className=\"text-gray-500 text-lg mb-4\">No items yet</p>\n          <Button onClick={() => setIsCreating(true)}>\n            Create your first item\n          </Button>\n        </div>\n      )}\n    </div>\n  );\n}\n\`\`\`\n\n`,
 
-    `**🌐 API Layer:**\n"Create a RESTful API with Express.js and TypeScript featuring comprehensive CRUD operations for ${prompt.toLowerCase()}, input validation with Zod schemas, rate limiting, request/response logging, error handling middleware, API versioning, OpenAPI documentation, and health check endpoints."\n\n`,
+    `## **🚀 Deployment Configuration**\n\n### **Environment Variables**\n\`\`\`bash\n# .env\nDATABASE_URL=postgresql://user:password@host:port/database\nJWT_SECRET=your-super-secret-jwt-key-here\nNODE_ENV=production\nPORT=5000\nCORS_ORIGIN=https://your-domain.com\\`\`\`\n\n### **Production Build Script**\n\`\`\`json\n// package.json scripts\n{\n  \"scripts\": {\n    \"dev\": \"NODE_ENV=development tsx server/index.ts\",\n    \"build\": \"vite build && tsc -p server\",\n    \"start\": \"NODE_ENV=production node dist/server/index.js\",\n    \"migrate\": \"drizzle-kit generate && drizzle-kit migrate\",\n    \"test\": \"vitest\",\n    \"test:e2e\": \"playwright test\"\n  }\n}\n\`\`\`\n\n### **Health Check Endpoint**\n\`\`\`typescript\n// server/routes/health.ts\nimport { Request, Response } from 'express';\nimport { db } from '../db';\n\nexport const healthCheck = async (req: Request, res: Response) => {\n  try {\n    // Check database connection\n    await db.execute('SELECT 1');\n    \n    res.status(200).json({\n      status: 'healthy',\n      timestamp: new Date().toISOString(),\n      uptime: process.uptime(),\n      version: process.env.npm_package_version || '1.0.0'\n    });\n  } catch (error) {\n    res.status(503).json({\n      status: 'unhealthy',\n      error: 'Database connection failed'\n    });\n  }\n};\n\`\`\`\n\n`,
 
-    `**⚛️ Frontend Components:**\n"Develop a React 18 TypeScript application with shadcn/ui components, featuring a responsive dashboard, data tables with sorting/filtering/pagination, form builders with validation, real-time updates via WebSockets, state management with Zustand, React Query for server state, and comprehensive error boundaries."\n\n`,
+    `## **🧪 Testing Strategy**\n\n### **API Integration Tests**\n\`\`\`typescript\n// tests/api/${prompt.toLowerCase().replace(/\\s+/g, '-')}.test.ts\nimport request from 'supertest';\nimport { app } from '../server';\nimport { db } from '../server/db';\nimport jwt from 'jsonwebtoken';\n\ndescribe('${appName} API', () => {\n  let authToken: string;\n  let userId: string;\n  \n  beforeAll(async () => {\n    // Create test user and generate token\n    const testUser = {\n      email: 'test@example.com',\n      password: 'testpassword123',\n      firstName: 'Test',\n      lastName: 'User'\n    };\n    \n    const registerResponse = await request(app)\n      .post('/api/auth/register')\n      .send(testUser);\n    \n    authToken = registerResponse.body.token;\n    userId = registerResponse.body.user.id;\n  });\n  \n  afterAll(async () => {\n    // Clean up test data\n    await db.execute('DELETE FROM users WHERE email = \\\\'test@example.com\\\\'');\n  });\n  \n  describe('POST /api/${prompt.toLowerCase().replace(/\\s+/g, '-')}', () => {\n    it('should create a new item', async () => {\n      const itemData = {\n        title: 'Test Item',\n        description: 'Test description'\n      };\n      \n      const response = await request(app)\n        .post('/api/${prompt.toLowerCase().replace(/\\s+/g, '-')}')\n        .set('Authorization', \\`Bearer \\${authToken}\\`)\n        .send(itemData)\n        .expect(201);\n      \n      expect(response.body).toMatchObject({\n        title: itemData.title,\n        description: itemData.description,\n        user_id: userId\n      });\n      expect(response.body.id).toBeDefined();\n    });\n    \n    it('should require authentication', async () => {\n      await request(app)\n        .post('/api/${prompt.toLowerCase().replace(/\\s+/g, '-')}')\n        .send({ title: 'Test' })\n        .expect(401);\n    });\n    \n    it('should validate input data', async () => {\n      const response = await request(app)\n        .post('/api/${prompt.toLowerCase().replace(/\\s+/g, '-')}')\n        .set('Authorization', \\`Bearer \\${authToken}\\`)\n        .send({ description: 'No title' })\n        .expect(400);\n      \n      expect(response.body.error).toContain('title');\n    });\n  });\n  \n  describe('GET /api/${prompt.toLowerCase().replace(/\\s+/g, '-')}', () => {\n    it('should return user items', async () => {\n      const response = await request(app)\n        .get('/api/${prompt.toLowerCase().replace(/\\s+/g, '-')}')\n        .set('Authorization', \\`Bearer \\${authToken}\\`)\n        .expect(200);\n      \n      expect(response.body).toHaveProperty('items');\n      expect(response.body).toHaveProperty('pagination');\n      expect(Array.isArray(response.body.items)).toBe(true);\n    });\n  });\n});\n\`\`\`\n\n### **Frontend Component Tests**\n\`\`\`typescript\n// tests/components/${appName}Dashboard.test.tsx\nimport { render, screen, fireEvent, waitFor } from '@testing-library/react';\nimport { QueryClient, QueryClientProvider } from '@tanstack/react-query';\nimport { ${appName}Dashboard } from '../src/components/${appName}Dashboard';\nimport { vi } from 'vitest';\n\n// Mock fetch\nglobal.fetch = vi.fn();\n\nconst createWrapper = () => {\n  const queryClient = new QueryClient({\n    defaultOptions: {\n      queries: { retry: false },\n      mutations: { retry: false }\n    }\n  });\n  \n  return ({ children }: { children: React.ReactNode }) => (\n    <QueryClientProvider client={queryClient}>\n      {children}\n    </QueryClientProvider>\n  );\n};\n\ndescribe('${appName}Dashboard', () => {\n  beforeEach(() => {\n    vi.clearAllMocks();\n    localStorage.setItem('authToken', 'test-token');\n  });\n  \n  it('renders dashboard with items', async () => {\n    const mockItems = [\n      {\n        id: '1',\n        title: 'Test Item 1',\n        description: 'Test description',\n        status: 'active',\n        metadata: {},\n        created_at: '2024-01-01T00:00:00Z',\n        updated_at: '2024-01-01T00:00:00Z'\n      }\n    ];\n    \n    (fetch as vi.Mock).mockResolvedValueOnce({\n      ok: true,\n      json: async () => ({ items: mockItems })\n    });\n    \n    render(<${appName}Dashboard />, { wrapper: createWrapper() });\n    \n    await waitFor(() => {\n      expect(screen.getByText('${appName} Dashboard')).toBeInTheDocument();\n      expect(screen.getByText('Test Item 1')).toBeInTheDocument();\n    });\n  });\n  \n  it('handles create item', async () => {\n    (fetch as vi.Mock)\n      .mockResolvedValueOnce({\n        ok: true,\n        json: async () => ({ items: [] })\n      })\n      .mockResolvedValueOnce({\n        ok: true,\n        json: async () => ({\n          id: '2',\n          title: 'New Item',\n          description: 'New description'\n        })\n      });\n    \n    render(<${appName}Dashboard />, { wrapper: createWrapper() });\n    \n    // Click add button\n    await waitFor(() => {\n      fireEvent.click(screen.getByText('Add New Item'));\n    });\n    \n    // Fill form\n    fireEvent.change(screen.getByPlaceholderText('Enter title...'), {\n      target: { value: 'New Item' }\n    });\n    fireEvent.change(screen.getByPlaceholderText('Enter description...'), {\n      target: { value: 'New description' }\n    });\n    \n    // Submit form\n    fireEvent.click(screen.getByText('Create'));\n    \n    await waitFor(() => {\n      expect(fetch).toHaveBeenCalledWith('/api/${prompt.toLowerCase().replace(/\\s+/g, '-')}', {\n        method: 'POST',\n        headers: {\n          'Authorization': 'Bearer test-token',\n          'Content-Type': 'application/json'\n        },\n        body: JSON.stringify({\n          title: 'New Item',\n          description: 'New description'\n        })\n      });\n    });\n  });\n});\n\`\`\`\n\n`,
 
-    `**🔄 Real-time Features:**\n"Implement WebSocket-based real-time collaboration with Socket.io, featuring live cursors, real-time document editing, presence indicators, conflict resolution, connection recovery, and scalable pub/sub architecture for multi-instance deployments."\n\n`,
+    `## **📊 Performance & Monitoring**\n\n### **Request Logging Middleware**\n\`\`\`typescript\n// server/middleware/logging.ts\nimport { Request, Response, NextFunction } from 'express';\nimport winston from 'winston';\n\nconst logger = winston.createLogger({\n  level: 'info',\n  format: winston.format.combine(\n    winston.format.timestamp(),\n    winston.format.errors({ stack: true }),\n    winston.format.json()\n  ),\n  transports: [\n    new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),\n    new winston.transports.File({ filename: 'logs/combined.log' }),\n    new winston.transports.Console({\n      format: winston.format.simple()\n    })\n  ]\n});\n\nexport const requestLogger = (req: Request, res: Response, next: NextFunction) => {\n  const start = Date.now();\n  \n  res.on('finish', () => {\n    const duration = Date.now() - start;\n    \n    logger.info({\n      method: req.method,\n      url: req.url,\n      status: res.statusCode,\n      duration: \\`\\${duration}ms\\`,\n      userAgent: req.get('User-Agent'),\n      ip: req.ip\n    });\n  });\n  \n  next();\n};\n\nexport { logger };\n\`\`\`\n\n### **Database Query Performance**\n\`\`\`typescript\n// server/middleware/queryPerformance.ts\nimport { db } from '../db';\nimport { logger } from './logging';\n\n// Custom query wrapper for performance monitoring\nexport const monitoredQuery = async <T>(\n  queryName: string,\n  queryFn: () => Promise<T>\n): Promise<T> => {\n  const start = Date.now();\n  \n  try {\n    const result = await queryFn();\n    const duration = Date.now() - start;\n    \n    // Log slow queries (> 100ms)\n    if (duration > 100) {\n      logger.warn({\n        type: 'slow_query',\n        queryName,\n        duration: \\`\\${duration}ms\\`\n      });\n    }\n    \n    return result;\n  } catch (error) {\n    logger.error({\n      type: 'query_error',\n      queryName,\n      error: error instanceof Error ? error.message : 'Unknown error'\n    });\n    throw error;\n  }\n};\n\`\`\`\n\n`,
 
-    `**📊 Analytics & Monitoring:**\n"Build analytics infrastructure with event tracking, user behavior analysis, performance monitoring, error reporting with Sentry, custom dashboards, A/B testing framework, and automated alerting for critical metrics."\n\n`,
+    `## **🔒 Security Implementation**\n\n### **Rate Limiting**\n\`\`\`typescript\n// server/middleware/rateLimiter.ts\nimport rateLimit from 'express-rate-limit';\nimport { Request } from 'express';\n\n// General API rate limiting\nexport const apiLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000, // 15 minutes\n  max: 100, // Limit each IP to 100 requests per windowMs\n  message: {\n    error: 'Too many requests from this IP, please try again later.'\n  },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\n// Stricter rate limiting for auth endpoints\nexport const authLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000, // 15 minutes\n  max: 5, // Limit each IP to 5 requests per windowMs\n  skipSuccessfulRequests: true,\n  message: {\n    error: 'Too many authentication attempts, please try again later.'\n  }\n});\n\n// Per-user rate limiting\nexport const userLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000,\n  max: 1000,\n  keyGenerator: (req: Request) => {\n    return (req as any).user?.id || req.ip;\n  }\n});\n\`\`\`\n\n### **Input Validation & Sanitization**\n\`\`\`typescript\n// server/middleware/validation.ts\nimport { Request, Response, NextFunction } from 'express';\nimport { z } from 'zod';\nimport DOMPurify from 'isomorphic-dompurify';\n\n// Sanitize HTML content\nconst sanitizeHtml = (text: string): string => {\n  return DOMPurify.sanitize(text, { \n    ALLOWED_TAGS: [],\n    ALLOWED_ATTR: [] \n  });\n};\n\n// Generic validation middleware\nexport const validateBody = <T>(schema: z.ZodSchema<T>) => {\n  return (req: Request, res: Response, next: NextFunction) => {\n    try {\n      const validatedData = schema.parse(req.body);\n      \n      // Sanitize string fields\n      const sanitizedData = Object.fromEntries(\n        Object.entries(validatedData as any).map(([key, value]) => [\n          key,\n          typeof value === 'string' ? sanitizeHtml(value) : value\n        ])\n      );\n      \n      req.body = sanitizedData;\n      next();\n    } catch (error) {\n      if (error instanceof z.ZodError) {\n        return res.status(400).json({\n          error: 'Validation failed',\n          details: error.errors\n        });\n      }\n      next(error);\n    }\n  };\n};\n\n// SQL injection prevention\nexport const preventSqlInjection = (req: Request, res: Response, next: NextFunction) => {\n  const sqlKeywords = [\n    'DROP', 'DELETE', 'INSERT', 'UPDATE', 'ALTER', 'CREATE',\n    'EXEC', 'UNION', 'SELECT', 'SCRIPT', 'JAVASCRIPT'\n  ];\n  \n  const checkForSqlInjection = (obj: any): boolean => {\n    if (typeof obj === 'string') {\n      return sqlKeywords.some(keyword => \n        obj.toUpperCase().includes(keyword)\n      );\n    }\n    \n    if (typeof obj === 'object' && obj !== null) {\n      return Object.values(obj).some(checkForSqlInjection);\n    }\n    \n    return false;\n  };\n  \n  if (checkForSqlInjection(req.body) || checkForSqlInjection(req.query)) {\n    return res.status(400).json({ error: 'Invalid input detected' });\n  }\n  \n  next();\n};\n\`\`\`\n\n`,
 
-    `**🧪 Testing Strategy:**\n"Create comprehensive testing suite with Vitest for unit tests, React Testing Library for component tests, Playwright for E2E testing, API testing with Supertest, performance testing, security testing, and 90%+ code coverage requirements."\n\n`,
-
-    `**🚀 DevOps Pipeline:**\n"Set up CI/CD pipeline with GitHub Actions, automated testing, security scanning, database migrations, Docker containerization, staging/production deployments, rollback strategies, and infrastructure as code."\n\n`,
-
-    `### **2.2. Layer 2: System Architecture**\n\n**Technology Stack:**\n- **Frontend:** React 18, TypeScript 5.0+, Vite, Tailwind CSS, shadcn/ui\n- **State Management:** Zustand, React Query (TanStack Query)\n- **Backend:** Node.js 20+, Express.js, TypeScript, Zod validation\n- **Database:** PostgreSQL 15+, Drizzle ORM, Redis for caching\n- **Authentication:** JWT, bcrypt, TOTP, OAuth2\n- **Real-time:** Socket.io, Server-Sent Events\n- **Testing:** Vitest, React Testing Library, Playwright\n- **Monitoring:** Sentry, Winston logging, Prometheus metrics\n- **Deployment:** ${platform.charAt(0).toUpperCase() + platform.slice(1)}, Docker, nginx\n\n`,
-
-    `**System Architecture Diagram:**\n\`\`\`mermaid\ngraph TB\n    subgraph "Client Layer"\n        A[React Frontend]\n        B[Mobile PWA]\n    end\n    \n    subgraph "API Gateway"\n        C[Load Balancer]\n        D[Rate Limiter]\n        E[Auth Middleware]\n    end\n    \n    subgraph "Application Layer"\n        F[Express API Server]\n        G[WebSocket Server]\n        H[Background Jobs]\n    end\n    \n    subgraph "Data Layer"\n        I[PostgreSQL]\n        J[Redis Cache]\n        K[File Storage]\n    end\n    \n    subgraph "External Services"\n        L[Email Service]\n        M[Analytics]\n        N[Monitoring]\n    end\n    \n    A --> C\n    B --> C\n    C --> D\n    D --> E\n    E --> F\n    E --> G\n    F --> I\n    F --> J\n    G --> J\n    F --> H\n    H --> I\n    F --> L\n    F --> M\n    F --> N\n\`\`\`\n\n`,
-
-    `**Complete Project Structure:**\n\`\`\`\n${appName.toLowerCase()}/\n├── client/\n│   ├── src/\n│   │   ├── components/\n│   │   │   ├── ui/              # shadcn/ui components\n│   │   │   ├── layout/          # Layout components\n│   │   │   ├── forms/           # Form components\n│   │   │   ├── tables/          # Data table components\n│   │   │   └── charts/          # Analytics components\n│   │   ├── pages/\n│   │   │   ├── auth/            # Authentication pages\n│   │   │   ├── dashboard/       # Dashboard pages\n│   │   │   ├── settings/        # Settings pages\n│   │   │   └── ${prompt.toLowerCase().replace(/\s+/g, '-')}/    # Feature pages\n│   │   ├── hooks/\n│   │   │   ├── auth/            # Authentication hooks\n│   │   │   ├── api/             # API hooks\n│   │   │   └── utils/           # Utility hooks\n│   │   ├── stores/\n│   │   │   ├── auth.ts          # Auth store\n│   │   │   ├── ui.ts            # UI state store\n│   │   │   └── ${prompt.toLowerCase().replace(/\s+/g, '-')}.ts  # Feature store\n│   │   ├── lib/\n│   │   │   ├── api.ts           # API client\n│   │   │   ├── auth.ts          # Auth utilities\n│   │   │   ├── utils.ts         # General utilities\n│   │   │   └── validations.ts   # Form validations\n│   │   └── types/\n│   │       ├── api.ts           # API types\n│   │       ├── auth.ts          # Auth types\n│   │       └── ${prompt.toLowerCase().replace(/\s+/g, '-')}.ts  # Feature types\n├── server/\n│   ├── src/\n│   │   ├── controllers/\n│   │   │   ├── auth.ts          # Auth controller\n│   │   │   ├── users.ts         # Users controller\n│   │   │   └── ${prompt.toLowerCase().replace(/\s+/g, '-')}.ts  # Feature controller\n│   │   ├── middleware/\n│   │   │   ├── auth.ts          # Auth middleware\n│   │   │   ├── validation.ts    # Validation middleware\n│   │   │   ├── rateLimit.ts     # Rate limiting\n│   │   │   └── errorHandler.ts  # Error handling\n│   │   ├── routes/\n│   │   │   ├── auth.ts          # Auth routes\n│   │   │   ├── users.ts         # User routes\n│   │   │   └── ${prompt.toLowerCase().replace(/\s+/g, '-')}.ts  # Feature routes\n│   │   ├── services/\n│   │   │   ├── auth.ts          # Auth service\n│   │   │   ├── email.ts         # Email service\n│   │   │   ├── analytics.ts     # Analytics service\n│   │   │   └── ${prompt.toLowerCase().replace(/\s+/g, '-')}.ts  # Feature service\n│   │   ├── db/\n│   │   │   ├── schema/          # Database schemas\n│   │   │   ├── migrations/      # Database migrations\n│   │   │   ├── seeds/           # Database seeds\n│   │   │   └── index.ts         # Database connection\n│   │   ├── utils/\n│   │   │   ├── logger.ts        # Logging utility\n│   │   │   ├── crypto.ts        # Crypto utilities\n│   │   │   └── helpers.ts       # Helper functions\n│   │   └── types/\n│   │       ├── express.ts       # Express types\n│   │       └── database.ts      # Database types\n├── shared/\n│   ├── types/                   # Shared TypeScript types\n│   ├── validations/             # Shared Zod schemas\n│   └── constants/               # Shared constants\n├── tests/\n│   ├── unit/                    # Unit tests\n│   ├── integration/             # Integration tests\n│   ├── e2e/                     # E2E tests\n│   └── fixtures/                # Test fixtures\n├── docs/\n│   ├── api/                     # API documentation\n│   ├── deployment/              # Deployment guides\n│   └── development/             # Development guides\n├── .github/\n│   └── workflows/               # GitHub Actions\n├── docker/\n│   ├── Dockerfile.client        # Client Dockerfile\n│   ├── Dockerfile.server        # Server Dockerfile\n│   └── docker-compose.yml       # Docker Compose\n└── infrastructure/\n    ├── terraform/               # Infrastructure as Code\n    └── kubernetes/              # Kubernetes manifests\n\`\`\`\n\n`,
-
-    `**Database Schema Design:**\n\`\`\`sql\n-- Users table with comprehensive fields\nCREATE TABLE users (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  email VARCHAR(255) UNIQUE NOT NULL,\n  password_hash VARCHAR(255),\n  first_name VARCHAR(100) NOT NULL,\n  last_name VARCHAR(100) NOT NULL,\n  avatar_url TEXT,\n  role user_role DEFAULT 'user',\n  email_verified BOOLEAN DEFAULT false,\n  two_factor_enabled BOOLEAN DEFAULT false,\n  two_factor_secret VARCHAR(32),\n  last_login_at TIMESTAMP,\n  last_seen_at TIMESTAMP,\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Organizations for multi-tenancy\nCREATE TABLE organizations (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  name VARCHAR(255) NOT NULL,\n  slug VARCHAR(100) UNIQUE NOT NULL,\n  domain VARCHAR(255),\n  settings JSONB DEFAULT '{}',\n  plan organization_plan DEFAULT 'free',\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- User organization memberships\nCREATE TABLE user_organizations (\n  user_id UUID REFERENCES users(id) ON DELETE CASCADE,\n  organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,\n  role organization_role DEFAULT 'member',\n  joined_at TIMESTAMP DEFAULT NOW(),\n  PRIMARY KEY (user_id, organization_id)\n);\n\n-- Main feature table\nCREATE TABLE ${prompt.toLowerCase().replace(/\s+/g, '_')} (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  title VARCHAR(255) NOT NULL,\n  description TEXT,\n  status ${prompt.toLowerCase().replace(/\s+/g, '_')}_status DEFAULT 'active',\n  priority priority_level DEFAULT 'medium',\n  metadata JSONB DEFAULT '{}',\n  user_id UUID REFERENCES users(id) ON DELETE CASCADE,\n  organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Audit logs for compliance\nCREATE TABLE audit_logs (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  user_id UUID REFERENCES users(id),\n  organization_id UUID REFERENCES organizations(id),\n  action VARCHAR(100) NOT NULL,\n  resource_type VARCHAR(100) NOT NULL,\n  resource_id UUID,\n  old_values JSONB,\n  new_values JSONB,\n  ip_address INET,\n  user_agent TEXT,\n  created_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Indexes for performance\nCREATE INDEX idx_users_email ON users(email);\nCREATE INDEX idx_users_organization ON user_organizations(organization_id);\nCREATE INDEX idx_${prompt.toLowerCase().replace(/\s+/g, '_')}_user ON ${prompt.toLowerCase().replace(/\s+/g, '_')}(user_id);\nCREATE INDEX idx_${prompt.toLowerCase().replace(/\s+/g, '_')}_status ON ${prompt.toLowerCase().replace(/\s+/g, '_')}(status);\nCREATE INDEX idx_audit_logs_user ON audit_logs(user_id);\nCREATE INDEX idx_audit_logs_resource ON audit_logs(resource_type, resource_id);\n\`\`\`\n\n`,
-
-    `**API Endpoints Specification:**\n\n\`\`\`\nPOST   /api/auth/register          # User registration\nPOST   /api/auth/login             # User login\nPOST   /api/auth/logout            # User logout\nPOST   /api/auth/refresh           # Refresh token\nPOST   /api/auth/forgot-password   # Password reset request\nPOST   /api/auth/reset-password    # Password reset confirmation\nPOST   /api/auth/verify-email      # Email verification\nPOST   /api/auth/enable-2fa        # Enable 2FA\nPOST   /api/auth/verify-2fa        # Verify 2FA token\n\`\`\`\n\n**User Management:**\n\`\`\`\nGET    /api/users/profile          # Get current user profile\nPUT    /api/users/profile          # Update user profile\nPOST   /api/users/avatar           # Upload avatar\nGET    /api/users/organizations    # Get user organizations\nPOST   /api/users/organizations    # Create organization\n\`\`\`\n\n**Core Feature Endpoints:**\n\`\`\`\nGET    /api/${prompt.toLowerCase().replace(/\s+/g, '-')}           # List items with pagination\nPOST   /api/${prompt.toLowerCase().replace(/\s+/g, '-')}           # Create new item\nGET    /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/:id       # Get specific item\nPUT    /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/:id       # Update item\nDELETE /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/:id       # Delete item\nPOST   /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/:id/share  # Share item\nGET    /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/analytics  # Get analytics\n\`\`\`\n\n**Real-time WebSocket Events:**\n\`\`\`\n${prompt.toLowerCase().replace(/\s+/g, '_')}_created    # New item created\n${prompt.toLowerCase().replace(/\s+/g, '_')}_updated    # Item updated\n${prompt.toLowerCase().replace(/\s+/g, '_')}_deleted    # Item deleted\nuser_presence         # User online/offline status\ntyping_indicator      # Real-time typing indicators\n\`\`\`\n\n`,
-
-    `### **2.3. Security & Performance Framework**\n\n**Security Measures:**\n- **Authentication:** JWT with RS256 signing, refresh token rotation\n- **Authorization:** Role-based access control (RBAC) with granular permissions\n- **Data Protection:** Encryption at rest (AES-256), in transit (TLS 1.3)\n- **Input Validation:** Zod schemas, SQL injection prevention, XSS protection\n- **Rate Limiting:** Tiered limits by user role, DDoS protection\n- **API Security:** CORS configuration, security headers, API versioning\n- **Monitoring:** Real-time security alerts, audit logging, anomaly detection\n\n**Performance Optimizations:**\n- **Database:** Connection pooling, query optimization, read replicas\n- **Caching:** Redis for session/query caching, CDN for static assets\n- **Frontend:** Code splitting, lazy loading, virtual scrolling\n- **API:** Response compression, HTTP/2, request batching\n- **Monitoring:** APM tools, performance budgets, Core Web Vitals\n\n`,
-
-    `### **2.4. Error Handling & Resilience**\n\n**Error Recovery Patterns:**\n- **Circuit Breaker:** Prevent cascade failures\n- **Retry Logic:** Exponential backoff with jitter\n- **Graceful Degradation:** Fallback mechanisms\n- **Health Checks:** Database, Redis, external services\n- **Monitoring:** Error tracking, alerting, automated recovery\n\n**User Experience:**\n- **Error Boundaries:** React error boundaries with user-friendly messages\n- **Loading States:** Skeleton screens, progress indicators\n- **Offline Support:** Service workers, local storage fallbacks\n- **Accessibility:** WCAG 2.1 AA compliance, keyboard navigation\n\n---\n\n`,
-
-    `## **⚡ 3. Quality & Performance Standards**\n\n### **3.1. Development Standards**\n□ **Code Quality:** ESLint, Prettier, SonarQube, 0 critical issues\n□ **Type Safety:** TypeScript strict mode, 100% type coverage\n□ **Testing:** 90%+ code coverage, mutation testing\n□ **Documentation:** JSDoc comments, API documentation, README\n□ **Version Control:** Conventional commits, semantic versioning\n\n### **3.2. Performance Benchmarks**\n□ **Core Web Vitals:**\n  - First Contentful Paint (FCP): < 1.2s\n  - Largest Contentful Paint (LCP): < 2.0s\n  - Cumulative Layout Shift (CLS): < 0.1\n  - First Input Delay (FID): < 100ms\n□ **API Performance:**\n  - 95th percentile response time: < 200ms\n  - 99th percentile response time: < 500ms\n  - Throughput: 1000+ requests/second\n□ **Database Performance:**\n  - Query response time: < 50ms average\n  - Connection pool utilization: < 80%\n\n### **3.3. Security Standards**\n□ **OWASP Top 10:** Zero vulnerabilities\n□ **Dependency Scanning:** No high/critical vulnerabilities\n□ **Penetration Testing:** Annual third-party assessment\n□ **Compliance:** SOC 2 Type II, GDPR ready\n\n### **3.4. Reliability Standards**\n□ **Uptime:** 99.9% SLA (< 8.77 hours downtime/year)\n□ **Error Rate:** < 0.1% for critical operations\n□ **Recovery Time:** < 15 minutes for critical issues\n□ **Backup & Recovery:** Daily automated backups, 4-hour RTO\n\n---\n\n`,
-
-    `## **📋 4. Implementation Roadmap**\n\n### **4.1. Development Phases**\n\n**Phase 1: Foundation (Week 1-2)**\n- Database schema and migrations\n- Authentication system\n- Basic API endpoints\n- CI/CD pipeline setup\n- Testing framework\n\n**Phase 2: Core Features (Week 3-5)**\n- Main feature implementation\n- Frontend components\n- Real-time functionality\n- User management\n- Basic analytics\n\n**Phase 3: Enhancement (Week 6-7)**\n- Advanced features\n- Performance optimization\n- Security hardening\n- Comprehensive testing\n- Documentation\n\n**Phase 4: Production (Week 8)**\n- Production deployment\n- Monitoring setup\n- Load testing\n- Security audit\n- Go-live preparation\n\n### **4.2. Resource Requirements**\n- **Development Team:** 2-3 full-stack developers\n- **DevOps Engineer:** 0.5 FTE for infrastructure\n- **Designer:** 0.25 FTE for UI/UX refinements\n- **QA Engineer:** 0.5 FTE for testing\n\n### **4.3. Technology Migration Path**\n- **V1.0:** Monolithic architecture on ${platform}\n- **V1.5:** Microservices extraction for high-load components\n- **V2.0:** Multi-region deployment, advanced analytics\n- **V2.5:** AI/ML features, advanced automation\n\n### **4.4. Cost Estimation**\n**Development Costs:**\n- Development team: $50,000-75,000\n- Infrastructure: $1,000-2,000/month\n- Third-party services: $500-1,000/month\n- Tools and licenses: $200-500/month\n\n**Operational Costs (Monthly):**\n- Hosting: $500-2,000 (scales with usage)\n- Database: $200-1,000\n- Monitoring/Analytics: $100-500\n- Email/SMS services: $50-200\n\n---\n\n`,
-
-    `## **🔮 5. Future Enhancements & Scaling**\n\n### **5.1. Version 2.0 Roadmap**\n- **AI Integration:** Machine learning recommendations, automated insights\n- **Mobile Apps:** Native iOS/Android applications\n- **Advanced Analytics:** Custom dashboards, predictive analytics\n- **Enterprise Features:** SSO, advanced permissions, audit trails\n- **API Ecosystem:** Public API, webhooks, integrations marketplace\n\n### **5.2. Scaling Considerations**\n- **Horizontal Scaling:** Load balancers, auto-scaling groups\n- **Database Scaling:** Read replicas, sharding strategies\n- **Microservices:** Service decomposition, event-driven architecture\n- **Global Deployment:** Multi-region setup, edge computing\n- **Performance:** CDN optimization, advanced caching strategies\n\n### **5.3. Technical Debt Management**\n- **Code Reviews:** Mandatory peer reviews, automated quality gates\n- **Refactoring:** Scheduled refactoring sprints, architecture reviews\n- **Monitoring:** Technical debt tracking, performance regression tests\n- **Documentation:** Living documentation, architecture decision records\n\n---\n\n`,
-
-    `## **📊 6. Monitoring & Analytics**\n\n### **6.1. Application Monitoring**\n- **Performance:** APM tools (Datadog, New Relic)\n- **Errors:** Sentry for error tracking and alerting\n- **Logs:** Centralized logging with search capabilities\n- **Uptime:** External monitoring services\n\n### **6.2. Business Analytics**\n- **User Behavior:** Event tracking, funnel analysis\n- **Feature Usage:** A/B testing, feature flags\n- **Performance:** Core business metrics dashboards\n- **Customer Success:** NPS surveys, user feedback loops\n\n### **6.3. Security Monitoring**\n- **Access Logs:** Authentication attempts, permission changes\n- **Anomaly Detection:** Unusual access patterns, data exports\n- **Vulnerability Scanning:** Continuous security assessment\n- **Incident Response:** Automated alerting, response playbooks\n\n---\n\n`,
-
-    `## **✅ 7. Quality Assurance Checklist**\n\n### **7.1. Pre-Launch Checklist**\n□ All tests passing (unit, integration, E2E)\n□ Security audit completed\n□ Performance benchmarks met\n□ Database backup/recovery tested\n□ Monitoring and alerting configured\n□ Documentation completed\n□ Legal review completed (privacy policy, terms)\n□ Compliance requirements met\n\n### **7.2. Post-Launch Monitoring**\n□ Error rates within acceptable limits\n□ Performance metrics stable\n□ User feedback collection active\n□ Security monitoring operational\n□ Backup processes verified\n□ Support processes established\n\n---\n\n`,
-
-    `*Generated by NoCodeLos Blueprint Engine v4.0*  \n*"Enterprise-grade architecture, production-ready from day one"*  \n*Quality Score: 9.2/10 | Completeness: 97% | Production Readiness: 95%*\n\n`
+    `## **📈 Production Deployment Checklist**\n\n### **Pre-Deployment**\n- ✅ Environment variables configured\n- ✅ Database migrations completed\n- ✅ All tests passing (unit, integration, e2e)\n- ✅ Security audit completed\n- ✅ Performance benchmarks met\n- ✅ Error monitoring configured (Sentry)\n- ✅ Logging system operational\n- ✅ Backup strategy implemented\n- ✅ Health check endpoints tested\n- ✅ Rate limiting configured\n\n### **Post-Deployment**\n- ✅ Monitor application metrics\n- ✅ Verify database connections\n- ✅ Test critical user flows\n- ✅ Check error rates and logs\n- ✅ Validate security headers\n- ✅ Confirm backup procedures\n- ✅ Update documentation\n\n### **Monitoring Dashboard KPIs**\n- **Uptime:** 99.9% target\n- **Response Time:** <200ms 95th percentile\n- **Error Rate:** <0.1% for critical endpoints\n- **Database Performance:** <50ms average query time\n- **Memory Usage:** <80% of available\n- **CPU Usage:** <70% average\n\n---\n\n## **📚 Next Steps & Enhancements**\n\n### **Phase 2 Features**\n- Real-time notifications\n- File upload capabilities  \n- Advanced search and filtering\n- Export/import functionality\n- Mobile application (React Native)\n- Third-party integrations\n\n### **Scaling Considerations**\n- Database read replicas\n- Redis cluster setup\n- CDN implementation\n- Microservices architecture\n- Kubernetes deployment\n- Auto-scaling configurations\n\n---\n\n*Blueprint generated with production-ready code examples and comprehensive architecture. All components are functional and ready for immediate development.*\n\n**Quality Score: 9.5/10 | Completeness: 98% | Production Readiness: 95%**\n\n`
   ];
 
   for (const section of sections) {
-    // Simulate realistic typing speed with character-by-character streaming
     for (let i = 0; i < section.length; i++) {
-      const char = section[i];
-      yield char;
+      yield section[i];
 
-      // Faster streaming for better visual effect
-      let delay = 15; // Base delay of 15ms per character
-      
-      // Add slight variations for natural feel
-      if (char === ' ') delay = 25; // Slightly longer for spaces
-      if (char === '\n') delay = 50; // Longer for line breaks
-      if (char === '.') delay = 100; // Pause at sentence ends
-      
-      // Add small random variation
-      delay += Math.random() * 10;
-      
+      // Faster, more natural streaming
+      let delay = 8; // Very fast base delay
+
+      if (section[i] === ' ') delay = 12;
+      if (section[i] === '\n') delay = 25;
+      if (section[i] === '.') delay = 50;
+
+      // Small random variation
+      delay += Math.random() * 5;
+
       await new Promise(resolve => setTimeout(resolve, delay));
     }
-    
-    // Small pause between sections
-    await new Promise(resolve => setTimeout(resolve, 200));
+
+    // Brief pause between sections
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
 }
 
