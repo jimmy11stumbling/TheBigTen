@@ -60,29 +60,13 @@ export function StreamProvider({ children }: StreamProviderProps) {
 
       const decoder = new TextDecoder();
       let buffer = "";
-      let updateQueue: string[] = [];
-      let isProcessing = false;
 
-      // Batch updates for smoother streaming
-      const processQueue = () => {
-        if (isProcessing || updateQueue.length === 0) return;
-        isProcessing = true;
-        
-        const chunk = updateQueue.join('');
-        updateQueue = [];
-        
+      // Direct updates for smoother streaming
+      const updateContent = (chunk: string) => {
         setStreamState(prev => ({
           ...prev,
           content: prev.content + chunk,
         }));
-        
-        // Use requestAnimationFrame for smooth updates
-        requestAnimationFrame(() => {
-          isProcessing = false;
-          if (updateQueue.length > 0) {
-            processQueue();
-          }
-        });
       };
 
       try {
@@ -105,26 +89,13 @@ export function StreamProvider({ children }: StreamProviderProps) {
                 const event: StreamEvent = JSON.parse(data);
                 
                 if (event.type === "chunk" && event.content) {
-                  updateQueue.push(event.content);
-                  processQueue();
+                  updateContent(event.content);
                 } else if (event.type === "complete") {
-                  // Process any remaining queue first
-                  if (updateQueue.length > 0) {
-                    const remainingChunk = updateQueue.join('');
-                    updateQueue = [];
-                    setStreamState(prev => ({
-                      ...prev,
-                      content: prev.content + remainingChunk,
-                      status: "complete",
-                      blueprintId: event.blueprintId,
-                    }));
-                  } else {
-                    setStreamState(prev => ({
-                      ...prev,
-                      status: "complete",
-                      blueprintId: event.blueprintId,
-                    }));
-                  }
+                  setStreamState(prev => ({
+                    ...prev,
+                    status: "complete",
+                    blueprintId: event.blueprintId,
+                  }));
                 } else if (event.type === "error") {
                   setStreamState(prev => ({
                     ...prev,

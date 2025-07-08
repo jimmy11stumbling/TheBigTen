@@ -17,15 +17,11 @@ export function BlueprintViewer() {
   useEffect(() => {
     if (streamState.status === "generating" && scrollContainerRef.current) {
       const container = scrollContainerRef.current;
-      const shouldAutoScroll = container.scrollTop + container.clientHeight >= container.scrollHeight - 100;
+      const shouldAutoScroll = container.scrollTop + container.clientHeight >= container.scrollHeight - 150;
       
       if (shouldAutoScroll) {
-        setTimeout(() => {
-          container.scrollTo({
-            top: container.scrollHeight,
-            behavior: 'smooth'
-          });
-        }, 50);
+        // Use immediate scroll for better streaming performance
+        container.scrollTop = container.scrollHeight;
       }
     }
   }, [streamState.content, streamState.status]);
