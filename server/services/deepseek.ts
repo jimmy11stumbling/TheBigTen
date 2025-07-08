@@ -568,7 +568,7 @@ async function* simulateGeneration(prompt: string, platform: z.infer<typeof plat
   await new Promise(resolve => setTimeout(resolve, 500));
 
   const sections = [
-    `# **🎬 DEMO: Unified Project Blueprint & Requirements Document**\n## ${platformName}-Optimized Enterprise Architecture\n\n> **⚠️ This is demo content.** Add your DeepSeek API key in Settings for real AI-generated blueprints.\n\n**Project ID:** \`${projectId}\`  \n**Blueprint Engine:** NoCodeLos v4.0 Enhanced (Demo Mode)  \n**Generated:** ${currentDate}  \n**Target Platform:** ${platformName}  \n**Platform Focus:** ${platformDB?.primaryFunction || 'Full-stack development'}  \n**Complexity:** Production-Ready Enterprise\n\n---\n\n`,
+    `# **🎬 DEMO: ${appName} - Production Implementation Blueprint**\n## ${platformName}-Optimized Enterprise Architecture\n\n> **⚠️ This is demo content showing actual implementation examples.** Add your DeepSeek API key in Settings for AI-generated blueprints tailored to your specific requirements.\n\n**Project ID:** \`${projectId}\`  \n**Blueprint Engine:** NoCodeLos v4.0 Enhanced (Demo Mode)  \n**Generated:** ${currentDate}  \n**Target Platform:** ${platformName}  \n**Platform Focus:** ${platformDB?.primaryFunction || 'Full-stack development'}  \n**Complexity:** Production-Ready Enterprise\n\n---\n\n`,
 
     `## **🎯 1. Executive Summary & Vision**\n\n### **1.1. Project Overview**\n**Application Name:** ${appName}  \n**Core Concept:** ${prompt}  \n**Business Model:** Scalable SaaS platform with freemium/enterprise tiers  \n**Target Market Size:** $2.5B+ addressable market  \n\n`,
 
