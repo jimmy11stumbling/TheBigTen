@@ -5,6 +5,12 @@ import { Copy, Download, Share, CheckCircle, Loader2, AlertCircle, Code } from "
 import { useStream } from "@/contexts/StreamContext";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
+import rehypeSanitize from 'rehype-sanitize';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 export function BlueprintViewer() {
   const { streamState } = useStream();
@@ -99,6 +105,22 @@ export function BlueprintViewer() {
       toast({
         title: "Share failed",
         description: "Failed to share the blueprint.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Code copied",
+        description: "Code has been copied to your clipboard.",
+      });
+    } catch (error) {
+      toast({
+        title: "Copy failed",
+        description: "Failed to copy code to clipboard.",
         variant: "destructive",
       });
     }

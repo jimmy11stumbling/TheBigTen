@@ -88,40 +88,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
 
           // Update blueprint with final content
-          await storage.updateBlueprintContent(blueprint.id, fullContent, "complete");
-
-          // Track successful generation
-          const duration = Date.now() - startTime;
-          await analytics.track('blueprint_generated', user_id, { 
-            platform, 
-            duration,
-            contentLength: fullContent.length,
-            blueprintId: blueprint.id 
+          await storage.updateBlueprint(blueprint.id, {
+            content: fullContent,
+            status: "complete",
+            generated_at: new Date(),
           });
 
-          // Send completion event
-          res.write(`data: ${JSON.stringify({ 
-            type: "complete", 
-            blueprintId: blueprint.id 
+          // Send completion signal
+          res.write(`data: ${JSON.stringify({
+            type: "complete",
+            blueprintId: blueprint.id,
+            fullContent
           })}\n\n`);
 
-        } catch (streamError) {
-          console.error("Stream error:", streamError);
+          // Track successful generation
+          await analytics.track('blueprint_generated', user_id, { 
+            platform, 
+            promptLength: prompt.length,
+            contentLength: fullContent.length,
+            duration: Date.now() - startTime,
+            hasApiKey: !!apiKey
+          });
 
-          await storage.updateBlueprintContent(blueprint.id, fullContent, "error");
+        } catch (generationError) {
+          console.error("Blueprint generation error:", generationError);
+
+          // Update blueprint with error status
+          await storage.updateBlueprint(blueprint.id, {
+            status: "error",
+            generated_at: new Date(),
+          });
+
+          // Send error signal
+          res.write(`data: ${JSON.stringify({
+            type: "error",
+            error: generationError instanceof Error ? generationError.message : "Generation failed",
+            blueprintId: blueprint.id
+          })}\n\n`);
 
           // Track error
           await analytics.track('blueprint_error', user_id, { 
             platform, 
-            error: streamError instanceof Error ? streamError.message : 'Unknown error',
-            blueprintId: blueprint.id 
+            promptLength: prompt.length,
+            error: generationError instanceof Error ? generationError.message : "Unknown error",
+            duration: Date.now() - startTime,
+            hasApiKey: !!apiKey
           });
-
-          res.write(`data: ${JSON.stringify({ 
-            type: "error", 
-            message: "Generation failed. Please try again.",
-            blueprintId: blueprint.id 
-          })}\n\n`);
         }
 
         res.end();
@@ -129,14 +141,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("Blueprint generation error:", error);
 
         if (!headersSent) {
-          res.status(400).json({ 
-            message: error instanceof Error ? error.message : "Invalid request" 
+          res.status(500).json({ 
+            message: "Failed to generate blueprint",
+            error: error instanceof Error ? error.message : "Unknown error"
           });
         } else {
-          // If headers already sent, send error via SSE
-          res.write(`data: ${JSON.stringify({ 
-            type: "error", 
-            message: error instanceof Error ? error.message : "Invalid request"
+          res.write(`data: ${JSON.stringify({
+            type: "error",
+            error: error instanceof Error ? error.message : "Failed to generate blueprint"
           })}\n\n`);
           res.end();
         }

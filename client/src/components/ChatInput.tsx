@@ -51,7 +51,7 @@ export function ChatInput({ onOpenSettings }: ChatInputProps) {
 
   const handleSubmit = async () => {
     if (!prompt.trim() || isGenerating) return;
-    
+
     // Auto-save prompt before generating
     const trimmedPrompt = prompt.trim();
     const newPrompt: SavedPrompt = {
@@ -65,11 +65,11 @@ export function ChatInput({ onOpenSettings }: ChatInputProps) {
     const isDuplicate = savedPrompts.some(saved => 
       saved.text === trimmedPrompt && saved.platform === platform
     );
-    
+
     if (!isDuplicate) {
       setSavedPrompts(prev => [newPrompt, ...prev.slice(0, 9)]); // Keep only 10 most recent
     }
-    
+
     await generateBlueprint({
       prompt: trimmedPrompt,
       platform,
@@ -170,7 +170,7 @@ export function ChatInput({ onOpenSettings }: ChatInputProps) {
     <Card>
       <CardContent className="p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Describe Your App Idea</h2>
-        
+
         <div className="space-y-4">
           {!hasApiKey && (
             <Alert>
@@ -191,7 +191,7 @@ export function ChatInput({ onOpenSettings }: ChatInputProps) {
               </AlertDescription>
             </Alert>
           )}
-          
+
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-gray-700">Your App Description</label>
@@ -287,9 +287,9 @@ export function ChatInput({ onOpenSettings }: ChatInputProps) {
               </div>
             </div>
           </div>
-          
+
           <PlatformSelector value={platform} onChange={setPlatform} disabled={isGenerating} />
-          
+
           <Button 
             onClick={handleSubmit}
             disabled={!prompt.trim() || isGenerating}
@@ -308,7 +308,7 @@ export function ChatInput({ onOpenSettings }: ChatInputProps) {
               </>
             )}
           </Button>
-          
+
           {!isGenerating && prompt.trim() && (
             <p className="text-xs text-muted-foreground text-center">
               Press Cmd/Ctrl + Enter to generate
