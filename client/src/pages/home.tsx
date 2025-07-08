@@ -20,6 +20,7 @@ import {
   History,
   LayoutTemplate
 } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function HomePage() {
   const { hasApiKey } = useSettings();
@@ -78,7 +79,7 @@ export default function HomePage() {
                 )}
               </div>
 
-
+              <ThemeToggle />
               <Button 
                 variant="ghost" 
                 size="sm" 

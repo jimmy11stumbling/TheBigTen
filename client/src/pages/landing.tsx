@@ -31,6 +31,32 @@ import {
   ExternalLink
 } from "lucide-react";
 
+// Theme Toggle component (assuming it exists)
+const ThemeToggle = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
+  return (
+    <button
+      onClick={toggleDarkMode}
+      className="text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
+    >
+      {isDarkMode ? "Light Mode" : "Dark Mode"}
+    </button>
+  );
+};
+
 export default function Landing() {
   const [activeTab, setActiveTab] = useState("features");
 
@@ -152,6 +178,7 @@ export default function Landing() {
               >
                 Documentation
               </button>
+              <ThemeToggle />
               <Link href="/app">
                 <Button className="bg-primary hover:bg-primary/90">
                   <Rocket className="w-4 h-4 mr-2" />
@@ -220,7 +247,7 @@ export default function Landing() {
               Powered by advanced AI, NoCodeLos generates comprehensive technical documentation that development teams can immediately act upon.
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <Card key={index} className="border border-gray-200 hover:shadow-lg transition-shadow">
@@ -259,7 +286,7 @@ export default function Landing() {
               From idea to implementation-ready blueprint in four simple steps. Our AI-powered process ensures comprehensive technical documentation every time.
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {howItWorksSteps.map((step, index) => (
               <Card key={index} className="border border-gray-200 hover:shadow-lg transition-shadow relative">
@@ -311,7 +338,7 @@ export default function Landing() {
               <TabsTrigger value="api">API Reference</TabsTrigger>
               <TabsTrigger value="faq">FAQ</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="features" className="mt-8">
               <div className="grid md:grid-cols-2 gap-8">
                 <Card>
