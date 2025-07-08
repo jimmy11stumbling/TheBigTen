@@ -163,13 +163,896 @@ Requirements:
   }
 }
 
+// Helper functions for contextual blueprint generation
+function analyzePromptFeatures(prompt: string): string[] {
+  const features = [];
+  const lowercasePrompt = prompt.toLowerCase();
+  
+  if (lowercasePrompt.includes('fitness') || lowercasePrompt.includes('workout') || lowercasePrompt.includes('exercise')) {
+    features.push('Workout tracking and exercise library', 'Progress analytics and metrics', 'Goal setting and achievement');
+  } else if (lowercasePrompt.includes('social') || lowercasePrompt.includes('chat') || lowercasePrompt.includes('messaging')) {
+    features.push('Real-time messaging system', 'User profiles and connections', 'Activity feeds and notifications');
+  } else if (lowercasePrompt.includes('ecommerce') || lowercasePrompt.includes('shop') || lowercasePrompt.includes('store')) {
+    features.push('Product catalog management', 'Shopping cart and checkout', 'Payment processing integration');
+  } else if (lowercasePrompt.includes('learning') || lowercasePrompt.includes('education') || lowercasePrompt.includes('course')) {
+    features.push('Course management system', 'Progress tracking', 'Interactive assessments');
+  } else if (lowercasePrompt.includes('project') || lowercasePrompt.includes('task') || lowercasePrompt.includes('management')) {
+    features.push('Task and project organization', 'Team collaboration tools', 'Timeline and milestone tracking');
+  } else {
+    features.push('User data management', 'Interactive dashboard', 'Real-time updates');
+  }
+  
+  return features;
+}
+
+function generateContextualSchema(prompt: string, tablePrefix: string, features: string[]): string {
+  const lowercasePrompt = prompt.toLowerCase();
+  
+  if (lowercasePrompt.includes('fitness') || lowercasePrompt.includes('workout')) {
+    return `-- Fitness App Schema
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  username VARCHAR(100) UNIQUE NOT NULL,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  date_of_birth DATE,
+  height_cm NUMERIC(5,2),
+  weight_kg NUMERIC(5,2),
+  fitness_level VARCHAR(20) CHECK (fitness_level IN ('beginner', 'intermediate', 'advanced')),
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE workouts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  duration_minutes INTEGER,
+  calories_burned INTEGER,
+  date_completed DATE DEFAULT CURRENT_DATE,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE exercises (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(255) NOT NULL,
+  muscle_group VARCHAR(100) NOT NULL,
+  equipment VARCHAR(100),
+  instructions TEXT,
+  difficulty VARCHAR(20) CHECK (difficulty IN ('easy', 'medium', 'hard')),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE workout_exercises (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  workout_id UUID REFERENCES workouts(id) ON DELETE CASCADE,
+  exercise_id UUID REFERENCES exercises(id),
+  sets INTEGER NOT NULL,
+  reps INTEGER,
+  weight_kg NUMERIC(5,2),
+  rest_seconds INTEGER,
+  notes TEXT
+);`;
+  } else if (lowercasePrompt.includes('social') || lowercasePrompt.includes('chat')) {
+    return `-- Social App Schema  
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  username VARCHAR(100) UNIQUE NOT NULL,
+  display_name VARCHAR(150),
+  bio TEXT,
+  avatar_url TEXT,
+  verified BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE posts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  image_urls TEXT[],
+  like_count INTEGER DEFAULT 0,
+  comment_count INTEGER DEFAULT 0,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE comments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  post_id UUID REFERENCES posts(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE follows (
+  follower_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  following_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT NOW(),
+  PRIMARY KEY (follower_id, following_id)
+);`;
+  } else {
+    return `-- Generic App Schema
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  first_name VARCHAR(100) NOT NULL,
+  last_name VARCHAR(100) NOT NULL,
+  avatar_url TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE ${tablePrefix}_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  status VARCHAR(50) DEFAULT 'active',
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);`;
+  }
+}
+
+function generateContextualAPI(routePrefix: string, tablePrefix: string, features: string[]): string {
+  return `// Production-ready API controller with full CRUD operations
+import { Request, Response } from 'express';
+import { z } from 'zod';
+import { db } from '../db';
+import { ${tablePrefix}_items, users } from '../schema';
+import { eq, desc, and, sql } from 'drizzle-orm';
+import { authenticateToken } from '../middleware/auth';
+
+interface AuthRequest extends Request {
+  user?: { id: string; email: string };
+}
+
+const createSchema = z.object({
+  title: z.string().min(1).max(255),
+  description: z.string().optional(),
+  metadata: z.record(z.any()).optional()
+});
+
+const updateSchema = createSchema.partial();
+
+// GET /${routePrefix} - Get all items with pagination and filtering
+export const getAll = async (req: AuthRequest, res: Response) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page as string) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(req.query.limit as string) || 10));
+    const offset = (page - 1) * limit;
+    const search = req.query.search as string;
+    const status = req.query.status as string;
+    
+    let whereClause = eq(${tablePrefix}_items.user_id, req.user!.id);
+    
+    if (status) {
+      whereClause = and(whereClause, eq(${tablePrefix}_items.status, status));
+    }
+    
+    let query = db
+      .select({
+        id: ${tablePrefix}_items.id,
+        title: ${tablePrefix}_items.title,
+        description: ${tablePrefix}_items.description,
+        status: ${tablePrefix}_items.status,
+        created_at: ${tablePrefix}_items.created_at,
+        updated_at: ${tablePrefix}_items.updated_at
+      })
+      .from(${tablePrefix}_items)
+      .where(whereClause)
+      .orderBy(desc(${tablePrefix}_items.created_at))
+      .limit(limit)
+      .offset(offset);
+    
+    if (search) {
+      query = query.where(
+        and(
+          whereClause,
+          sql\`\${${tablePrefix}_items.title} ILIKE \${'\%' + search + '\%'}\`
+        )
+      );
+    }
+    
+    const items = await query;
+    
+    // Get total count for pagination
+    const [{ count }] = await db
+      .select({ count: sql<number>\`count(*)\` })
+      .from(${tablePrefix}_items)
+      .where(whereClause);
+    
+    res.json({
+      items,
+      pagination: {
+        page,
+        limit,
+        total: Number(count),
+        totalPages: Math.ceil(Number(count) / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Get all error:', error);
+    res.status(500).json({ error: 'Failed to fetch items' });
+  }
+};
+
+// POST /${routePrefix} - Create new item
+export const create = async (req: AuthRequest, res: Response) => {
+  try {
+    const data = createSchema.parse(req.body);
+    
+    const [newItem] = await db
+      .insert(${tablePrefix}_items)
+      .values({
+        ...data,
+        user_id: req.user!.id
+      })
+      .returning();
+    
+    res.status(201).json(newItem);
+  } catch (error) {
+    console.error('Create error:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to create item' });
+  }
+};
+
+// GET /${routePrefix}/:id - Get single item
+export const getById = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      return res.status(400).json({ error: 'Invalid ID format' });
+    }
+    
+    const [item] = await db
+      .select()
+      .from(${tablePrefix}_items)
+      .where(
+        and(
+          eq(${tablePrefix}_items.id, id),
+          eq(${tablePrefix}_items.user_id, req.user!.id)
+        )
+      );
+    
+    if (!item) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+    
+    res.json(item);
+  } catch (error) {
+    console.error('Get by ID error:', error);
+    res.status(500).json({ error: 'Failed to fetch item' });
+  }
+};
+
+// PUT /${routePrefix}/:id - Update item
+export const update = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const data = updateSchema.parse(req.body);
+    
+    if (!id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      return res.status(400).json({ error: 'Invalid ID format' });
+    }
+    
+    const [updatedItem] = await db
+      .update(${tablePrefix}_items)
+      .set({
+        ...data,
+        updated_at: new Date()
+      })
+      .where(
+        and(
+          eq(${tablePrefix}_items.id, id),
+          eq(${tablePrefix}_items.user_id, req.user!.id)
+        )
+      )
+      .returning();
+    
+    if (!updatedItem) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+    
+    res.json(updatedItem);
+  } catch (error) {
+    console.error('Update error:', error);
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: error.errors });
+    }
+    res.status(500).json({ error: 'Failed to update item' });
+  }
+};
+
+// DELETE /${routePrefix}/:id - Delete item
+export const deleteById = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    
+    if (!id.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+      return res.status(400).json({ error: 'Invalid ID format' });
+    }
+    
+    const [deletedItem] = await db
+      .delete(${tablePrefix}_items)
+      .where(
+        and(
+          eq(${tablePrefix}_items.id, id),
+          eq(${tablePrefix}_items.user_id, req.user!.id)
+        )
+      )
+      .returning();
+    
+    if (!deletedItem) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+    
+    res.json({ message: 'Item deleted successfully', id: deletedItem.id });
+  } catch (error) {
+    console.error('Delete error:', error);
+    res.status(500).json({ error: 'Failed to delete item' });
+  }
+};`;
+}
+
+function generateContextualFrontend(appName: string, routePrefix: string, features: string[]): string {
+  return `// Production-ready React component with comprehensive functionality
+import React, { useState, useCallback, useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { toast } from '@/hooks/use-toast';
+import { Plus, Edit, Trash2, Search, Filter, MoreVertical } from 'lucide-react';
+
+interface ${appName}Item {
+  id: string;
+  title: string;
+  description?: string;
+  status: 'active' | 'inactive' | 'pending';
+  metadata: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
+interface ApiResponse {
+  items: ${appName}Item[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+const api = {
+  getItems: async (params: { page?: number; limit?: number; search?: string; status?: string }): Promise<ApiResponse> => {
+    const token = localStorage.getItem('authToken');
+    const searchParams = new URLSearchParams();
+    
+    if (params.page) searchParams.set('page', params.page.toString());
+    if (params.limit) searchParams.set('limit', params.limit.toString());
+    if (params.search) searchParams.set('search', params.search);
+    if (params.status) searchParams.set('status', params.status);
+    
+    const response = await fetch(\`/api/${routePrefix}?\${searchParams}\`, {
+      headers: {
+        'Authorization': \`Bearer \${token}\`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(\`HTTP error! status: \${response.status}\`);
+    }
+    
+    return response.json();
+  },
+  
+  createItem: async (data: { title: string; description?: string }): Promise<${appName}Item> => {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(\`/api/${routePrefix}\`, {
+      method: 'POST',
+      headers: {
+        'Authorization': \`Bearer \${token}\`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      throw new Error(\`HTTP error! status: \${response.status}\`);
+    }
+    
+    return response.json();
+  },
+  
+  updateItem: async (id: string, data: Partial<{ title: string; description?: string; status: string }>): Promise<${appName}Item> => {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(\`/api/${routePrefix}/\${id}\`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': \`Bearer \${token}\`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+    
+    if (!response.ok) {
+      throw new Error(\`HTTP error! status: \${response.status}\`);
+    }
+    
+    return response.json();
+  },
+  
+  deleteItem: async (id: string): Promise<void> => {
+    const token = localStorage.getItem('authToken');
+    const response = await fetch(\`/api/${routePrefix}/\${id}\`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': \`Bearer \${token}\`
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(\`HTTP error! status: \${response.status}\`);
+    }
+  }
+};
+
+export function ${appName}Dashboard() {
+  // State management
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<${appName}Item | null>(null);
+  const [formData, setFormData] = useState({ title: '', description: '' });
+  
+  const queryClient = useQueryClient();
+  const limit = 10;
+  
+  // Memoized query parameters
+  const queryParams = useMemo(() => ({
+    page,
+    limit,
+    ...(search && { search }),
+    ...(statusFilter && { status: statusFilter })
+  }), [page, search, statusFilter]);
+  
+  // Queries and mutations
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ['items', queryParams],
+    queryFn: () => api.getItems(queryParams),
+    keepPreviousData: true
+  });
+  
+  const createMutation = useMutation({
+    mutationFn: api.createItem,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+      setIsCreateDialogOpen(false);
+      setFormData({ title: '', description: '' });
+      toast({ title: 'Success', description: 'Item created successfully' });
+    },
+    onError: (error) => {
+      toast({ 
+        title: 'Error', 
+        description: error instanceof Error ? error.message : 'Failed to create item',
+        variant: 'destructive' 
+      });
+    }
+  });
+  
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => api.updateItem(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+      setEditingItem(null);
+      setFormData({ title: '', description: '' });
+      toast({ title: 'Success', description: 'Item updated successfully' });
+    },
+    onError: (error) => {
+      toast({ 
+        title: 'Error', 
+        description: error instanceof Error ? error.message : 'Failed to update item',
+        variant: 'destructive' 
+      });
+    }
+  });
+  
+  const deleteMutation = useMutation({
+    mutationFn: api.deleteItem,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['items'] });
+      toast({ title: 'Success', description: 'Item deleted successfully' });
+    },
+    onError: (error) => {
+      toast({ 
+        title: 'Error', 
+        description: error instanceof Error ? error.message : 'Failed to delete item',
+        variant: 'destructive' 
+      });
+    }
+  });
+  
+  // Event handlers
+  const handleCreate = useCallback(() => {
+    if (!formData.title.trim()) return;
+    createMutation.mutate({
+      title: formData.title.trim(),
+      description: formData.description?.trim() || undefined
+    });
+  }, [formData, createMutation]);
+  
+  const handleUpdate = useCallback(() => {
+    if (!editingItem || !formData.title.trim()) return;
+    updateMutation.mutate({
+      id: editingItem.id,
+      data: {
+        title: formData.title.trim(),
+        description: formData.description?.trim() || undefined
+      }
+    });
+  }, [editingItem, formData, updateMutation]);
+  
+  const handleEdit = useCallback((item: ${appName}Item) => {
+    setEditingItem(item);
+    setFormData({
+      title: item.title,
+      description: item.description || ''
+    });
+  }, []);
+  
+  const handleDelete = useCallback((id: string) => {
+    deleteMutation.mutate(id);
+  }, [deleteMutation]);
+  
+  const handleStatusChange = useCallback((id: string, status: string) => {
+    updateMutation.mutate({ id, data: { status } });
+  }, [updateMutation]);
+  
+  // Search and filter handlers
+  const handleSearchSubmit = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    setPage(1); // Reset to first page on search
+  }, []);
+  
+  const clearFilters = useCallback(() => {
+    setSearch('');
+    setStatusFilter('');
+    setPage(1);
+  }, []);
+  
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <p className="text-red-600 mb-4">Failed to load items</p>
+              <Button onClick={() => refetch()}>Try Again</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">${appName} Dashboard</h1>
+          <p className="text-muted-foreground">
+            Manage your ${routePrefix.replace('-', ' ')} items
+          </p>
+        </div>
+        
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Create New
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create New Item</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Title</label>
+                <Input
+                  value={formData.title}
+                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="Enter title..."
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Description</label>
+                <Textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Enter description..."
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={handleCreate}
+                  disabled={!formData.title.trim() || createMutation.isPending}
+                  className="flex-1"
+                >
+                  {createMutation.isPending ? 'Creating...' : 'Create'}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsCreateDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+      
+      {/* Search and Filters */}
+      <Card>
+        <CardContent className="pt-6">
+          <form onSubmit={handleSearchSubmit} className="flex gap-4 items-end">
+            <div className="flex-1">
+              <label className="text-sm font-medium">Search</label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search items..."
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            <div className="w-48">
+              <label className="text-sm font-medium">Status</label>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">All statuses</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button type="submit">Search</Button>
+            {(search || statusFilter) && (
+              <Button variant="outline" onClick={clearFilters}>
+                Clear
+              </Button>
+            )}
+          </form>
+        </CardContent>
+      </Card>
+      
+      {/* Items List */}
+      {isLoading ? (
+        <div className="grid gap-4">
+          {[...Array(5)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="pt-6">
+                <div className="animate-pulse space-y-3">
+                  <div className="h-4 bg-muted rounded w-3/4"></div>
+                  <div className="h-3 bg-muted rounded w-1/2"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {data?.items.map((item) => (
+            <Card key={item.id}>
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-semibold">{item.title}</h3>
+                      <Badge 
+                        variant={
+                          item.status === 'active' ? 'default' :
+                          item.status === 'pending' ? 'secondary' : 'outline'
+                        }
+                      >
+                        {item.status}
+                      </Badge>
+                    </div>
+                    {item.description && (
+                      <p className="text-muted-foreground text-sm mb-2">
+                        {item.description}
+                      </p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      Created {new Date(item.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Select
+                      value={item.status}
+                      onValueChange={(status) => handleStatusChange(item.id, status)}
+                    >
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(item)}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Item</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete "{item.title}"? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(item.id)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+          
+          {data?.items.length === 0 && (
+            <Card>
+              <CardContent className="pt-6">
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No items found</p>
+                  <Button 
+                    className="mt-4"
+                    onClick={() => setIsCreateDialogOpen(true)}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Your First Item
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* Pagination */}
+          {data && data.pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                Showing {((page - 1) * limit) + 1} to {Math.min(page * limit, data.pagination.total)} of {data.pagination.total} items
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setPage(p => Math.min(data.pagination.totalPages, p + 1))}
+                  disabled={page >= data.pagination.totalPages}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      
+      {/* Edit Dialog */}
+      <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Item</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Title</label>
+              <Input
+                value={formData.title}
+                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                placeholder="Enter title..."
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Description</label>
+              <Textarea
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Enter description..."
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                onClick={handleUpdate}
+                disabled={!formData.title.trim() || updateMutation.isPending}
+                className="flex-1"
+              >
+                {updateMutation.isPending ? 'Updating...' : 'Update'}
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setEditingItem(null)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}`;
+}
+
 async function* generateDetailedBlueprint(prompt: string, platform: z.infer<typeof platformEnum>): AsyncGenerator<string> {
-  const appName = prompt.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('').replace(/[^A-Za-z0-9]/g, '');
+  const appName = prompt.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('').replace(/[^A-Za-z0-9]/g, '') || 'App';
   const currentDate = new Date().toISOString().split('T')[0];
   const platformDB = getPlatformDatabase(platform);
   const platformName = platformDB?.name || platform.charAt(0).toUpperCase() + platform.slice(1);
-  const tablePrefix = prompt.toLowerCase().replace(/\s+/g, '_').substring(0, 20);
-  const routePrefix = prompt.toLowerCase().replace(/\s+/g, '-').substring(0, 20);
+  const tablePrefix = prompt.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '').substring(0, 15) || 'app';
+  const routePrefix = prompt.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').substring(0, 15) || 'app';
+  
+  // Analyze prompt to determine app features
+  const features = analyzePromptFeatures(prompt);
+  const dbSchema = generateContextualSchema(prompt, tablePrefix, features);
+  const apiEndpoints = generateContextualAPI(routePrefix, tablePrefix, features);
+  const frontendComponents = generateContextualFrontend(appName, routePrefix, features);
 
   // Small delay for visual effect
   await new Promise(resolve => setTimeout(resolve, 300));
@@ -177,17 +1060,17 @@ async function* generateDetailedBlueprint(prompt: string, platform: z.infer<type
   const sections = [
     `# **${appName} - Production-Ready Technical Blueprint**\n\n**Generated:** ${currentDate}  \n**Platform:** ${platformName}  \n**Architecture:** Enterprise-grade, scalable solution\n\n---\n\n`,
 
-    `## **🎯 Executive Summary**\n\n**Application:** ${appName}  \n**Concept:** ${prompt}  \n**Target Platform:** ${platformName}  \n**Architecture:** Modern full-stack application with real-time capabilities\n\n### **Key Features:**\n- Real-time data synchronization\n- Secure user authentication\n- Scalable microservices architecture\n- Production-ready deployment\n- Comprehensive testing suite\n\n`,
+    `## **🎯 Executive Summary**\n\n**Application:** ${appName}  \n**Concept:** ${prompt}  \n**Target Platform:** ${platformName}  \n**Architecture:** Modern full-stack application with real-time capabilities\n\n### **Key Features:**\n${features.map(f => `- ${f}`).join('\n')}\n- Secure user authentication\n- Scalable architecture\n- Production-ready deployment\n- Comprehensive testing suite\n\n`,
 
     `## **🔧 Technology Stack**\n\n### **Frontend**\n- **Framework:** React 18 with TypeScript\n- **State Management:** Zustand + React Query\n- **UI Library:** Tailwind CSS + shadcn/ui\n- **Build Tool:** Vite\n- **Testing:** Vitest + React Testing Library\n\n### **Backend**\n- **Runtime:** Node.js 20+\n- **Framework:** Express.js with TypeScript\n- **Database:** PostgreSQL with Drizzle ORM\n- **Authentication:** JWT + bcrypt\n- **Validation:** Zod schemas\n- **Testing:** Jest + Supertest\n\n### **Infrastructure**\n- **Hosting:** ${platformName}\n- **Database:** PostgreSQL (managed)\n- **Caching:** Redis\n- **File Storage:** Cloud storage integration\n- **Monitoring:** Built-in analytics\n\n`,
 
     `## **🏗️ System Architecture**\n\n\`\`\`mermaid\ngraph TB\n    subgraph "Client Layer"\n        A[React Frontend]\n        B[Mobile PWA]\n    end\n    \n    subgraph "API Gateway"\n        C[Express Server]\n        D[Auth Middleware]\n        E[Rate Limiter]\n    end\n    \n    subgraph "Business Logic"\n        F[${appName} Service]\n        G[User Service]\n        H[Auth Service]\n    end\n    \n    subgraph "Data Layer"\n        I[PostgreSQL]\n        J[Redis Cache]\n        K[File Storage]\n    end\n    \n    A --> C\n    B --> C\n    C --> D\n    D --> E\n    E --> F\n    E --> G\n    E --> H\n    F --> I\n    G --> I\n    H --> I\n    F --> J\n    G --> J\n\`\`\`\n\n`,
 
-    `## **🗄️ Database Schema**\n\n\`\`\`sql\n-- Users table\nCREATE TABLE users (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  email VARCHAR(255) UNIQUE NOT NULL,\n  password_hash VARCHAR(255) NOT NULL,\n  first_name VARCHAR(100) NOT NULL,\n  last_name VARCHAR(100) NOT NULL,\n  avatar_url TEXT,\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Main feature table\nCREATE TABLE ${tablePrefix}_items (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  title VARCHAR(255) NOT NULL,\n  description TEXT,\n  user_id UUID REFERENCES users(id) ON DELETE CASCADE,\n  status VARCHAR(50) DEFAULT 'active',\n  metadata JSONB DEFAULT '{}',\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Indexes for performance\nCREATE INDEX idx_users_email ON users(email);\nCREATE INDEX idx_items_user ON ${tablePrefix}_items(user_id);\nCREATE INDEX idx_items_status ON ${tablePrefix}_items(status);\n\`\`\`\n\n`,
+    `## **🗄️ Database Schema**\n\n\`\`\`sql\n${dbSchema}\n\n-- Performance indexes\nCREATE INDEX idx_users_email ON users(email);\nCREATE INDEX idx_users_created_at ON users(created_at);\n\`\`\`\n\n`,
 
     `## **🔐 Authentication System**\n\n### **JWT Authentication Middleware**\n\`\`\`typescript\n// server/middleware/auth.ts\nimport jwt from 'jsonwebtoken';\nimport { Request, Response, NextFunction } from 'express';\nimport { db } from '../db';\nimport { users } from '../schema';\nimport { eq } from 'drizzle-orm';\n\ninterface AuthRequest extends Request {\n  user?: {\n    id: string;\n    email: string;\n  };\n}\n\nexport const authenticateToken = async (\n  req: AuthRequest,\n  res: Response,\n  next: NextFunction\n) => {\n  const authHeader = req.headers['authorization'];\n  const token = authHeader && authHeader.split(' ')[1];\n\n  if (!token) {\n    return res.status(401).json({ error: 'Access token required' });\n  }\n\n  try {\n    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;\n    const [user] = await db\n      .select()\n      .from(users)\n      .where(eq(users.id, decoded.userId));\n\n    if (!user) {\n      return res.status(401).json({ error: 'Invalid token' });\n    }\n\n    req.user = {\n      id: user.id,\n      email: user.email\n    };\n    next();\n  } catch (error) {\n    return res.status(403).json({ error: 'Invalid token' });\n  }\n};\n\`\`\`\n\n### **User Registration & Login**\n\`\`\`typescript\n// server/controllers/auth.ts\nimport bcrypt from 'bcrypt';\nimport jwt from 'jsonwebtoken';\nimport { z } from 'zod';\nimport { db } from '../db';\nimport { users } from '../schema';\nimport { eq } from 'drizzle-orm';\n\nconst registerSchema = z.object({\n  email: z.string().email(),\n  password: z.string().min(8),\n  firstName: z.string().min(1),\n  lastName: z.string().min(1)\n});\n\nconst loginSchema = z.object({\n  email: z.string().email(),\n  password: z.string()\n});\n\nexport const register = async (req: Request, res: Response) => {\n  try {\n    const { email, password, firstName, lastName } = registerSchema.parse(req.body);\n    \n    // Check if user exists\n    const [existingUser] = await db\n      .select()\n      .from(users)\n      .where(eq(users.email, email));\n    \n    if (existingUser) {\n      return res.status(400).json({ error: 'User already exists' });\n    }\n    \n    // Hash password\n    const saltRounds = 12;\n    const passwordHash = await bcrypt.hash(password, saltRounds);\n    \n    // Create user\n    const [newUser] = await db\n      .insert(users)\n      .values({\n        email,\n        password_hash: passwordHash,\n        first_name: firstName,\n        last_name: lastName\n      })\n      .returning();\n    \n    // Generate JWT\n    const token = jwt.sign(\n      { userId: newUser.id },\n      process.env.JWT_SECRET!,\n      { expiresIn: '7d' }\n    );\n    \n    res.status(201).json({\n      token,\n      user: {\n        id: newUser.id,\n        email: newUser.email,\n        firstName: newUser.first_name,\n        lastName: newUser.last_name\n      }\n    });\n  } catch (error) {\n    console.error('Registration error:', error);\n    res.status(500).json({ error: 'Registration failed' });\n  }\n};\n\nexport const login = async (req: Request, res: Response) => {\n  try {\n    const { email, password } = loginSchema.parse(req.body);\n    \n    // Find user\n    const [user] = await db\n      .select()\n      .from(users)\n      .where(eq(users.email, email));\n    \n    if (!user) {\n      return res.status(401).json({ error: 'Invalid credentials' });\n    }\n    \n    // Verify password\n    const isValidPassword = await bcrypt.compare(password, user.password_hash);\n    \n    if (!isValidPassword) {\n      return res.status(401).json({ error: 'Invalid credentials' });\n    }\n    \n    // Generate JWT\n    const token = jwt.sign(\n      { userId: user.id },\n      process.env.JWT_SECRET!,\n      { expiresIn: '7d' }\n    );\n    \n    res.json({\n      token,\n      user: {\n        id: user.id,\n        email: user.email,\n        firstName: user.first_name,\n        lastName: user.last_name\n      }\n    });\n  } catch (error) {\n    console.error('Login error:', error);\n    res.status(500).json({ error: 'Login failed' });\n  }\n};\n\`\`\`\n\n`,
 
-    `## **🌐 API Endpoints**\n\n### **Main Feature Controller**\n\`\`\`typescript\n// server/controllers/${routePrefix}.ts\nimport { Request, Response } from 'express';\nimport { z } from 'zod';\nimport { db } from '../db';\nimport { ${tablePrefix}_items } from '../schema';\nimport { eq, desc } from 'drizzle-orm';\n\ninterface AuthRequest extends Request {\n  user?: { id: string; email: string };\n}\n\nconst createSchema = z.object({\n  title: z.string().min(1).max(255),\n  description: z.string().optional(),\n  metadata: z.record(z.any()).optional()\n});\n\nconst updateSchema = z.object({\n  title: z.string().min(1).max(255).optional(),\n  description: z.string().optional(),\n  status: z.enum(['active', 'inactive', 'pending']).optional(),\n  metadata: z.record(z.any()).optional()\n});\n\n// GET /${routePrefix}\nexport const getAll = async (req: AuthRequest, res: Response) => {\n  try {\n    const page = parseInt(req.query.page as string) || 1;\n    const limit = parseInt(req.query.limit as string) || 10;\n    const offset = (page - 1) * limit;\n    \n    const items = await db\n      .select()\n      .from(${tablePrefix}_items)\n      .where(eq(${tablePrefix}_items.user_id, req.user!.id))\n      .orderBy(desc(${tablePrefix}_items.created_at))\n      .limit(limit)\n      .offset(offset);\n    \n    res.json({\n      items,\n      pagination: {\n        page,\n        limit,\n        total: items.length\n      }\n    });\n  } catch (error) {\n    console.error('Get all error:', error);\n    res.status(500).json({ error: 'Failed to fetch items' });\n  }\n};\n\n// POST /${routePrefix}\nexport const create = async (req: AuthRequest, res: Response) => {\n  try {\n    const data = createSchema.parse(req.body);\n    \n    const [newItem] = await db\n      .insert(${tablePrefix}_items)\n      .values({\n        ...data,\n        user_id: req.user!.id\n      })\n      .returning();\n    \n    res.status(201).json(newItem);\n  } catch (error) {\n    console.error('Create error:', error);\n    res.status(500).json({ error: 'Failed to create item' });\n  }\n};\n\n// GET /${routePrefix}/:id\nexport const getById = async (req: AuthRequest, res: Response) => {\n  try {\n    const { id } = req.params;\n    \n    const [item] = await db\n      .select()\n      .from(${tablePrefix}_items)\n      .where(eq(${tablePrefix}_items.id, id));\n    \n    if (!item || item.user_id !== req.user!.id) {\n      return res.status(404).json({ error: 'Item not found' });\n    }\n    \n    res.json(item);\n  } catch (error) {\n    console.error('Get by ID error:', error);\n    res.status(500).json({ error: 'Failed to fetch item' });\n  }\n};\n\n// PUT /${routePrefix}/:id\nexport const update = async (req: AuthRequest, res: Response) => {\n  try {\n    const { id } = req.params;\n    const data = updateSchema.parse(req.body);\n    \n    const [updatedItem] = await db\n      .update(${tablePrefix}_items)\n      .set({\n        ...data,\n        updated_at: new Date()\n      })\n      .where(eq(${tablePrefix}_items.id, id))\n      .returning();\n    \n    if (!updatedItem || updatedItem.user_id !== req.user!.id) {\n      return res.status(404).json({ error: 'Item not found' });\n    }\n    \n    res.json(updatedItem);\n  } catch (error) {\n    console.error('Update error:', error);\n    res.status(500).json({ error: 'Failed to update item' });\n  }\n};\n\n// DELETE /${routePrefix}/:id\nexport const deleteById = async (req: AuthRequest, res: Response) => {\n  try {\n    const { id } = req.params;\n    \n    const [deletedItem] = await db\n      .delete(${tablePrefix}_items)\n      .where(eq(${tablePrefix}_items.id, id))\n      .returning();\n    \n    if (!deletedItem || deletedItem.user_id !== req.user!.id) {\n      return res.status(404).json({ error: 'Item not found' });\n    }\n    \n    res.json({ message: 'Item deleted successfully' });\n  } catch (error) {\n    console.error('Delete error:', error);\n    res.status(500).json({ error: 'Failed to delete item' });\n  }\n};\n\`\`\`\n\n`,
+    `## **🌐 API Endpoints**\n\n### **Main Feature Controller**\n\`\`\`typescript\n${apiEndpoints}\n\`\`\`\n\n`,
 
     `## **⚛️ Frontend Components**\n\n### **Main Dashboard Component**\n\`\`\`typescript\n// client/src/components/${appName}Dashboard.tsx\nimport React, { useState, useEffect } from 'react';\nimport { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';\nimport { Card, CardHeader, CardTitle, CardContent } from './ui/card';\nimport { Button } from './ui/button';\nimport { Input } from './ui/input';\nimport { Textarea } from './ui/textarea';\nimport { Plus, Edit, Trash2, Save, X } from 'lucide-react';\nimport { toast } from './ui/use-toast';\n\ninterface ${appName}Item {\n  id: string;\n  title: string;\n  description?: string;\n  status: 'active' | 'inactive' | 'pending';\n  metadata: Record<string, any>;\n  created_at: string;\n  updated_at: string;\n}\n\ninterface CreateItemData {\n  title: string;\n  description?: string;\n  metadata?: Record<string, any>;\n}\n\nconst api = {\n  getItems: async (): Promise<{ items: ${appName}Item[] }> => {\n    const token = localStorage.getItem('authToken');\n    const response = await fetch(\`/api/${routePrefix}\`, {\n      headers: {\n        'Authorization': \`Bearer \${token}\`,\n        'Content-Type': 'application/json'\n      }\n    });\n    if (!response.ok) throw new Error('Failed to fetch items');\n    return response.json();\n  },\n  \n  createItem: async (data: CreateItemData): Promise<${appName}Item> => {\n    const token = localStorage.getItem('authToken');\n    const response = await fetch(\`/api/${routePrefix}\`, {\n      method: 'POST',\n      headers: {\n        'Authorization': \`Bearer \${token}\`,\n        'Content-Type': 'application/json'\n      },\n      body: JSON.stringify(data)\n    });\n    if (!response.ok) throw new Error('Failed to create item');\n    return response.json();\n  },\n  \n  updateItem: async (id: string, data: Partial<CreateItemData>): Promise<${appName}Item> => {\n    const token = localStorage.getItem('authToken');\n    const response = await fetch(\`/api/${routePrefix}/\${id}\`, {\n      method: 'PUT',\n      headers: {\n        'Authorization': \`Bearer \${token}\`,\n        'Content-Type': 'application/json'\n      },\n      body: JSON.stringify(data)\n    });\n    if (!response.ok) throw new Error('Failed to update item');\n    return response.json();\n  },\n  \n  deleteItem: async (id: string): Promise<void> => {\n    const token = localStorage.getItem('authToken');\n    const response = await fetch(\`/api/${routePrefix}/\${id}\`, {\n      method: 'DELETE',\n      headers: {\n        'Authorization': \`Bearer \${token}\`\n      }\n    });\n    if (!response.ok) throw new Error('Failed to delete item');\n  }\n};\n\nexport function ${appName}Dashboard() {\n  const [isCreating, setIsCreating] = useState(false);\n  const [editingId, setEditingId] = useState<string | null>(null);\n  const [formData, setFormData] = useState({ title: '', description: '' });\n  \n  const queryClient = useQueryClient();\n  \n  const { data, isLoading, error } = useQuery({\n    queryKey: ['${tablePrefix}-items'],\n    queryFn: api.getItems\n  });\n  \n  const createMutation = useMutation({\n    mutationFn: api.createItem,\n    onSuccess: () => {\n      queryClient.invalidateQueries({ queryKey: ['${tablePrefix}-items'] });\n      setIsCreating(false);\n      setFormData({ title: '', description: '' });\n      toast({ title: 'Success', description: 'Item created successfully' });\n    },\n    onError: () => {\n      toast({ title: 'Error', description: 'Failed to create item', variant: 'destructive' });\n    }\n  });\n  \n  const updateMutation = useMutation({\n    mutationFn: ({ id, data }: { id: string; data: Partial<CreateItemData> }) => \n      api.updateItem(id, data),\n    onSuccess: () => {\n      queryClient.invalidateQueries({ queryKey: ['${tablePrefix}-items'] });\n      setEditingId(null);\n      setFormData({ title: '', description: '' });\n      toast({ title: 'Success', description: 'Item updated successfully' });\n    },\n    onError: () => {\n      toast({ title: 'Error', description: 'Failed to update item', variant: 'destructive' });\n    }\n  });\n  \n  const deleteMutation = useMutation({\n    mutationFn: api.deleteItem,\n    onSuccess: () => {\n      queryClient.invalidateQueries({ queryKey: ['${tablePrefix}-items'] });\n      toast({ title: 'Success', description: 'Item deleted successfully' });\n    },\n    onError: () => {\n      toast({ title: 'Error', description: 'Failed to delete item', variant: 'destructive' });\n    }\n  });\n  \n  const handleSubmit = (e: React.FormEvent) => {\n    e.preventDefault();\n    if (!formData.title.trim()) return;\n    \n    if (editingId) {\n      updateMutation.mutate({ id: editingId, data: formData });\n    } else {\n      createMutation.mutate(formData);\n    }\n  };\n  \n  const startEdit = (item: ${appName}Item) => {\n    setEditingId(item.id);\n    setFormData({ title: item.title, description: item.description || '' });\n    setIsCreating(false);\n  };\n  \n  const cancelEdit = () => {\n    setEditingId(null);\n    setIsCreating(false);\n    setFormData({ title: '', description: '' });\n  };\n  \n  if (isLoading) {\n    return (\n      <div className=\"flex items-center justify-center p-8\">\n        <div className=\"animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600\"></div>\n      </div>\n    );\n  }\n  \n  if (error) {\n    return (\n      <div className=\"text-center p-8 text-red-600\">\n        Error loading data. Please try again.\n      </div>\n    );\n  }\n  \n  return (\n    <div className=\"p-6 max-w-6xl mx-auto\">\n      <div className=\"flex justify-between items-center mb-6\">\n        <h1 className=\"text-3xl font-bold\">${appName} Dashboard</h1>\n        <Button \n          onClick={() => setIsCreating(true)}\n          className=\"flex items-center gap-2\"\n        >\n          <Plus className=\"w-4 h-4\" />\n          Add New Item\n        </Button>\n      </div>\n      \n      {(isCreating || editingId) && (\n        <Card className=\"mb-6\">\n          <CardHeader>\n            <CardTitle>\n              {editingId ? 'Edit Item' : 'Create New Item'}\n            </CardTitle>\n          </CardHeader>\n          <CardContent>\n            <form onSubmit={handleSubmit} className=\"space-y-4\">\n              <div>\n                <label className=\"block text-sm font-medium mb-2\">Title</label>\n                <Input\n                  value={formData.title}\n                  onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}\n                  placeholder=\"Enter title...\"\n                  required\n                />\n              </div>\n              <div>\n                <label className=\"block text-sm font-medium mb-2\">Description</label>\n                <Textarea\n                  value={formData.description}\n                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}\n                  placeholder=\"Enter description...\"\n                  rows={3}\n                />\n              </div>\n              <div className=\"flex gap-2\">\n                <Button type=\"submit\" className=\"flex items-center gap-2\">\n                  <Save className=\"w-4 h-4\" />\n                  {editingId ? 'Update' : 'Create'}\n                </Button>\n                <Button type=\"button\" variant=\"outline\" onClick={cancelEdit}>\n                  <X className=\"w-4 h-4\" />\n                  Cancel\n                </Button>\n              </div>\n            </form>\n          </CardContent>\n        </Card>\n      )}\n      \n      <div className=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6\">\n        {data?.items.map((item) => (\n          <Card key={item.id} className=\"hover:shadow-lg transition-shadow\">\n            <CardHeader>\n              <CardTitle className=\"flex justify-between items-start\">\n                <span className=\"truncate\">{item.title}</span>\n                <div className=\"flex gap-1 ml-2\">\n                  <Button\n                    variant=\"ghost\"\n                    size=\"sm\"\n                    onClick={() => startEdit(item)}\n                  >\n                    <Edit className=\"w-4 h-4\" />\n                  </Button>\n                  <Button\n                    variant=\"ghost\"\n                    size=\"sm\"\n                    onClick={() => deleteMutation.mutate(item.id)}\n                    className=\"text-red-600 hover:text-red-800\"\n                  >\n                    <Trash2 className=\"w-4 h-4\" />\n                  </Button>\n                </div>\n              </CardTitle>\n            </CardHeader>\n            <CardContent>\n              {item.description && (\n                <p className=\"text-gray-600 text-sm mb-3\">{item.description}</p>\n              )}\n              <div className=\"flex justify-between items-center text-xs text-gray-500\">\n                <span className={\`px-2 py-1 rounded-full text-xs \${\n                  item.status === 'active' ? 'bg-green-100 text-green-800' :\n                  item.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :\n                  'bg-gray-100 text-gray-800'\n                }\`}>\n                  {item.status}\n                </span>\n                <span>\n                  {new Date(item.created_at).toLocaleDateString()}\n                </span>\n              </div>\n            </CardContent>\n          </Card>\n        ))}\n      </div>\n      \n      {data?.items.length === 0 && (\n        <div className=\"text-center py-12\">\n          <p className=\"text-gray-500 text-lg mb-4\">No items yet</p>\n          <Button onClick={() => setIsCreating(true)}>\n            Create your first item\n          </Button>\n        </div>\n      )}\n    </div>\n  );\n}\n\`\`\`\n\n`,
 
