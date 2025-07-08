@@ -876,7 +876,6 @@ SCALE: Support for millions of users with global server infrastructure`
                           {template.techStack.slice(0, 4).map((tech, index) => (
                             <Badge key={index} variant="outline" className="text-xs">
                               {tech}
-                            </Badge{tech}
                             </Badge>
                           ))}
                           {template.techStack.length > 4 && (
