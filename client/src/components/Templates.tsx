@@ -57,7 +57,7 @@ export function Templates({ onUseTemplate }: TemplatesProps) {
       icon: <ShoppingCart className="w-6 h-6 text-green-600" />,
       features: ["Product catalog", "Shopping cart", "Payment processing", "User accounts", "Admin dashboard", "Order tracking"],
       techStack: ["React/Next.js", "Node.js", "PostgreSQL", "Stripe", "Tailwind CSS", "Redis"],
-      bestPlatforms: ["replit", "cursor"],
+      bestPlatforms: ["replit", "cursor", "windsurf"],
       tags: ["popular", "complex", "monetizable"],
       prompt: `Build a comprehensive e-commerce platform with the following requirements:
 
@@ -112,7 +112,7 @@ DEPLOYMENT: Cloud-ready with environment configurations`
       icon: <MessageSquare className="w-6 h-6 text-blue-600" />,
       features: ["User profiles", "Posts & feeds", "Real-time chat", "Follow system", "Notifications", "Media uploads"],
       techStack: ["React", "WebSocket", "Node.js", "MongoDB", "Socket.io", "Cloudinary"],
-      bestPlatforms: ["cursor", "windsurf"],
+      bestPlatforms: ["cursor", "windsurf", "replit"],
       tags: ["trending", "real-time", "social"],
       prompt: `Create a modern social media platform with comprehensive social features:
 
@@ -166,7 +166,7 @@ PERFORMANCE: Sub-200ms response times for feeds and messaging`
       icon: <Heart className="w-6 h-6 text-pink-600" />,
       features: ["Swipe interface", "Matching system", "Chat messaging", "Profile photos", "Location-based", "Premium features"],
       techStack: ["React Native", "Node.js", "PostgreSQL", "WebSocket", "Geolocation", "Stripe"],
-      bestPlatforms: ["lovable", "cursor"],
+      bestPlatforms: ["replit", "cursor", "lovable"],
       tags: ["mobile", "geolocation", "popular"],
       prompt: `Develop a modern dating application with swipe-based matching:
 
@@ -434,8 +434,7 @@ SCALE: Support for 100,000+ users with real-time data synchronization`
       popularity: 78,
       icon: <Camera className="w-6 h-6 text-indigo-600" />,
       features: ["Photo uploads", "Filters & editing", "Stories", "Following system", "Comments & likes", "Discover feed"],
-      techStack: ["React", "Node.js", "MongoDB", "Cloudinary", "Canvas API", "WebSocket"],
-      bestPlatforms: ["lovable", "cursor"],
+      bestPlatforms: ["replit", "lovable", "cursor"],
       tags: ["visual", "social", "creative"],
       prompt: `Create a modern photo sharing platform with social networking features:
 
@@ -877,6 +876,7 @@ SCALE: Support for millions of users with global server infrastructure`
                           {template.techStack.slice(0, 4).map((tech, index) => (
                             <Badge key={index} variant="outline" className="text-xs">
                               {tech}
+                            </Badge{tech}
                             </Badge>
                           ))}
                           {template.techStack.length > 4 && (
