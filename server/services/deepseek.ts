@@ -29,6 +29,9 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
     return;
   }
 
+  console.log(`[DEBUG] Starting blueprint generation for prompt: "${prompt.substring(0, 50)}..."`);
+  let totalTokens = 0;
+
   const apiKey = userApiKey;
 
   const systemPrompt = getSystemPrompt(platform);
@@ -47,12 +50,21 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
       },
       {
         role: "user",
-        content: `Generate a comprehensive technical blueprint for: ${prompt}`
+        content: `Generate a comprehensive technical blueprint for: ${prompt}
+
+CRITICAL COMPLETION REQUIREMENTS:
+- Every function MUST have complete implementation with closing braces
+- Every code block MUST be syntactically complete and runnable
+- Never stop mid-function or leave incomplete implementations
+- Complete all sections with working code examples
+- If you start a function, database schema, or component, finish it completely`
       }
     ],
     stream: true,
-    temperature: 0.7,
-    max_tokens: 8192
+    temperature: 0.3,  // Lower temperature for more focused, complete responses
+    max_tokens: 16384,
+    top_p: 0.95,       // Add top_p for better completion consistency
+    frequency_penalty: 0.1  // Slight penalty to encourage completion
   };
 
   try {
@@ -87,15 +99,33 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
       for (const line of lines) {
         if (line.startsWith('data: ')) {
           const data = line.slice(6);
-          if (data === '[DONE]') return;
+          if (data === '[DONE]') {
+            console.log(`[DEBUG] Stream completed normally with [DONE] signal. Total content: ${totalTokens} chars`);
+            return;
+          }
 
           try {
             const parsed = JSON.parse(data);
             const content = parsed.choices?.[0]?.delta?.content;
+            const finishReason = parsed.choices?.[0]?.finish_reason;
+            
             if (content) {
+              totalTokens += content.length;
+              console.log(`[DEBUG] Received chunk: ${content.length} chars, total: ${totalTokens}`);
               yield content;
             }
+            
+            // Log finish reason to debug early termination
+            if (finishReason) {
+              console.log(`[DEBUG] API finished with reason: ${finishReason}, total content: ${totalTokens} chars`);
+              if (finishReason === 'length') {
+                console.log('[WARNING] API terminated due to max tokens - content may be incomplete');
+              } else if (finishReason === 'stop') {
+                console.log('[INFO] API completed normally (stop token reached)');
+              }
+            }
           } catch (e) {
+            console.error('[DEBUG] Error parsing SSE data:', e, 'Raw data:', data);
             continue;
           }
         }

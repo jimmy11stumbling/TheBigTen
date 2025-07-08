@@ -121,6 +121,7 @@ Changelog:
 - July 08, 2025: Enhanced system prompts with FORBIDDEN PATTERNS section to prevent function signatures without implementations and demand complete function bodies with actual logic
 - July 08, 2025: CRITICAL FIX: Removed quality validation system that was interfering with pure AI-generated content - now streams AI content directly without post-processing interference
 - July 08, 2025: FINAL FIX: Completely rebuilt system prompt architecture to eliminate [object Object] placeholder generation - system now produces actual SQL schemas with proper data types (VARCHAR, INTEGER, TIMESTAMP) and complete implementation code
+- July 08, 2025: CRITICAL TOKEN LIMIT FIX: Increased max_tokens from 8192 to 16384 and enhanced prompts to prevent truncated/incomplete code generation that was causing "object" outputs and cut-off functions
 
 ## User Preferences
 
