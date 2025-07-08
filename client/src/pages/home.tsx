@@ -113,15 +113,15 @@ export default function HomePage() {
           </TabsList>
 
           <TabsContent value="generator" className="mt-6">
-            <div className="grid lg:grid-cols-3 gap-8">
+            <div className="grid lg:grid-cols-5 gap-6">
               {/* Left Panel: Input & Configuration */}
               <div className="lg:col-span-1 space-y-6">
                 <ChatInput onOpenSettings={() => setSettingsOpen(true)} />
                 <ProgressIndicator />
               </div>
 
-              {/* Right Panel: Blueprint Viewer */}
-              <div className="lg:col-span-2">
+              {/* Right Panel: Blueprint Viewer - Much Larger */}
+              <div className="lg:col-span-4">
                 <BlueprintViewer />
               </div>
             </div>
