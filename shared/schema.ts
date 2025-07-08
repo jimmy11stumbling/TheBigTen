@@ -19,6 +19,7 @@ export const blueprints = pgTable("blueprints", {
   content: text("content").notNull(),
   platform: varchar("platform", { length: 50 }).notNull(),
   status: varchar("status", { length: 20 }).notNull().default("idle"),
+  generated_at: timestamp("generated_at"),
   created_at: timestamp("created_at").defaultNow().notNull(),
   updated_at: timestamp("updated_at").defaultNow().notNull(),
 });

@@ -106,7 +106,7 @@ export function StreamProvider({ children }: StreamProviderProps) {
                   setStreamState(prev => ({
                     ...prev,
                     status: "error",
-                    error: event.message || "Generation failed",
+                    error: event.message || event.error || "Generation failed",
                   }));
                 }
               } catch (parseError) {

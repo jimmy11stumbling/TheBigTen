@@ -4,6 +4,7 @@ export interface StreamEvent {
   fullContent?: string;
   blueprintId?: string;
   message?: string;
+  error?: string;
 }
 
 export interface StreamState {
