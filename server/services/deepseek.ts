@@ -251,12 +251,21 @@ ${platformDB.limitations.map(limit => `- ${limit}`).join('\n')}
 - Ensure every section is comprehensive and actionable
 
 **QUALITY STANDARDS:**
-- Zero placeholders or "TODO" items
-- Production-ready code snippets
+- Zero placeholders or "TODO" items  
+- Production-ready code snippets with proper syntax
+- NO [object Object] serialization - always use proper variable names and values
+- All JavaScript/TypeScript code must be syntactically correct and executable
 - Industry best practices throughout
 - Scalable from day one
 - Security-hardened by default
 - Performance-optimized architecture
+- All variables must have meaningful names and proper values (not object references)
+
+**CRITICAL CODE QUALITY RULES:**
+- NEVER write [object Object] in code - use actual variable names and values
+- All code must be syntactically valid and executable
+- Use meaningful variable names like 'userPrompt', 'apiResponse', 'config' instead of object references
+- Properly format all JavaScript, TypeScript, Python, and other code snippets
 
 Begin generation immediately with uncompromising attention to detail and completeness.`;
 

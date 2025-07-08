@@ -114,6 +114,8 @@ Changelog:
 - July 04, 2025: Enhanced landing page with functional buttons, comprehensive documentation, and removed pricing section
 - July 04, 2025: Added comprehensive Templates tab with 10 popular app templates including e-commerce, social media, dating, LMS, project management, fintech, photo sharing, music streaming, travel planning, and gaming platforms
 - July 08, 2025: Enhanced BlueprintForge to achieve 9/10+ quality ratings across ALL platforms with platform-specific optimization strategies, adaptive content generation, and real-time quality validation system
+- July 08, 2025: Fixed API key management - removed hardcoded keys, users now provide their own DeepSeek API keys through Settings interface
+- July 08, 2025: Enhanced system prompts to prevent [object Object] serialization issues and ensure syntactically correct code generation
 
 ## User Preferences
 
