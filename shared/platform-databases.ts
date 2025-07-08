@@ -263,141 +263,156 @@ export const PLATFORM_DATABASES: Record<string, PlatformDatabase> = {
   claude: {
     name: "Claude Code",
     vendor: "Anthropic",
-    primaryFunction: "Security-first CLI agent for agentic coding",
-    targetAudience: "Professional developers and researchers",
+    primaryFunction: "Security-first CLI agent for agentic coding with enterprise-grade AI",
+    targetAudience: "Professional developers, researchers, and enterprise teams",
     coreFeatures: [
-      "Terminal-based AI assistant with codebase understanding",
-      "Security by design with explicit user approval",
-      "Context management via CLAUDE.md files",
+      "Terminal-based AI assistant with deep codebase understanding",
+      "Security by design with explicit user approval workflows",
+      "Context management via CLAUDE.md project files",
       "Customizable workflows and slash commands",
       "Headless mode for CI/CD integration",
-      "Cross-file refactoring and debugging",
+      "Cross-file refactoring and debugging capabilities",
       "Test-driven development support",
-      "Granular permission system"
+      "Granular permission system with audit trails",
+      "Model Context Protocol (MCP) integration",
+      "Enterprise-grade security and compliance"
     ],
     techStack: {
       runtime: "Node.js CLI tool installed via npm",
-      frontend: ["Any framework", "React", "Vue", "Angular"],
-      backend: ["Node.js", "Python", "Go", "Rust", "Java"],
-      database: ["PostgreSQL", "MongoDB", "MySQL", "SQLite"],
-      deployment: ["External services required"]
+      frontend: ["React", "Vue", "Angular", "Svelte", "Next.js", "Nuxt.js"],
+      backend: ["Node.js", "Python", "Go", "Rust", "Java", "C#", "PHP"],
+      database: ["PostgreSQL", "MongoDB", "MySQL", "SQLite", "Redis", "Cassandra"],
+      deployment: ["AWS", "Google Cloud", "Azure", "Heroku", "Railway", "Fly.io"]
     },
     integrations: {
-      auth: ["Custom auth solutions", "Firebase", "Auth0"],
-      payments: ["Stripe", "Custom payment processors"],
-      ai: ["Claude 3.7 Sonnet", "Claude 4 Opus"],
-      deployment: ["Any hosting service"],
-      databases: ["PostgreSQL", "MongoDB", "MySQL", "Redis"],
-      other: ["Model Context Protocol", "GitHub", "Neovim", "Emacs", "Claude Hub"]
+      auth: ["Custom auth solutions", "Firebase Auth", "Auth0", "Okta", "SAML"],
+      payments: ["Stripe", "PayPal", "Square", "Custom payment processors"],
+      ai: ["Claude 3.7 Sonnet", "Claude 4 Opus", "Claude 3.5 Haiku"],
+      deployment: ["Any hosting service", "Docker", "Kubernetes", "Serverless"],
+      databases: ["PostgreSQL", "MongoDB", "MySQL", "Redis", "Supabase", "PlanetScale"],
+      other: ["Model Context Protocol", "GitHub", "GitLab", "Neovim", "Emacs", "Claude Hub", "Slack", "Discord"]
     },
-    pricingModel: "Subscription ($17/month Pro, $100/month Max) or API usage",
-    keyDifferentiator: "Security-first design with granular permissions and direct access to powerful Claude models",
+    pricingModel: "Subscription ($17/month Pro, $100/month Max) or API usage-based billing",
+    keyDifferentiator: "Security-first design with granular permissions, enterprise compliance, and direct access to most powerful Claude models",
     bestFor: [
       "Security-conscious development teams",
-      "Complex codebase refactoring",
-      "Terminal-native developers",
-      "CI/CD pipeline integration",
-      "Custom workflow automation"
+      "Complex enterprise codebase refactoring",
+      "Terminal-native developers and DevOps teams",
+      "CI/CD pipeline integration and automation",
+      "Custom workflow automation and scripting",
+      "Compliance-heavy industries (finance, healthcare)",
+      "Large-scale system architecture and design"
     ],
     limitations: [
-      "High and potentially unpredictable costs",
-      "Terminal-only interface",
-      "No built-in hosting or deployment",
-      "Requires technical expertise for effective use"
+      "High and potentially unpredictable API costs",
+      "Terminal-only interface (no GUI)",
+      "No built-in hosting or deployment services",
+      "Requires technical expertise for effective use",
+      "Limited visual design capabilities"
     ]
   },
 
   gemini: {
     name: "Gemini CLI",
-    vendor: "Google",
-    primaryFunction: "Open-source terminal-based AI agent with web integration",
-    targetAudience: "Individual and professional developers",
+    vendor: "Google (Alphabet Inc.)",
+    primaryFunction: "Open-source terminal-based AI agent with massive context and web integration",
+    targetAudience: "Individual developers, researchers, and budget-conscious teams",
     coreFeatures: [
-      "Open-source terminal-based AI agent",
-      "Massive 1 million token context window",
-      "Built-in tools (grep, file operations, terminal)",
-      "Web integration (Google Search, web-fetch)",
-      "Native Windows support without WSL",
-      "Model Context Protocol support",
-      "Project-specific GEMINI.md configuration",
-      "Automation and CI/CD integration"
+      "Open-source terminal-based AI agent with full source access",
+      "Massive 1 million token context window (industry-leading)",
+      "Built-in tools (grep, file operations, terminal commands)",
+      "Web integration (Google Search, web-fetch, live data)",
+      "Native Windows support without WSL requirement",
+      "Model Context Protocol (MCP) support",
+      "Project-specific GEMINI.md configuration files",
+      "Automation and CI/CD integration capabilities",
+      "Cross-platform compatibility (Windows, macOS, Linux)",
+      "Real-time web search and data retrieval"
     ],
     techStack: {
-      runtime: "Node.js CLI application",
-      frontend: ["React", "Vue", "Angular", "Svelte"],
-      backend: ["Node.js", "Python", "Go", "Java"],
-      database: ["PostgreSQL", "MongoDB", "MySQL", "Cloudflare D1"],
-      deployment: ["External services required"]
+      runtime: "Node.js CLI application with cross-platform support",
+      frontend: ["React", "Vue", "Angular", "Svelte", "Next.js", "Astro"],
+      backend: ["Node.js", "Python", "Go", "Java", "C#", "Rust"],
+      database: ["PostgreSQL", "MongoDB", "MySQL", "Cloudflare D1", "Firebase"],
+      deployment: ["Google Cloud", "AWS", "Azure", "Vercel", "Netlify"]
     },
     integrations: {
-      auth: ["Custom auth solutions", "Firebase", "Auth0"],
-      payments: ["Stripe", "Custom payment processors"],
-      ai: ["Gemini 2.5 Pro", "Gemini Flash"],
-      deployment: ["Any hosting service"],
-      databases: ["PostgreSQL", "MongoDB", "MySQL", "Redis"],
-      other: ["Google Search", "Model Context Protocol", "Selenium", "REST APIs"]
+      auth: ["Firebase Auth", "Google OAuth", "Auth0", "Custom auth solutions"],
+      payments: ["Stripe", "PayPal", "Google Pay", "Custom payment processors"],
+      ai: ["Gemini 2.5 Pro", "Gemini Flash", "Gemini Ultra"],
+      deployment: ["Google Cloud Platform", "Firebase", "Any hosting service"],
+      databases: ["Firebase Firestore", "PostgreSQL", "MongoDB", "MySQL", "Redis"],
+      other: ["Google Search API", "Model Context Protocol", "Selenium", "REST APIs", "Google Workspace", "YouTube API"]
     },
-    pricingModel: "Generous free tier with API usage-based billing",
-    keyDifferentiator: "Open-source with unmatched free usage limits and Google Search integration",
+    pricingModel: "Generous free tier (1M requests/month) with usage-based billing ($0.35/1M tokens)",
+    keyDifferentiator: "Open-source with unmatched free usage limits, Google Search integration, and largest context window",
     bestFor: [
-      "Budget-conscious developers",
-      "Open-source projects",
-      "Research and experimentation",
-      "Web-integrated applications",
-      "Cross-platform development"
+      "Budget-conscious developers and startups",
+      "Open-source projects and research",
+      "Educational institutions and students",
+      "Web-integrated applications requiring search",
+      "Cross-platform development projects",
+      "Rapid prototyping and experimentation",
+      "Data-heavy applications with large context needs"
     ],
     limitations: [
-      "Early alpha stability issues",
-      "Model downgrades on free tier",
-      "Limited enterprise features",
-      "Community-driven support only"
+      "Early alpha stability and reliability issues",
+      "Model quality downgrades on free tier",
+      "Limited enterprise features and support",
+      "Community-driven support only",
+      "Google API dependencies for full functionality"
     ]
   },
 
   base44: {
     name: "Base44",
-    vendor: "Wix (acquired for $80M)",
-    primaryFunction: "No-code full-stack app builder with 'buttery includes' philosophy",
-    targetAudience: "Non-technical founders, entrepreneurs, and businesses",
+    vendor: "Wix (acquired for $80M in 2024)",
+    primaryFunction: "No-code full-stack app builder with 'buttery includes' all-in-one philosophy",
+    targetAudience: "Non-technical founders, entrepreneurs, SMBs, and internal business tool creators",
     coreFeatures: [
-      "Natural language app generation",
-      "Buttery includes - all-in-one functionality",
-      "Automatic backend with auth and database",
-      "Instant deployment and hosting",
-      "Enterprise-ready features (SSO, permissions)",
-      "Built-in integrations (email, SMS, APIs)",
-      "Multiple AI model support",
-      "Collaborative discuss feature"
+      "Natural language app generation with AI",
+      "Buttery includes - comprehensive all-in-one functionality",
+      "Automatic backend with authentication and database",
+      "Instant deployment and hosting infrastructure",
+      "Enterprise-ready features (SSO, role-based permissions)",
+      "Built-in integrations (email, SMS, payment, APIs)",
+      "Multiple AI model support (Gemini, Claude)",
+      "Collaborative discuss feature for team development",
+      "Zero-configuration development environment",
+      "Wix ecosystem integration post-acquisition"
     ],
     techStack: {
-      runtime: "Browser-based platform",
-      frontend: ["React", "Next.js", "HTML/CSS/JS"],
-      backend: ["Node.js", "Built-in backend services"],
-      database: ["Built-in database", "PostgreSQL"],
-      deployment: ["Base44 hosting", "Custom domains"]
+      runtime: "Browser-based platform with cloud infrastructure",
+      frontend: ["React", "Next.js", "HTML/CSS/JS", "Wix Editor"],
+      backend: ["Node.js", "Built-in backend services", "Wix infrastructure"],
+      database: ["Built-in database", "PostgreSQL", "Wix Data"],
+      deployment: ["Base44 hosting", "Wix hosting", "Custom domains"]
     },
     integrations: {
-      auth: ["Built-in authentication", "SSO"],
-      payments: ["Stripe", "Built-in payment processing"],
-      ai: ["Gemini 2.5", "Claude 4 Sonnet"],
-      deployment: ["Base44 hosting", "Custom domains"],
-      databases: ["Built-in database", "External APIs"],
-      other: ["GitHub", "Amazon S3", "Twilio SendGrid", "OpenAI"]
+      auth: ["Built-in authentication", "SSO", "SAML", "Google OAuth"],
+      payments: ["Stripe", "Built-in payment processing", "Wix Payments"],
+      ai: ["Gemini 2.5", "Claude 4 Sonnet", "OpenAI GPT"],
+      deployment: ["Base44 hosting", "Wix hosting", "Custom domains"],
+      databases: ["Built-in database", "Wix Data", "External APIs"],
+      other: ["GitHub", "Amazon S3", "Twilio SendGrid", "OpenAI", "Wix ecosystem", "Zapier"]
     },
-    pricingModel: "Message-based credits ($20-100/month)",
-    keyDifferentiator: "Complete all-in-one solution with buttery includes philosophy, recently acquired by Wix",
+    pricingModel: "Message-based credits ($20-100/month) with Wix enterprise plans",
+    keyDifferentiator: "Complete all-in-one solution with buttery includes philosophy, backed by Wix's $80M acquisition and enterprise infrastructure",
     bestFor: [
-      "Non-technical founders building MVPs",
+      "Non-technical founders building business MVPs",
       "Business applications and internal tools",
       "Rapid prototyping without technical setup",
-      "Projects requiring built-in backend services",
-      "Teams wanting zero-configuration development"
+      "Projects requiring comprehensive built-in services",
+      "Teams wanting zero-configuration development",
+      "Wix ecosystem integration projects",
+      "Enterprise clients needing scalable no-code solutions"
     ],
     limitations: [
-      "Limited customization for complex requirements",
+      "Limited customization for highly complex requirements",
       "Vendor lock-in to Base44/Wix ecosystem",
-      "Message-based pricing can be expensive",
-      "May require technical knowledge for debugging"
+      "Message-based pricing can become expensive at scale",
+      "May require technical knowledge for advanced debugging",
+      "Post-acquisition integration uncertainties"
     ]
   },
 
@@ -451,48 +466,52 @@ export const PLATFORM_DATABASES: Record<string, PlatformDatabase> = {
   rork: {
     name: "Rork",
     vendor: "Rork (Founded by Daniel Dhawan)",
-    primaryFunction: "Mobile-first app generator for cross-platform native apps",
-    targetAudience: "Entrepreneurs, startups, and non-technical users",
+    primaryFunction: "Mobile-first app generator for cross-platform native applications",
+    targetAudience: "Entrepreneurs, startups, non-technical users, and mobile app creators",
     coreFeatures: [
-      "Text-to-native mobile app generation",
+      "Text-to-native mobile app generation with AI",
       "Cross-platform iOS and Android compatibility",
-      "React Native and Expo integration",
-      "In-browser Android emulation",
+      "React Native and Expo framework integration",
+      "In-browser Android emulation for testing",
       "Real-time device testing via TestFlight",
-      "Backend integration (experimental)",
-      "Image input for design guidance",
-      "App Store publishing assistance"
+      "Backend integration (experimental features)",
+      "Image input for design guidance and mockups",
+      "App Store publishing assistance and guidance",
+      "Mobile-specific UI component library",
+      "Native performance optimization"
     ],
     techStack: {
-      runtime: "Browser-based platform using React Native",
-      frontend: ["React Native", "Expo", "Native UI components"],
-      backend: ["Node.js", "Express", "Serverless functions"],
-      database: ["Supabase", "Firebase", "Airtable"],
-      deployment: ["App Store", "Google Play Store", "Expo"]
+      runtime: "Browser-based platform using React Native framework",
+      frontend: ["React Native", "Expo", "Native UI components", "TypeScript"],
+      backend: ["Node.js", "Express", "Serverless functions", "React Native backend"],
+      database: ["Supabase", "Firebase", "Airtable", "Realm"],
+      deployment: ["App Store", "Google Play Store", "Expo", "TestFlight"]
     },
     integrations: {
-      auth: ["Firebase Auth", "Custom auth"],
-      payments: ["Stripe", "In-app purchases"],
-      ai: ["Claude 4 model"],
-      deployment: ["App Store", "Google Play Store", "TestFlight"],
-      databases: ["Supabase", "Firebase", "Airtable"],
-      other: ["Expo", "OpenAI API", "Rapid API", "Health data APIs"]
+      auth: ["Firebase Auth", "React Native Auth", "Custom auth solutions"],
+      payments: ["Stripe", "In-app purchases", "Apple Pay", "Google Pay"],
+      ai: ["Claude 4 model", "OpenAI API"],
+      deployment: ["App Store", "Google Play Store", "TestFlight", "Expo"],
+      databases: ["Supabase", "Firebase", "Airtable", "Realm Database"],
+      other: ["Expo", "OpenAI API", "Rapid API", "Health data APIs", "React Native libraries"]
     },
-    pricingModel: "Message-based ($20/month for 100 messages)",
-    keyDifferentiator: "Specialized mobile app generation with React Native and native app store deployment",
+    pricingModel: "Message-based ($20/month for 100 messages, no free tier)",
+    keyDifferentiator: "Specialized mobile app generation with React Native, native app store deployment, and mobile-first development approach",
     bestFor: [
-      "Mobile-first applications",
-      "Cross-platform app development",
-      "MVP development for mobile",
-      "Non-technical entrepreneurs",
-      "Simple to medium complexity mobile apps"
+      "Mobile-first applications and startups",
+      "Cross-platform app development projects",
+      "MVP development for mobile platforms",
+      "Non-technical entrepreneurs entering mobile",
+      "Simple to medium complexity mobile apps",
+      "React Native ecosystem projects"
     ],
     limitations: [
-      "Limited to mobile platforms",
+      "Limited exclusively to mobile platforms",
       "Reported stability and reliability issues",
-      "Expensive message-based pricing",
-      "No free trial available",
-      "Poor customer support reports"
+      "Expensive message-based pricing with no free tier",
+      "No free trial available for testing",
+      "Poor customer support and documentation reports",
+      "Limited backend and web integration capabilities"
     ]
   }
 };

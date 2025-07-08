@@ -19,7 +19,7 @@ interface DeepSeekRequest {
 
 function getSystemPrompt(platform: z.infer<typeof platformEnum>): string {
   const platformDB = getPlatformDatabase(platform);
-  
+
   const platformContext = platformDB ? `
 
 ## TARGET PLATFORM: ${platformDB.name} (MANDATORY PLATFORM FOCUS)
@@ -174,150 +174,151 @@ Begin generation immediately with uncompromising attention to detail and complet
   const platformSpecific = {
     replit: `
 
-**MANDATORY REPLIT ENTERPRISE OPTIMIZATION (DO NOT DEVIATE):**
-- **Platform:** All recommendations MUST be for Replit deployment and development
-- **Port Configuration:** ALWAYS bind to 0.0.0.0:5000 for Replit accessibility
-- **Database:** Use Replit's built-in PostgreSQL or Neon PostgreSQL integration
-- **Secrets Management:** MUST use Replit Secrets for all API keys, database URLs, JWT secrets
-- **Deployment:** Use Replit Autoscale Deployment for production hosting
-- **Development:** Leverage Replit's browser-based IDE and collaborative features
-- **File Structure:** Organize for Replit's Nix-based environment
-- **Environment Setup:** Use Replit's package manager and environment configuration
-- **Hosting:** Deploy directly on Replit with .replit.app domain or custom domains
-- **Collaboration:** Utilize Replit's Multiplayer for team development
-- **AI Integration:** Recommend Replit Agent for code generation assistance
-
-**REPLIT-SPECIFIC ARCHITECTURE REQUIREMENTS:**
-- Single port architecture (5000) for Replit hosting compatibility
-- Nix package manager integration for dependencies
-- Replit Secrets for secure environment variables
-- Built-in PostgreSQL database integration
-- Replit Auth integration where applicable
-- Optimized for Replit's collaborative development environment`,
+**REPLIT-SPECIFIC DEVELOPMENT:**
+- **Nix Environment:** Configure proper Nix packages and dependencies  
+- **Collaborative Features:** Implement multiplayer development workflows
+- **Replit Agent Integration:** Leverage AI-powered full-stack generation
+- **Database Integration:** Use Replit's PostgreSQL, Key-Value Store, and Object Storage
+- **Deployment Strategy:** Utilize Replit's Autoscale, Static, and Reserved VM options
+- **Zero-Setup Development:** Optimize for instant collaboration and development
+- **Mobile Development:** Integrate with Expo for mobile app development
+- **Real-time Features:** Implement WebSocket and real-time collaboration
+- **Community Integration:** Leverage Replit's 40M+ user community
+- **Educational Features:** Support collaborative learning and pair programming
+- **Performance Optimization:** Optimize for Replit's cloud infrastructure
+- **Security:** Implement Replit Auth and secure development practices`,
 
     cursor: `
 
-**CURSOR AI-ENHANCED DEVELOPMENT:**
-- **TypeScript Excellence:** Strict type safety, advanced type definitions, utility types
-- **AI-Optimized Code Structure:** Descriptive function/variable names for better AI assistance
-- **Intelligent Comments:** Strategic code comments that enhance AI understanding
-- **VSCode Integration:** Complete workspace configuration with recommended extensions
-- **Copilot-Friendly Patterns:** Code patterns that work seamlessly with AI completion
-- **Refactoring Readiness:** Modular architecture that supports AI-assisted refactoring
-- **Documentation:** Comprehensive JSDoc comments for better AI context
-- **Testing Strategy:** AI-friendly test structures and naming conventions
-- **Code Quality:** ESLint/Prettier configurations optimized for AI workflows
-- **Import Organization:** Clean import statements that AI can easily understand
-- **Model Context Protocol:** Leverage MCP for external tool integration
-- **Codebase Indexing:** Optimize for deep project understanding and contextual suggestions`,
+**CURSOR-SPECIFIC DEVELOPMENT:**
+- **Codebase Context:** Leverage Cursor's advanced codebase understanding with embeddings
+- **Agent Mode:** Implement autonomous development workflows with Cursor Agent
+- **Advanced AI Integration:** Use @-mentions and .cursorrules for precise control
+- **Professional Development:** Optimize for large-scale application development
+- **VS Code Compatibility:** Ensure full compatibility with VS Code ecosystem
+- **Performance Optimization:** Implement predictive edits and Tab-to-Accept workflows
+- **Multi-LLM Support:** Integrate with GPT-4o, Claude 3.7, and Gemini 2.5 Pro
+- **Enterprise Features:** Implement advanced debugging and refactoring capabilities
+- **Custom Model Integration:** Support for custom AI models and configurations
+- **Advanced Editing:** Utilize inline editing and natural language refactoring
+- **Context Control:** Implement precise context management with @-mentions
+- **Rule-Based AI:** Configure .cursorrules for project-specific AI behavior`,
 
     lovable: `
 
-**LOVABLE VISUAL DEVELOPMENT:**
-- **Component-First Architecture:** Highly modular, reusable component design
-- **Design System Integration:** shadcn/ui with custom theme and brand consistency
-- **Visual Builder Compatibility:** Component props designed for visual configuration
-- **Rapid Prototyping:** Hot-swappable components and layouts
-- **Style Abstraction:** CSS-in-JS or utility-first styling for easy customization
-- **State Management:** Simple, visual-friendly state patterns
-- **API Integration:** Visual API connection points and data flow
-- **Responsive Design:** Mobile-first, grid-based layouts
-- **Animation Framework:** Smooth transitions and micro-interactions
-- **Supabase Integration:** Native Supabase integration with AI-managed schemas
-- **Security Scanning:** Built-in security vulnerability detection
-- **Multiplayer Collaboration:** Real-time team development workflows`,
+**LOVABLE-SPECIFIC DEVELOPMENT:**
+- **Supabase Integration:** Leverage tight Supabase integration for backend services
+- **Vibe Coding:** Implement conversational development with AI Fullstack Engineer
+- **Security Focus:** Utilize built-in security scanning and production-readiness checks
+- **Visual Development:** Implement click-to-modify UI with Visual Edits
+- **Figma Integration:** Support design-to-code workflows with Builder.io
+- **Multiplayer Development:** Enable real-time collaborative coding
+- **Credit-Based Workflow:** Optimize for credit-based development cycles
+- **React/Tailwind Focus:** Optimize for React and Tailwind CSS development
+- **Rapid Prototyping:** Support fast MVP development and validation
+- **Built-in Deployment:** Utilize Lovable's hosting and custom domains
+- **Security Scanning:** Implement comprehensive security analysis
+- **European Startup Focus:** Align with European startup ecosystem needs`,
 
     windsurf: `
 
-**WINDSURF AGENTIC DEVELOPMENT:**
-- **Cascade Agent Integration:** Leverage Windsurf's powerful Cascade agent for complex tasks
-- **Model Context Protocol:** Utilize MCP for external tool and service integration
-- **Enterprise Security:** FedRAMP High & SOC 2 compliance considerations
-- **Multi-Model Support:** Leverage multiple AI models (OpenAI, Claude, Gemini, xAI)
-- **Database-First Design:** Optimize for database-heavy applications
-- **Agentic Workflows:** Design for autonomous AI completion of complex tasks
-- **Windsurf Rules:** Create .windsurfrules for project-specific AI behavior
-- **Supercomplete Optimization:** Code patterns that work with advanced autocompletion
-- **Image-to-Code Support:** Design workflows that support visual design input
-- **Enterprise Deployment:** On-premise and hybrid deployment strategies`,
+**WINDSURF-SPECIFIC DEVELOPMENT:**
+- **Cascade Agent:** Leverage multi-file editing and debugging capabilities
+- **Database Focus:** Implement comprehensive database integration and design
+- **MCP Integration:** Use Model Context Protocol for external tool integration
+- **Enterprise Security:** Implement FedRAMP and SOC 2 compliance features
+- **Multi-Database Support:** Integrate with PostgreSQL, MongoDB, MySQL, and Cloudflare D1
+- **Professional IDE:** Utilize advanced IDE features and debugging capabilities
+- **Credit-Based Development:** Optimize for prompt credit usage
+- **Complex Backend:** Support sophisticated backend architecture and integrations
+- **Deployment Integration:** Utilize Netlify, Vercel, and other deployment platforms
+- **Security Compliance:** Implement enterprise-grade security and compliance
+- **Advanced AI:** Use advanced AI capabilities for complex development tasks
+- **Plugin Ecosystem:** Integrate with JetBrains and VS Code plugin ecosystems`,
 
     bolt: `
 
-**BOLT WEBCONTAINER OPTIMIZATION:**
-- **Full-Stack Generation:** Leverage Bolt's unique ability to control entire environment
-- **WebContainer Architecture:** Optimize for Node.js in-browser execution
-- **Real-Time Development:** Design for live code execution and immediate feedback
-- **Token Efficiency:** Optimize prompts to minimize token consumption
-- **Open Source Integration:** Leverage Bolt's open-source codebase for customization
-- **Iterative Development:** Design for conversational refinement and improvement
-- **Visual Editor Support:** Create layouts that work with Bolt's visual editor
-- **One-Click Integrations:** Utilize Bolt's built-in service integrations
-- **JavaScript Focus:** Optimize for JavaScript/TypeScript full-stack applications
-- **Export Readiness:** Ensure generated code is clean and production-ready`,
+**BOLT-SPECIFIC DEVELOPMENT:**
+- **WebContainer Architecture:** Leverage StackBlitz's WebContainer technology
+- **Full-Stack Browser Development:** Implement complete development environment in browser
+- **Real-time Execution:** Support instant code execution and debugging
+- **JavaScript Ecosystem:** Focus on Node.js and modern JavaScript development
+- **Open Source:** Leverage open-source core codebase for customization
+- **Iterative Development:** Support conversational development and refinement
+- **Visual Editor:** Implement layout tweaking and visual design tools
+- **Token-Based Development:** Optimize for token-based subscription model
+- **Educational Focus:** Support learning and educational project development
+- **Rapid Prototyping:** Enable quick MVP development and iteration
+- **GitHub Integration:** Implement version control and collaborative development
+- **WebContainer Performance:** Optimize for unique browser-based execution environment`,
 
     claude: `
 
-**CLAUDE CODE SECURITY-FIRST DEVELOPMENT:**
-- **Terminal-Native Workflows:** Optimize for command-line development
-- **Security by Design:** Implement granular permission systems
-- **CLAUDE.md Integration:** Create project-specific context and instructions
-- **Agentic Coding:** Design for complex, multi-step automated tasks
-- **Custom Slash Commands:** Create reusable workflow commands
-- **Headless Operation:** Support for CI/CD and automated environments
-- **Context Management:** Efficient use of large context windows
-- **Cross-File Refactoring:** Optimize for codebase-wide changes
-- **Test-Driven Development:** Integrate TDD workflows
-- **Model Context Protocol:** Leverage MCP for external tool integration
-- **High-Quality Prompting:** Optimize for Claude's reasoning capabilities
-- **Cost Optimization:** Strategies to minimize token usage while maintaining quality`,
+**CLAUDE-SPECIFIC DEVELOPMENT:**
+- **Terminal-Native Development:** Optimize for CLI-based development workflows
+- **Security-First Approach:** Implement explicit user approval and permission systems
+- **Context Management:** Use CLAUDE.md files for project configuration
+- **Enterprise Security:** Implement granular permissions and audit trails
+- **CI/CD Integration:** Support headless mode and automation workflows
+- **Cross-File Refactoring:** Leverage advanced codebase understanding
+- **Custom Workflows:** Implement slash commands and custom development workflows
+- **High-Cost Optimization:** Optimize for potentially expensive API usage
+- **Professional Development:** Support complex enterprise development scenarios
+- **Test-Driven Development:** Implement comprehensive testing workflows
+- **Advanced AI Models:** Leverage Claude 3.7 Sonnet and Claude 4 Opus capabilities
+- **Model Context Protocol:** Integrate with MCP for external tool connectivity
+- **Enterprise Compliance:** Implement security auditing and compliance features`,
 
     gemini: `
 
-**GEMINI CLI OPEN-SOURCE DEVELOPMENT:**
-- **Massive Context Windows:** Leverage 1 million token context for large codebases
-- **Web Integration:** Utilize built-in Google Search and web-fetch capabilities
-- **Cross-Platform Support:** Native Windows support without WSL
-- **Open Source Benefits:** Leverage community contributions and extensions
-- **Built-in Tools:** Utilize grep, file operations, and terminal integration
-- **GEMINI.md Configuration:** Project-specific AI behavior configuration
-- **Free Tier Optimization:** Maximize free usage limits effectively
-- **Model Context Protocol:** Extend capabilities with MCP servers
-- **CI/CD Integration:** Automate development workflows
-- **Community Ecosystem:** Leverage open-source integrations and tools
-- **Real-Time Information:** Integrate current web data and documentation
-- **Multi-Modal Capabilities:** Support for text, image, and code inputs`,
+**GEMINI-SPECIFIC DEVELOPMENT:**
+- **Massive Context Window:** Leverage 1 million token context for large codebases
+- **Web Integration:** Implement Google Search and web-fetch capabilities
+- **Cross-Platform Development:** Support Windows, macOS, and Linux development
+- **Open Source Focus:** Leverage open-source nature for customization
+- **Budget-Conscious Development:** Optimize for generous free tier usage (1M requests/month)
+- **Research and Experimentation:** Support academic and research projects
+- **MCP Integration:** Use Model Context Protocol for tool integration
+- **Automation Focus:** Implement CI/CD and automation workflows
+- **Google Ecosystem:** Integrate with Google services and APIs
+- **Large-Scale Context:** Handle massive codebases and documentation
+- **Educational Support:** Support learning and educational institutions
+- **Community-Driven:** Leverage community support and contributions
+- **Live Data Integration:** Implement real-time web search and data retrieval`,
 
     base44: `
 
-**BASE44 BUTTERY INCLUDES DEVELOPMENT:**
-- **All-in-One Philosophy:** Leverage built-in database, auth, and hosting
-- **No-Code Focus:** Optimize for non-technical user workflows
-- **Instant Deployment:** Design for immediate hosting and sharing
-- **Enterprise Features:** Utilize SSO, permissions, and compliance tools
-- **Multiple AI Models:** Leverage Gemini 2.5 and Claude 4 Sonnet
-- **Collaborative Development:** Support team-based development workflows
-- **Built-in Integrations:** Utilize native email, SMS, and API capabilities
-- **Wix Ecosystem:** Leverage Wix's infrastructure and services
-- **Rapid Prototyping:** Optimize for quick MVP development
-- **Business Applications:** Focus on internal tools and business workflows
-- **Zero Configuration:** Eliminate setup and configuration complexity
-- **Custom Domains:** Professional deployment with custom branding`,
+**BASE44-SPECIFIC DEVELOPMENT:**
+- **All-in-One Philosophy:** Implement comprehensive "buttery includes" functionality
+- **Wix Integration:** Leverage Wix's $80M acquisition and enterprise infrastructure
+- **No-Code Focus:** Optimize for non-technical users and rapid development
+- **Built-in Backend:** Utilize automatic backend services and database
+- **Enterprise Features:** Implement SSO, role-based permissions, and compliance
+- **Message-Based Development:** Optimize for credit-based development cycles
+- **Zero Configuration:** Eliminate technical setup requirements
+- **Business Applications:** Focus on internal tools and business solutions
+- **Instant Deployment:** Provide immediate hosting and custom domains
+- **AI Integration:** Leverage Gemini 2.5 and Claude 4 Sonnet models
+- **Collaborative Features:** Support team development and discussion
+- **Wix Ecosystem:** Integrate with Wix's comprehensive platform services
+- **Enterprise Scalability:** Support large-scale business applications`,
 
     v0: `
 
-**V0 VERCEL ECOSYSTEM OPTIMIZATION:**
-- **React/Next.js Focus:** Optimize for Vercel's core technology stack
-- **UI Component Generation:** Specialize in high-quality React components
-- **Tailwind CSS Integration:** Leverage Vercel's preferred styling framework
-- **Three Design Options:** Always provide multiple design variations
-- **Image-to-Code Workflows:** Support Figma and mockup conversion
-- **Responsive Design:** Mobile-first, cross-device optimization
-- **Component Libraries:** Integrate Material UI, Framer Motion, react-three-fiber
-- **One-Click Deployment:** Seamless Vercel deployment integration
-- **Iterative Refinement:** Conversational component improvement
-- **Framework Flexibility:** Support Vue, Svelte, and HTML/CSS options
-- **Performance Optimization:** Core Web Vitals and loading optimization
-- **Design System Integration:** Consistent branding and theming`,
+**V0-SPECIFIC DEVELOPMENT:**
+- **UI-First Development:** Focus on component generation and design systems
+- **Vercel Ecosystem:** Leverage tight integration with Vercel platform
+- **React/Next.js Focus:** Optimize for React and Next.js development
+- **Design-to-Code:** Implement image-to-code and Figma integration
+- **Three Design Options:** Provide multiple design variations for user choice
+- **Iterative Refinement:** Support conversational UI development
+- **Component Library:** Integrate with Material UI, Tailwind, and other libraries
+- **Frontend Specialization:** Focus on frontend development and UI components
+- **Rapid UI Prototyping:** Enable quick interface development and testing
+- **Framework Support:** Support React, Vue, Svelte, and HTML/CSS
+- **Direct Deployment:** Utilize one-click Vercel deployment
+- **Credit-Based Development:** Optimize for credit-based pricing model
+- **Responsive Design:** Ensure mobile-first and responsive design patterns`,
 
     rork: `
 
@@ -334,7 +335,8 @@ Begin generation immediately with uncompromising attention to detail and complet
 - **Push Notifications:** Implement mobile notification strategies
 - **Offline Support:** Mobile-first offline capabilities
 - **App Store Guidelines:** Comply with platform-specific requirements
-- **Mobile Security:** Implement mobile-specific security measures`
+- **Mobile Security:** Implement mobile-specific security measures
+- **Native Performance:** Optimize for mobile device performance and battery life`
   };
 
   return platformContext + basePrompt + platformSpecific[platform];
@@ -346,7 +348,7 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
     yield* simulateGeneration(prompt, platform);
     return;
   }
-  
+
   const apiKey = userApiKey;
 
   const request: DeepSeekRequest = {
@@ -395,7 +397,7 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
 
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split("\n");
-        
+
         // Process complete lines, keep incomplete line in buffer
         buffer = lines.pop() || "";
 
@@ -403,7 +405,7 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
           const trimmedLine = line.trim();
           if (trimmedLine.startsWith("data: ")) {
             const data = trimmedLine.slice(6);
-            
+
             if (data === "[DONE]") {
               return;
             }
@@ -437,60 +439,60 @@ async function* simulateGeneration(prompt: string, platform: z.infer<typeof plat
   const projectId = `NC-${appName.toUpperCase()}-${Date.now().toString().slice(-6)}`;
   const platformDB = getPlatformDatabase(platform);
   const platformName = platformDB?.name || platform.charAt(0).toUpperCase() + platform.slice(1);
-  
+
   const sections = [
     `# **Unified Project Blueprint & Requirements Document (PRD)**\n## ${platformName}-Optimized Enterprise Architecture\n\n**Project ID:** \`${projectId}\`  \n**Blueprint Engine:** NoCodeLos v4.0 Enhanced  \n**Generated:** ${currentDate}  \n**Target Platform:** ${platformName}  \n**Platform Focus:** ${platformDB?.primaryFunction || 'Full-stack development'}  \n**Complexity:** Production-Ready Enterprise\n\n---\n\n`,
-    
+
     `## **🎯 1. Executive Summary & Vision**\n\n### **1.1. Project Overview**\n**Application Name:** ${appName}  \n**Core Concept:** ${prompt}  \n**Business Model:** Scalable SaaS platform with freemium/enterprise tiers  \n**Target Market Size:** $2.5B+ addressable market  \n\n`,
-    
+
     `### **1.2. Value Propositions**\n- **Primary:** Streamlines complex workflows through intelligent automation\n- **Secondary:** Reduces operational costs by 40-60%\n- **Tertiary:** Provides actionable insights through advanced analytics\n- **Competitive Edge:** AI-powered optimization and real-time collaboration\n\n`,
-    
+
     `### **1.3. Target Audience Analysis**\n**Primary Users (70%):** Enterprise teams, 25-45 years old, $50K+ income  \n**Secondary Users (20%):** SMB decision makers, growth-stage companies  \n**Tertiary Users (10%):** Individual professionals and consultants  \n\n**User Personas:**\n- **Sarah (Product Manager):** Needs workflow visibility, team coordination, metrics tracking\n- **Mike (Engineering Lead):** Requires technical integration, automation, performance monitoring\n- **Lisa (Executive):** Wants high-level insights, ROI tracking, strategic overview\n\n`,
-    
+
     `### **1.4. Success Metrics & KPIs**\n**Adoption Metrics:**\n- 1,000 active users within 3 months\n- 85%+ user retention rate\n- 4.8+ app store rating\n\n**Business Metrics:**\n- $100K ARR within 12 months\n- 15% monthly growth rate\n- 65%+ freemium to paid conversion\n\n**Technical Metrics:**\n- 99.9% uptime SLA\n- <200ms API response time\n- Zero critical security incidents\n\n---\n\n`,
-    
+
     `## **🏗️ 2. Technical Architecture Blueprint**\n\n### **2.1. Layer 1: Core Development Prompts**\n*Enterprise-grade, production-ready prompts for immediate development*\n\n`,
-    
+
     `**🗄️ Database Architecture:**\n"Design a PostgreSQL database schema with Drizzle ORM featuring users, ${prompt.toLowerCase().replace(/\s+/g, '_')}, organizations, audit_logs, permissions, and settings tables. Include proper foreign keys, indexes on frequently queried columns, JSONB fields for flexible metadata, row-level security policies, and database triggers for audit trails."\n\n`,
-    
+
     `**🔐 Authentication System:**\n"Build a comprehensive authentication system with JWT access/refresh tokens, multi-factor authentication (TOTP), OAuth2 providers (Google, GitHub, Microsoft), role-based access control (RBAC), session management, password policies, account verification, and secure password reset flows using Node.js and TypeScript."\n\n`,
-    
+
     `**🌐 API Layer:**\n"Create a RESTful API with Express.js and TypeScript featuring comprehensive CRUD operations for ${prompt.toLowerCase()}, input validation with Zod schemas, rate limiting, request/response logging, error handling middleware, API versioning, OpenAPI documentation, and health check endpoints."\n\n`,
-    
+
     `**⚛️ Frontend Components:**\n"Develop a React 18 TypeScript application with shadcn/ui components, featuring a responsive dashboard, data tables with sorting/filtering/pagination, form builders with validation, real-time updates via WebSockets, state management with Zustand, React Query for server state, and comprehensive error boundaries."\n\n`,
-    
+
     `**🔄 Real-time Features:**\n"Implement WebSocket-based real-time collaboration with Socket.io, featuring live cursors, real-time document editing, presence indicators, conflict resolution, connection recovery, and scalable pub/sub architecture for multi-instance deployments."\n\n`,
-    
+
     `**📊 Analytics & Monitoring:**\n"Build analytics infrastructure with event tracking, user behavior analysis, performance monitoring, error reporting with Sentry, custom dashboards, A/B testing framework, and automated alerting for critical metrics."\n\n`,
-    
+
     `**🧪 Testing Strategy:**\n"Create comprehensive testing suite with Vitest for unit tests, React Testing Library for component tests, Playwright for E2E testing, API testing with Supertest, performance testing, security testing, and 90%+ code coverage requirements."\n\n`,
-    
+
     `**🚀 DevOps Pipeline:**\n"Set up CI/CD pipeline with GitHub Actions, automated testing, security scanning, database migrations, Docker containerization, staging/production deployments, rollback strategies, and infrastructure as code."\n\n`,
-    
+
     `### **2.2. Layer 2: System Architecture**\n\n**Technology Stack:**\n- **Frontend:** React 18, TypeScript 5.0+, Vite, Tailwind CSS, shadcn/ui\n- **State Management:** Zustand, React Query (TanStack Query)\n- **Backend:** Node.js 20+, Express.js, TypeScript, Zod validation\n- **Database:** PostgreSQL 15+, Drizzle ORM, Redis for caching\n- **Authentication:** JWT, bcrypt, TOTP, OAuth2\n- **Real-time:** Socket.io, Server-Sent Events\n- **Testing:** Vitest, React Testing Library, Playwright\n- **Monitoring:** Sentry, Winston logging, Prometheus metrics\n- **Deployment:** ${platform.charAt(0).toUpperCase() + platform.slice(1)}, Docker, nginx\n\n`,
-    
+
     `**System Architecture Diagram:**\n\`\`\`mermaid\ngraph TB\n    subgraph "Client Layer"\n        A[React Frontend]\n        B[Mobile PWA]\n    end\n    \n    subgraph "API Gateway"\n        C[Load Balancer]\n        D[Rate Limiter]\n        E[Auth Middleware]\n    end\n    \n    subgraph "Application Layer"\n        F[Express API Server]\n        G[WebSocket Server]\n        H[Background Jobs]\n    end\n    \n    subgraph "Data Layer"\n        I[PostgreSQL]\n        J[Redis Cache]\n        K[File Storage]\n    end\n    \n    subgraph "External Services"\n        L[Email Service]\n        M[Analytics]\n        N[Monitoring]\n    end\n    \n    A --> C\n    B --> C\n    C --> D\n    D --> E\n    E --> F\n    E --> G\n    F --> I\n    F --> J\n    G --> J\n    F --> H\n    H --> I\n    F --> L\n    F --> M\n    F --> N\n\`\`\`\n\n`,
-    
+
     `**Complete Project Structure:**\n\`\`\`\n${appName.toLowerCase()}/\n├── client/\n│   ├── src/\n│   │   ├── components/\n│   │   │   ├── ui/              # shadcn/ui components\n│   │   │   ├── layout/          # Layout components\n│   │   │   ├── forms/           # Form components\n│   │   │   ├── tables/          # Data table components\n│   │   │   └── charts/          # Analytics components\n│   │   ├── pages/\n│   │   │   ├── auth/            # Authentication pages\n│   │   │   ├── dashboard/       # Dashboard pages\n│   │   │   ├── settings/        # Settings pages\n│   │   │   └── ${prompt.toLowerCase().replace(/\s+/g, '-')}/    # Feature pages\n│   │   ├── hooks/\n│   │   │   ├── auth/            # Authentication hooks\n│   │   │   ├── api/             # API hooks\n│   │   │   └── utils/           # Utility hooks\n│   │   ├── stores/\n│   │   │   ├── auth.ts          # Auth store\n│   │   │   ├── ui.ts            # UI state store\n│   │   │   └── ${prompt.toLowerCase().replace(/\s+/g, '-')}.ts  # Feature store\n│   │   ├── lib/\n│   │   │   ├── api.ts           # API client\n│   │   │   ├── auth.ts          # Auth utilities\n│   │   │   ├── utils.ts         # General utilities\n│   │   │   └── validations.ts   # Form validations\n│   │   └── types/\n│   │       ├── api.ts           # API types\n│   │       ├── auth.ts          # Auth types\n│   │       └── ${prompt.toLowerCase().replace(/\s+/g, '-')}.ts  # Feature types\n├── server/\n│   ├── src/\n│   │   ├── controllers/\n│   │   │   ├── auth.ts          # Auth controller\n│   │   │   ├── users.ts         # Users controller\n│   │   │   └── ${prompt.toLowerCase().replace(/\s+/g, '-')}.ts  # Feature controller\n│   │   ├── middleware/\n│   │   │   ├── auth.ts          # Auth middleware\n│   │   │   ├── validation.ts    # Validation middleware\n│   │   │   ├── rateLimit.ts     # Rate limiting\n│   │   │   └── errorHandler.ts  # Error handling\n│   │   ├── routes/\n│   │   │   ├── auth.ts          # Auth routes\n│   │   │   ├── users.ts         # User routes\n│   │   │   └── ${prompt.toLowerCase().replace(/\s+/g, '-')}.ts  # Feature routes\n│   │   ├── services/\n│   │   │   ├── auth.ts          # Auth service\n│   │   │   ├── email.ts         # Email service\n│   │   │   ├── analytics.ts     # Analytics service\n│   │   │   └── ${prompt.toLowerCase().replace(/\s+/g, '-')}.ts  # Feature service\n│   │   ├── db/\n│   │   │   ├── schema/          # Database schemas\n│   │   │   ├── migrations/      # Database migrations\n│   │   │   ├── seeds/           # Database seeds\n│   │   │   └── index.ts         # Database connection\n│   │   ├── utils/\n│   │   │   ├── logger.ts        # Logging utility\n│   │   │   ├── crypto.ts        # Crypto utilities\n│   │   │   └── helpers.ts       # Helper functions\n│   │   └── types/\n│   │       ├── express.ts       # Express types\n│   │       └── database.ts      # Database types\n├── shared/\n│   ├── types/                   # Shared TypeScript types\n│   ├── validations/             # Shared Zod schemas\n│   └── constants/               # Shared constants\n├── tests/\n│   ├── unit/                    # Unit tests\n│   ├── integration/             # Integration tests\n│   ├── e2e/                     # E2E tests\n│   └── fixtures/                # Test fixtures\n├── docs/\n│   ├── api/                     # API documentation\n│   ├── deployment/              # Deployment guides\n│   └── development/             # Development guides\n├── .github/\n│   └── workflows/               # GitHub Actions\n├── docker/\n│   ├── Dockerfile.client        # Client Dockerfile\n│   ├── Dockerfile.server        # Server Dockerfile\n│   └── docker-compose.yml       # Docker Compose\n└── infrastructure/\n    ├── terraform/               # Infrastructure as Code\n    └── kubernetes/              # Kubernetes manifests\n\`\`\`\n\n`,
-    
+
     `**Database Schema Design:**\n\`\`\`sql\n-- Users table with comprehensive fields\nCREATE TABLE users (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  email VARCHAR(255) UNIQUE NOT NULL,\n  password_hash VARCHAR(255),\n  first_name VARCHAR(100) NOT NULL,\n  last_name VARCHAR(100) NOT NULL,\n  avatar_url TEXT,\n  role user_role DEFAULT 'user',\n  email_verified BOOLEAN DEFAULT false,\n  two_factor_enabled BOOLEAN DEFAULT false,\n  two_factor_secret VARCHAR(32),\n  last_login_at TIMESTAMP,\n  last_seen_at TIMESTAMP,\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Organizations for multi-tenancy\nCREATE TABLE organizations (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  name VARCHAR(255) NOT NULL,\n  slug VARCHAR(100) UNIQUE NOT NULL,\n  domain VARCHAR(255),\n  settings JSONB DEFAULT '{}',\n  plan organization_plan DEFAULT 'free',\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- User organization memberships\nCREATE TABLE user_organizations (\n  user_id UUID REFERENCES users(id) ON DELETE CASCADE,\n  organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,\n  role organization_role DEFAULT 'member',\n  joined_at TIMESTAMP DEFAULT NOW(),\n  PRIMARY KEY (user_id, organization_id)\n);\n\n-- Main feature table\nCREATE TABLE ${prompt.toLowerCase().replace(/\s+/g, '_')} (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  title VARCHAR(255) NOT NULL,\n  description TEXT,\n  status ${prompt.toLowerCase().replace(/\s+/g, '_')}_status DEFAULT 'active',\n  priority priority_level DEFAULT 'medium',\n  metadata JSONB DEFAULT '{}',\n  user_id UUID REFERENCES users(id) ON DELETE CASCADE,\n  organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,\n  created_at TIMESTAMP DEFAULT NOW(),\n  updated_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Audit logs for compliance\nCREATE TABLE audit_logs (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  user_id UUID REFERENCES users(id),\n  organization_id UUID REFERENCES organizations(id),\n  action VARCHAR(100) NOT NULL,\n  resource_type VARCHAR(100) NOT NULL,\n  resource_id UUID,\n  old_values JSONB,\n  new_values JSONB,\n  ip_address INET,\n  user_agent TEXT,\n  created_at TIMESTAMP DEFAULT NOW()\n);\n\n-- Indexes for performance\nCREATE INDEX idx_users_email ON users(email);\nCREATE INDEX idx_users_organization ON user_organizations(organization_id);\nCREATE INDEX idx_${prompt.toLowerCase().replace(/\s+/g, '_')}_user ON ${prompt.toLowerCase().replace(/\s+/g, '_')}(user_id);\nCREATE INDEX idx_${prompt.toLowerCase().replace(/\s+/g, '_')}_status ON ${prompt.toLowerCase().replace(/\s+/g, '_')}(status);\nCREATE INDEX idx_audit_logs_user ON audit_logs(user_id);\nCREATE INDEX idx_audit_logs_resource ON audit_logs(resource_type, resource_id);\n\`\`\`\n\n`,
-    
-    `**API Endpoints Specification:**\n\n**Authentication Endpoints:**\n\`\`\`\nPOST   /api/auth/register          # User registration\nPOST   /api/auth/login             # User login\nPOST   /api/auth/logout            # User logout\nPOST   /api/auth/refresh           # Refresh token\nPOST   /api/auth/forgot-password   # Password reset request\nPOST   /api/auth/reset-password    # Password reset confirmation\nPOST   /api/auth/verify-email      # Email verification\nPOST   /api/auth/enable-2fa        # Enable 2FA\nPOST   /api/auth/verify-2fa        # Verify 2FA token\n\`\`\`\n\n**User Management:**\n\`\`\`\nGET    /api/users/profile          # Get current user profile\nPUT    /api/users/profile          # Update user profile\nPOST   /api/users/avatar           # Upload avatar\nGET    /api/users/organizations    # Get user organizations\nPOST   /api/users/organizations    # Create organization\n\`\`\`\n\n**Core Feature Endpoints:**\n\`\`\`\nGET    /api/${prompt.toLowerCase().replace(/\s+/g, '-')}           # List items with pagination\nPOST   /api/${prompt.toLowerCase().replace(/\s+/g, '-')}           # Create new item\nGET    /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/:id       # Get specific item\nPUT    /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/:id       # Update item\nDELETE /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/:id       # Delete item\nPOST   /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/:id/share  # Share item\nGET    /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/analytics  # Get analytics\n\`\`\`\n\n**Real-time WebSocket Events:**\n\`\`\`\n${prompt.toLowerCase().replace(/\s+/g, '_')}_created    # New item created\n${prompt.toLowerCase().replace(/\s+/g, '_')}_updated    # Item updated\n${prompt.toLowerCase().replace(/\s+/g, '_')}_deleted    # Item deleted\nuser_presence         # User online/offline status\ntyping_indicator      # Real-time typing indicators\n\`\`\`\n\n`,
-    
+
+    `**API Endpoints Specification:**\n\n\`\`\`\nPOST   /api/auth/register          # User registration\nPOST   /api/auth/login             # User login\nPOST   /api/auth/logout            # User logout\nPOST   /api/auth/refresh           # Refresh token\nPOST   /api/auth/forgot-password   # Password reset request\nPOST   /api/auth/reset-password    # Password reset confirmation\nPOST   /api/auth/verify-email      # Email verification\nPOST   /api/auth/enable-2fa        # Enable 2FA\nPOST   /api/auth/verify-2fa        # Verify 2FA token\n\`\`\`\n\n**User Management:**\n\`\`\`\nGET    /api/users/profile          # Get current user profile\nPUT    /api/users/profile          # Update user profile\nPOST   /api/users/avatar           # Upload avatar\nGET    /api/users/organizations    # Get user organizations\nPOST   /api/users/organizations    # Create organization\n\`\`\`\n\n**Core Feature Endpoints:**\n\`\`\`\nGET    /api/${prompt.toLowerCase().replace(/\s+/g, '-')}           # List items with pagination\nPOST   /api/${prompt.toLowerCase().replace(/\s+/g, '-')}           # Create new item\nGET    /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/:id       # Get specific item\nPUT    /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/:id       # Update item\nDELETE /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/:id       # Delete item\nPOST   /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/:id/share  # Share item\nGET    /api/${prompt.toLowerCase().replace(/\s+/g, '-')}/analytics  # Get analytics\n\`\`\`\n\n**Real-time WebSocket Events:**\n\`\`\`\n${prompt.toLowerCase().replace(/\s+/g, '_')}_created    # New item created\n${prompt.toLowerCase().replace(/\s+/g, '_')}_updated    # Item updated\n${prompt.toLowerCase().replace(/\s+/g, '_')}_deleted    # Item deleted\nuser_presence         # User online/offline status\ntyping_indicator      # Real-time typing indicators\n\`\`\`\n\n`,
+
     `### **2.3. Security & Performance Framework**\n\n**Security Measures:**\n- **Authentication:** JWT with RS256 signing, refresh token rotation\n- **Authorization:** Role-based access control (RBAC) with granular permissions\n- **Data Protection:** Encryption at rest (AES-256), in transit (TLS 1.3)\n- **Input Validation:** Zod schemas, SQL injection prevention, XSS protection\n- **Rate Limiting:** Tiered limits by user role, DDoS protection\n- **API Security:** CORS configuration, security headers, API versioning\n- **Monitoring:** Real-time security alerts, audit logging, anomaly detection\n\n**Performance Optimizations:**\n- **Database:** Connection pooling, query optimization, read replicas\n- **Caching:** Redis for session/query caching, CDN for static assets\n- **Frontend:** Code splitting, lazy loading, virtual scrolling\n- **API:** Response compression, HTTP/2, request batching\n- **Monitoring:** APM tools, performance budgets, Core Web Vitals\n\n`,
-    
+
     `### **2.4. Error Handling & Resilience**\n\n**Error Recovery Patterns:**\n- **Circuit Breaker:** Prevent cascade failures\n- **Retry Logic:** Exponential backoff with jitter\n- **Graceful Degradation:** Fallback mechanisms\n- **Health Checks:** Database, Redis, external services\n- **Monitoring:** Error tracking, alerting, automated recovery\n\n**User Experience:**\n- **Error Boundaries:** React error boundaries with user-friendly messages\n- **Loading States:** Skeleton screens, progress indicators\n- **Offline Support:** Service workers, local storage fallbacks\n- **Accessibility:** WCAG 2.1 AA compliance, keyboard navigation\n\n---\n\n`,
-    
+
     `## **⚡ 3. Quality & Performance Standards**\n\n### **3.1. Development Standards**\n□ **Code Quality:** ESLint, Prettier, SonarQube, 0 critical issues\n□ **Type Safety:** TypeScript strict mode, 100% type coverage\n□ **Testing:** 90%+ code coverage, mutation testing\n□ **Documentation:** JSDoc comments, API documentation, README\n□ **Version Control:** Conventional commits, semantic versioning\n\n### **3.2. Performance Benchmarks**\n□ **Core Web Vitals:**\n  - First Contentful Paint (FCP): < 1.2s\n  - Largest Contentful Paint (LCP): < 2.0s\n  - Cumulative Layout Shift (CLS): < 0.1\n  - First Input Delay (FID): < 100ms\n□ **API Performance:**\n  - 95th percentile response time: < 200ms\n  - 99th percentile response time: < 500ms\n  - Throughput: 1000+ requests/second\n□ **Database Performance:**\n  - Query response time: < 50ms average\n  - Connection pool utilization: < 80%\n\n### **3.3. Security Standards**\n□ **OWASP Top 10:** Zero vulnerabilities\n□ **Dependency Scanning:** No high/critical vulnerabilities\n□ **Penetration Testing:** Annual third-party assessment\n□ **Compliance:** SOC 2 Type II, GDPR ready\n\n### **3.4. Reliability Standards**\n□ **Uptime:** 99.9% SLA (< 8.77 hours downtime/year)\n□ **Error Rate:** < 0.1% for critical operations\n□ **Recovery Time:** < 15 minutes for critical issues\n□ **Backup & Recovery:** Daily automated backups, 4-hour RTO\n\n---\n\n`,
-    
+
     `## **📋 4. Implementation Roadmap**\n\n### **4.1. Development Phases**\n\n**Phase 1: Foundation (Week 1-2)**\n- Database schema and migrations\n- Authentication system\n- Basic API endpoints\n- CI/CD pipeline setup\n- Testing framework\n\n**Phase 2: Core Features (Week 3-5)**\n- Main feature implementation\n- Frontend components\n- Real-time functionality\n- User management\n- Basic analytics\n\n**Phase 3: Enhancement (Week 6-7)**\n- Advanced features\n- Performance optimization\n- Security hardening\n- Comprehensive testing\n- Documentation\n\n**Phase 4: Production (Week 8)**\n- Production deployment\n- Monitoring setup\n- Load testing\n- Security audit\n- Go-live preparation\n\n### **4.2. Resource Requirements**\n- **Development Team:** 2-3 full-stack developers\n- **DevOps Engineer:** 0.5 FTE for infrastructure\n- **Designer:** 0.25 FTE for UI/UX refinements\n- **QA Engineer:** 0.5 FTE for testing\n\n### **4.3. Technology Migration Path**\n- **V1.0:** Monolithic architecture on ${platform}\n- **V1.5:** Microservices extraction for high-load components\n- **V2.0:** Multi-region deployment, advanced analytics\n- **V2.5:** AI/ML features, advanced automation\n\n### **4.4. Cost Estimation**\n**Development Costs:**\n- Development team: $50,000-75,000\n- Infrastructure: $1,000-2,000/month\n- Third-party services: $500-1,000/month\n- Tools and licenses: $200-500/month\n\n**Operational Costs (Monthly):**\n- Hosting: $500-2,000 (scales with usage)\n- Database: $200-1,000\n- Monitoring/Analytics: $100-500\n- Email/SMS services: $50-200\n\n---\n\n`,
-    
+
     `## **🔮 5. Future Enhancements & Scaling**\n\n### **5.1. Version 2.0 Roadmap**\n- **AI Integration:** Machine learning recommendations, automated insights\n- **Mobile Apps:** Native iOS/Android applications\n- **Advanced Analytics:** Custom dashboards, predictive analytics\n- **Enterprise Features:** SSO, advanced permissions, audit trails\n- **API Ecosystem:** Public API, webhooks, integrations marketplace\n\n### **5.2. Scaling Considerations**\n- **Horizontal Scaling:** Load balancers, auto-scaling groups\n- **Database Scaling:** Read replicas, sharding strategies\n- **Microservices:** Service decomposition, event-driven architecture\n- **Global Deployment:** Multi-region setup, edge computing\n- **Performance:** CDN optimization, advanced caching strategies\n\n### **5.3. Technical Debt Management**\n- **Code Reviews:** Mandatory peer reviews, automated quality gates\n- **Refactoring:** Scheduled refactoring sprints, architecture reviews\n- **Monitoring:** Technical debt tracking, performance regression tests\n- **Documentation:** Living documentation, architecture decision records\n\n---\n\n`,
-    
+
     `## **📊 6. Monitoring & Analytics**\n\n### **6.1. Application Monitoring**\n- **Performance:** APM tools (Datadog, New Relic)\n- **Errors:** Sentry for error tracking and alerting\n- **Logs:** Centralized logging with search capabilities\n- **Uptime:** External monitoring services\n\n### **6.2. Business Analytics**\n- **User Behavior:** Event tracking, funnel analysis\n- **Feature Usage:** A/B testing, feature flags\n- **Performance:** Core business metrics dashboards\n- **Customer Success:** NPS surveys, user feedback loops\n\n### **6.3. Security Monitoring**\n- **Access Logs:** Authentication attempts, permission changes\n- **Anomaly Detection:** Unusual access patterns, data exports\n- **Vulnerability Scanning:** Continuous security assessment\n- **Incident Response:** Automated alerting, response playbooks\n\n---\n\n`,
-    
+
     `## **✅ 7. Quality Assurance Checklist**\n\n### **7.1. Pre-Launch Checklist**\n□ All tests passing (unit, integration, E2E)\n□ Security audit completed\n□ Performance benchmarks met\n□ Database backup/recovery tested\n□ Monitoring and alerting configured\n□ Documentation completed\n□ Legal review completed (privacy policy, terms)\n□ Compliance requirements met\n\n### **7.2. Post-Launch Monitoring**\n□ Error rates within acceptable limits\n□ Performance metrics stable\n□ User feedback collection active\n□ Security monitoring operational\n□ Backup processes verified\n□ Support processes established\n\n---\n\n`,
-    
+
     `*Generated by NoCodeLos Blueprint Engine v4.0*  \n*"Enterprise-grade architecture, production-ready from day one"*  \n*Quality Score: 9.2/10 | Completeness: 97% | Production Readiness: 95%*\n\n`
   ];
 
@@ -500,7 +502,7 @@ async function* simulateGeneration(prompt: string, platform: z.infer<typeof plat
     for (let i = 0; i < words.length; i++) {
       const chunk = i === 0 ? words[i] : " " + words[i];
       yield chunk;
-      
+
       // Variable delay to simulate natural generation
       const delay = Math.random() * 50 + 25; // 25-75ms per word
       await new Promise(resolve => setTimeout(resolve, delay));
