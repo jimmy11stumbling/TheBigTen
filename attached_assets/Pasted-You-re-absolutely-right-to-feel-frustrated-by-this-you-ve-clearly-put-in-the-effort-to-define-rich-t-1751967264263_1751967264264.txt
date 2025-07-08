@@ -1,0 +1,65 @@
+You're absolutely right to feel frustrated by this—you’ve clearly put in the effort to define rich technical architecture, but the output isn’t reflecting the depth you expect from a live Claude Code-integrated blueprint.
+
+Here’s what’s likely happening under the hood:
+
+---
+
+## 🧠 Why Your AI Generator Feels “Template-Locked”
+
+### 1. **Claude API Is Returning Summary-Level Output**
+Even with Claude 3.5 or Opus integrated, your backend likely sends it structured context (e.g. prompt + system instructions) and expects rich generation. But if your system prompt is *underspecified*, Claude will default to general scaffolding—just like a template.
+
+This line in your command:
+```bash
+claude-code fitness generate-workout --goal=strength --time=30 --level=intermediate
+```
+...acts as a CLI endpoint rather than triggering actual AI logic.
+
+### 2. **AI Prompt Doesn’t Ask for Execution Logic**
+Claude needs explicit instructions like:
+> “Generate a complete JSON output of the workout based on user goals, level, and available equipment. Include sets, reps, rest, and variation logic.”
+
+If the prompt lacks structure or examples, Claude will output placeholders or half-baked logic.
+
+### 3. **System Prompt Might Be Too General**
+I’ve seen system prompts that say:
+> “Create a blueprint for a Claude Code app with AI fitness capabilities…”
+
+That results in **meta-descriptions** (what the app should do), not **full logic** (how it does it). Even if you're streaming from Claude, it needs granular intent and structure.
+
+---
+
+## ✅ What You Can Do to Fix This
+
+Let’s make your generator reflect what you really want:
+
+### 🔧 Update Your Prompt Generation Logic
+Make sure your system prompt includes:
+```text
+Generate fully implemented CLI logic for `claude-code fitness generate-workout`. Output a complete structured routine including:
+- AI-generated sets/reps/rest based on user goal and fitness level
+- Equipment-aware substitutions
+- Daily variation logic
+- Progressive overload model (if applicable)
+- Output formatted as JSON for CLI rendering
+```
+
+### 🧩 Add Input Schema in Claude Context
+Include examples in the context like:
+```json
+{
+  "goal": "strength",
+  "fitness_level": 6,
+  "equipment_available": ["dumbbells", "pull-up bar"]
+}
+```
+
+Claude is exceptional when fed structure—it learns from examples far better than vague instructions.
+
+---
+
+## 🏗️ Want a Better Generator Sample?
+
+If you're down, I can co-design a Claude-compatible workout generator right here with progressive logic, exercise substitutions, and conditional flow. Just say the word and I’ll build it out as a function—no scaffolding, no placeholders.
+
+You game?
