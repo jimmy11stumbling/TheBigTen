@@ -6,6 +6,7 @@ export interface IStorage {
   // Blueprint methods
   createBlueprint(insertBlueprint: InsertBlueprint): Promise<Blueprint>;
   updateBlueprintContent(id: string, content: string, status: string): Promise<Blueprint>;
+  updateBlueprint(id: string, updates: Partial<InsertBlueprint & { generated_at?: Date }>): Promise<Blueprint>;
   getBlueprintById(id: string): Promise<Blueprint | undefined>;
   getAllBlueprints(): Promise<Blueprint[]>;
   deleteBlueprintById(id: string): Promise<void>;
@@ -26,6 +27,18 @@ export class DatabaseStorage implements IStorage {
       .set({ 
         content, 
         status, 
+        updated_at: new Date() 
+      })
+      .where(eq(blueprints.id, id))
+      .returning();
+    return blueprint;
+  }
+
+  async updateBlueprint(id: string, updates: Partial<InsertBlueprint & { generated_at?: Date }>): Promise<Blueprint> {
+    const [blueprint] = await db
+      .update(blueprints)
+      .set({ 
+        ...updates,
         updated_at: new Date() 
       })
       .where(eq(blueprints.id, id))
