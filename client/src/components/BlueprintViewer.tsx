@@ -538,45 +538,6 @@ export function BlueprintViewer() {
             </div>
           )}
         </div>
-      </CardContent>o">
-                Enter your app idea and select a platform to generate a comprehensive 
-                technical blueprint with architecture diagrams, code snippets, and deployment guides.
-              </p>
-            </div>
-          )}
-
-          {streamState.status === "error" && (
-            <div className="text-center text-red-500 py-20">
-              <div className="w-20 h-20 mx-auto bg-red-50 rounded-2xl flex items-center justify-center mb-6">
-                <AlertCircle className="w-10 h-10 text-red-500" />
-              </div>
-              <h3 className="text-xl font-bold text-red-900 mb-2">Generation Failed</h3>
-              <p className="text-red-700 bg-red-50 rounded-lg p-4 max-w-md mx-auto">
-                {streamState.error || "An unexpected error occurred. Please try again."}
-              </p>
-            </div>
-          )}
-
-          {streamState.content && (
-            <div className="max-w-none">
-              <div className="space-y-1">
-                {formatContent(streamState.content)}
-              </div>
-
-              {/* Enhanced typing cursor for active generation */}
-              {streamState.status === "generating" && (
-                <div className="flex items-center space-x-3 mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                  </div>
-                  <span className="text-blue-700 font-medium">Generating your blueprint...</span>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
         </div>
       </CardContent>
     </Card>

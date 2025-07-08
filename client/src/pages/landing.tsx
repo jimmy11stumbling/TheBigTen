@@ -4,7 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Link } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { BlueprintGenerationDemo } from "@/components/BlueprintGenerationDemo";
 import { 
   Zap, 
   Code, 
@@ -202,35 +203,7 @@ export default function Landing() {
               </div>
             </div>
             <div className="relative">
-              {/* AI Blueprint generation visualization mockup */}
-              <Card className="shadow-2xl border-0">
-                <div className="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-                  <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                  <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                  <span className="text-sm text-gray-500 ml-4">NoCodeLos Generator</span>
-                </div>
-                <CardContent className="p-6">
-                  <div className="mb-4">
-                    <div className="text-sm text-gray-500 mb-2">Your App Idea:</div>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm">
-                      "A task management app with team collaboration features"
-                    </div>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex items-center text-sm text-gray-600">
-                      <div className="w-2 h-2 bg-green-500 rounded-full mr-3 animate-pulse"></div>
-                      Generating technical specifications...
-                    </div>
-                    <div className="bg-gray-100 rounded-lg p-3 font-mono text-xs">
-                      <div className="text-green-600"># Project Architecture</div>
-                      <div className="text-gray-700">Frontend: React + TypeScript</div>
-                      <div className="text-gray-700">Backend: Node.js + Express</div>
-                      <div className="text-gray-700">Database: PostgreSQL...</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <BlueprintGenerationDemo />
             </div>
           </div>
         </div>
