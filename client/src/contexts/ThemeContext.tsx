@@ -27,29 +27,56 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {
-    // Check localStorage for saved theme preference
-    const savedTheme = localStorage.getItem("theme") as Theme;
-    if (savedTheme) {
+    // Check localStorage for saved theme preference first
+    const savedTheme = localStorage.getItem("theme") as Theme | null;
+    
+    if (savedTheme && (savedTheme === "light" || savedTheme === "dark")) {
       setTheme(savedTheme);
     } else {
-      // Check system preference
+      // Check system preference if no saved theme
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
       setTheme(systemTheme);
     }
   }, []);
 
   useEffect(() => {
-    // Apply theme to document
+    // Apply theme to document root
     const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
+    
+    // Remove existing theme classes
+    root.classList.remove("light", "dark");
+    
+    // Add current theme class
+    root.classList.add(theme);
+    
+    // Set data attribute for additional styling
+    root.setAttribute("data-theme", theme);
     
     // Save to localStorage
     localStorage.setItem("theme", theme);
+    
+    // Update meta theme-color for mobile browsers
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute("content", theme === "dark" ? "#0a0a0b" : "#ffffff");
+    }
   }, [theme]);
+
+  // Listen for system theme changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    
+    const handleChange = () => {
+      // Only update if no saved preference exists
+      const savedTheme = localStorage.getItem("theme");
+      if (!savedTheme) {
+        setTheme(mediaQuery.matches ? "dark" : "light");
+      }
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
 
   const toggleTheme = () => {
     setTheme(prev => prev === "light" ? "dark" : "light");

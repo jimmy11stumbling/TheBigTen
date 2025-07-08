@@ -57,54 +57,147 @@
     @apply font-sans antialiased bg-background text-foreground transition-colors duration-200;
   }
 
-  /* Ensure all text is visible in dark mode */
+  /* Dark mode implementation */
   .dark {
     color-scheme: dark;
   }
 
-  .dark *:not([class*="text-"]):not([style*="color"]) {
-    color: hsl(var(--foreground)) !important;
+  /* Ensure all text elements are visible in dark mode */
+  .dark,
+  .dark * {
+    color: hsl(var(--foreground));
   }
 
-  /* Override any stubborn text colors */
+  /* Specific text elements */
   .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
-    color: hsl(var(--foreground)) !important;
+    color: hsl(var(--foreground));
   }
 
-  .dark p, .dark span, .dark div, .dark label {
-    color: hsl(var(--foreground)) !important;
+  .dark p, .dark span, .dark div, .dark label, .dark li {
+    color: hsl(var(--foreground));
   }
 
-  /* Ensure buttons and interactive elements are visible */
-  .dark button:not([class*="text-"]) {
-    color: hsl(var(--foreground)) !important;
+  /* Button and interactive elements */
+  .dark button {
+    color: hsl(var(--foreground));
   }
 
-  /* Make sure cards and components have proper contrast */
+  /* Card components */
   .dark .bg-card {
-    background-color: hsl(var(--card)) !important;
-    color: hsl(var(--card-foreground)) !important;
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
   }
 
+  /* Background elements */
   .dark .bg-background {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  /* Input elements */
+  .dark input, 
+  .dark textarea, 
+  .dark select {
+    background-color: hsl(var(--input));
+    color: hsl(var(--foreground));
+    border-color: hsl(var(--border));
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* Fix specific utility classes in dark mode */
+  .dark .bg-white {
     background-color: hsl(var(--background)) !important;
+  }
+
+  .dark .text-white {
     color: hsl(var(--foreground)) !important;
   }
 
-  /* Ensure input elements are visible */
-  .dark input, .dark textarea {
-    background-color: hsl(var(--input)) !important;
+  .dark .text-black {
     color: hsl(var(--foreground)) !important;
+  }
+
+  .dark .bg-gray-50 {
+    background-color: hsl(var(--muted)) !important;
+  }
+
+  .dark .bg-gray-100 {
+    background-color: hsl(var(--muted)) !important;
+  }
+
+  .dark .text-gray-900 {
+    color: hsl(var(--foreground)) !important;
+  }
+
+  .dark .text-gray-800 {
+    color: hsl(var(--foreground)) !important;
+  }
+
+  .dark .text-gray-700 {
+    color: hsl(var(--muted-foreground)) !important;
+  }
+
+  .dark .text-gray-600 {
+    color: hsl(var(--muted-foreground)) !important;
+  }
+
+  /* Ensure proper contrast for borders */
+  .dark .border-gray-200 {
     border-color: hsl(var(--border)) !important;
   }
 
-  /* Fix any white backgrounds in dark mode */
-  .dark [class*="bg-white"] {
-    background-color: hsl(var(--background)) !important;
+  .dark .border-gray-300 {
+    border-color: hsl(var(--border)) !important;
   }
 
-  .dark [class*="text-white"] {
-    color: hsl(var(--foreground)) !important;
+  /* Dropdown and popover elements */
+  .dark [data-radix-popper-content-wrapper] {
+    background-color: hsl(var(--popover));
+    color: hsl(var(--popover-foreground));
+  }
+
+  /* Toast notifications */
+  .dark [data-toast-viewport] {
+    background-color: hsl(var(--background));
+  }
+
+  /* Scroll areas */
+  .dark [data-radix-scroll-area-viewport] {
+    background-color: hsl(var(--background));
+  }
+
+  /* Sheet and dialog overlays */
+  .dark [data-radix-dialog-overlay] {
+    background-color: hsl(222, 84%, 4.9%, 0.8);
+  }
+
+  /* Navigation elements */
+  .dark nav,
+  .dark header,
+  .dark footer {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  /* Code blocks and pre elements */
+  .dark pre,
+  .dark code {
+    background-color: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* Links */
+  .dark a {
+    color: hsl(var(--primary));
+  }
+
+  .dark a:hover {
+    color: hsl(var(--primary));
+    opacity: 0.8;
   }
 }
 
