@@ -31,12 +31,18 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
 
   const apiKey = userApiKey;
 
+  const systemPrompt = getSystemPrompt(platform);
+  console.log(`[DEBUG] System prompt length: ${systemPrompt.length}`);
+  console.log(`[DEBUG] Contains workout: ${systemPrompt.includes('workout')}`);
+  console.log(`[DEBUG] Contains placeholder: ${systemPrompt.includes('TODO') || systemPrompt.includes('implement')}`);
+  console.log(`[DEBUG] First 200 chars: ${systemPrompt.substring(0, 200)}...`);
+
   const request: DeepSeekRequest = {
     model: "deepseek-chat",
     messages: [
       {
         role: "system",
-        content: getSystemPrompt(platform)
+        content: systemPrompt
       },
       {
         role: "user",

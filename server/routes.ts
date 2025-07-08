@@ -6,6 +6,8 @@ import { z } from "zod";
 import { generateBlueprint } from "./services/deepseek";
 import { analytics } from "./services/analytics";
 import { registerAnalyticsRoutes } from "./routes/analytics";
+import { buildSystemPrompt } from "./services/system-prompt";
+import { getPlatformDatabase } from "@shared/platform-databases";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Blueprint generation endpoint with SSE
@@ -238,6 +240,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
     // Register analytics routes
     registerAnalyticsRoutes(app);
+
+    // Debug endpoint to check system prompt
+    app.get("/api/debug/system-prompt/:platform", (req, res) => {
+      try {
+        const platform = req.params.platform as any;
+        const platformDB = getPlatformDatabase(platform);
+        const systemPrompt = buildSystemPrompt(platform, platformDB);
+        res.json({ 
+          platform,
+          promptLength: systemPrompt.length,
+          prompt: systemPrompt.substring(0, 500) + "...",
+          containsWorkout: systemPrompt.includes("workout"),
+          containsPlaceholder: systemPrompt.includes("TODO") || systemPrompt.includes("implement"),
+          fullPrompt: systemPrompt
+        });
+      } catch (error) {
+        res.status(400).json({ error: error.message });
+      }
+    });
 
     const httpServer = createServer(app);
     return httpServer;
