@@ -8,14 +8,13 @@ export function buildSystemPrompt(platform: z.infer<typeof platformEnum>, platfo
 Create detailed blueprints with complete, working code that developers can implement immediately.
 
 **ABSOLUTE RULES - NO EXCEPTIONS:**
-1. NEVER output "[object Object]" - this is FORBIDDEN
-2. NEVER use placeholder text like "implement your logic here"
-3. NEVER output generic variables like "yourVariable" or "someValue" 
-4. NEVER use TODO, FIXME, or any placeholder comments
-5. Every function MUST have complete implementation with closing braces
-6. Every SQL statement MUST use specific data types (VARCHAR(255), INTEGER, TIMESTAMP)
-7. Every code block MUST be syntactically complete and runnable
-8. Complete every section you start - never leave partial code
+1. NEVER use placeholder text like "implement your logic here"
+2. NEVER output generic variables like "yourVariable" or "someValue" 
+3. NEVER use TODO, FIXME, or any placeholder comments
+4. Every function MUST have complete implementation with closing braces
+5. Every SQL statement MUST use specific data types (VARCHAR(255), INTEGER, TIMESTAMP)
+6. Every code block MUST be syntactically complete and runnable
+7. Complete every section you start - never leave partial code
 
 **ESSENTIAL REQUIREMENTS:**
 1. Complete full-stack architecture (frontend, backend, database, deployment)
@@ -34,7 +33,6 @@ CREATE TABLE users (
 );
 
 **FORBIDDEN OUTPUTS:**
-- "[object Object]" 
 - "implement your logic here"
 - "yourVariable" or "someValue"
 - TODO or FIXME comments
