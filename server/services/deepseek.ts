@@ -22,7 +22,7 @@ function getSystemPrompt(platform: z.infer<typeof platformEnum>): string {
   
   const platformContext = platformDB ? `
 
-## TARGET PLATFORM: ${platformDB.name}
+## TARGET PLATFORM: ${platformDB.name} (MANDATORY PLATFORM FOCUS)
 
 **Platform Overview:**
 - Vendor: ${platformDB.vendor}
@@ -30,25 +30,25 @@ function getSystemPrompt(platform: z.infer<typeof platformEnum>): string {
 - Target Audience: ${platformDB.targetAudience}
 - Key Differentiator: ${platformDB.keyDifferentiator}
 
-**Recommended Tech Stack:**
+**REQUIRED Tech Stack for ${platformDB.name}:**
 - Frontend: ${platformDB.techStack.frontend.join(', ')}
 - Backend: ${platformDB.techStack.backend.join(', ')}
 - Database: ${platformDB.techStack.database.join(', ')}
 - Deployment: ${platformDB.techStack.deployment.join(', ')}
 
-**Platform-Specific Integrations:**
+**REQUIRED Platform-Specific Integrations:**
 - Authentication: ${platformDB.integrations.auth.join(', ')}
 - Payments: ${platformDB.integrations.payments.join(', ')}
 - AI Services: ${platformDB.integrations.ai.join(', ')}
 - Databases: ${platformDB.integrations.databases.join(', ')}
 
-**Best Use Cases:**
+**Best Use Cases for ${platformDB.name}:**
 ${platformDB.bestFor.map(use => `- ${use}`).join('\n')}
 
-**Platform Limitations:**
+**Platform Limitations to Consider:**
 ${platformDB.limitations.map(limit => `- ${limit}`).join('\n')}
 
-**IMPORTANT:** Tailor ALL technical recommendations to ${platformDB.name}'s capabilities and ecosystem. Use the platform's preferred tech stack, integrations, and deployment methods.
+**CRITICAL REQUIREMENT:** You MUST tailor ALL technical recommendations specifically to ${platformDB.name}'s capabilities and ecosystem. Do NOT mention other platforms like Lovable, Cursor, or Windsurf. Use ONLY ${platformDB.name}'s preferred tech stack, integrations, and deployment methods.
 ` : '';
   const basePrompt = `You are the "NoCodeLos Blueprint Engine v4.0" - the world's most advanced AI system architect. Your expertise spans enterprise architecture, full-stack development, DevOps, security, performance optimization, and modern software engineering practices. You generate production-ready, enterprise-grade technical blueprints that developers can execute immediately.
 
@@ -174,17 +174,26 @@ Begin generation immediately with uncompromising attention to detail and complet
   const platformSpecific = {
     replit: `
 
-**REPLIT ENTERPRISE OPTIMIZATION:**
-- **Port Configuration:** Bind to 0.0.0.0:5000 for production accessibility
-- **Neon PostgreSQL Integration:** Connection pooling, prepared statements, query optimization
-- **Secrets Management:** Leverage Replit Secrets for API keys, database URLs, JWT secrets
-- **Autoscale Deployment:** Configure for automatic scaling based on traffic
-- **File System Optimization:** Efficient file organization for Replit's development environment
-- **Environment Variables:** Complete .env setup with development/production configurations
-- **Package Management:** Optimized package.json with exact dependency versions
-- **Build Process:** Streamlined build pipeline using Vite for optimal performance
-- **Hot Reload:** Development server configuration for instant feedback
-- **Resource Monitoring:** Memory and CPU optimization for Replit's constraints`,
+**MANDATORY REPLIT ENTERPRISE OPTIMIZATION (DO NOT DEVIATE):**
+- **Platform:** All recommendations MUST be for Replit deployment and development
+- **Port Configuration:** ALWAYS bind to 0.0.0.0:5000 for Replit accessibility
+- **Database:** Use Replit's built-in PostgreSQL or Neon PostgreSQL integration
+- **Secrets Management:** MUST use Replit Secrets for all API keys, database URLs, JWT secrets
+- **Deployment:** Use Replit Autoscale Deployment for production hosting
+- **Development:** Leverage Replit's browser-based IDE and collaborative features
+- **File Structure:** Organize for Replit's Nix-based environment
+- **Environment Setup:** Use Replit's package manager and environment configuration
+- **Hosting:** Deploy directly on Replit with .replit.app domain or custom domains
+- **Collaboration:** Utilize Replit's Multiplayer for team development
+- **AI Integration:** Recommend Replit Agent for code generation assistance
+
+**REPLIT-SPECIFIC ARCHITECTURE REQUIREMENTS:**
+- Single port architecture (5000) for Replit hosting compatibility
+- Nix package manager integration for dependencies
+- Replit Secrets for secure environment variables
+- Built-in PostgreSQL database integration
+- Replit Auth integration where applicable
+- Optimized for Replit's collaborative development environment`,
 
     cursor: `
 
@@ -327,9 +336,11 @@ async function* simulateGeneration(prompt: string, platform: z.infer<typeof plat
   const appName = prompt.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('').replace(/[^A-Za-z0-9]/g, '');
   const currentDate = new Date().toISOString().split('T')[0];
   const projectId = `NC-${appName.toUpperCase()}-${Date.now().toString().slice(-6)}`;
+  const platformDB = getPlatformDatabase(platform);
+  const platformName = platformDB?.name || platform.charAt(0).toUpperCase() + platform.slice(1);
   
   const sections = [
-    `# **Unified Project Blueprint & Requirements Document (PRD)**\n## Enterprise-Grade Architecture from Vision to Production\n\n**Project ID:** \`${projectId}\`  \n**Blueprint Engine:** NoCodeLos v4.0 Enhanced  \n**Generated:** ${currentDate}  \n**Platform:** ${platform.charAt(0).toUpperCase() + platform.slice(1)}  \n**Complexity:** Production-Ready Enterprise\n\n---\n\n`,
+    `# **Unified Project Blueprint & Requirements Document (PRD)**\n## ${platformName}-Optimized Enterprise Architecture\n\n**Project ID:** \`${projectId}\`  \n**Blueprint Engine:** NoCodeLos v4.0 Enhanced  \n**Generated:** ${currentDate}  \n**Target Platform:** ${platformName}  \n**Platform Focus:** ${platformDB?.primaryFunction || 'Full-stack development'}  \n**Complexity:** Production-Ready Enterprise\n\n---\n\n`,
     
     `## **🎯 1. Executive Summary & Vision**\n\n### **1.1. Project Overview**\n**Application Name:** ${appName}  \n**Core Concept:** ${prompt}  \n**Business Model:** Scalable SaaS platform with freemium/enterprise tiers  \n**Target Market Size:** $2.5B+ addressable market  \n\n`,
     
