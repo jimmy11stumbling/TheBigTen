@@ -1,3 +1,8 @@
+import { platformEnum } from "@shared/schema";
+import { z } from "zod";
+
+export type Platform = z.infer<typeof platformEnum>;
+
 export interface StreamEvent {
   type: "chunk" | "complete" | "error";
   content?: string;
@@ -13,8 +18,6 @@ export interface StreamState {
   error?: string;
   blueprintId?: string;
 }
-
-export type Platform = "replit" | "cursor" | "lovable" | "windsurf" | "bolt" | "claude" | "gemini" | "base44" | "v0" | "rork";
 
 export interface GenerateRequest {
   prompt: string;
