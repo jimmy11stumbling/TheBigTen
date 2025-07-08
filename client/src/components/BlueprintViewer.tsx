@@ -1,13 +1,16 @@
+
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Download, Share, CheckCircle, Loader2, AlertCircle } from "lucide-react";
+import { Copy, Download, Share, CheckCircle, Loader2, AlertCircle, Code } from "lucide-react";
 import { useStream } from "@/contexts/StreamContext";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 export function BlueprintViewer() {
   const { streamState } = useStream();
   const { toast } = useToast();
+  const [copiedCodeIndex, setCopiedCodeIndex] = useState<number | null>(null);
 
   const handleCopy = async () => {
     try {
@@ -20,6 +23,24 @@ export function BlueprintViewer() {
       toast({
         title: "Copy failed",
         description: "Failed to copy content to clipboard.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCodeCopy = async (code: string, index: number) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopiedCodeIndex(index);
+      setTimeout(() => setCopiedCodeIndex(null), 2000);
+      toast({
+        title: "Code copied",
+        description: "Code block has been copied to your clipboard.",
+      });
+    } catch (error) {
+      toast({
+        title: "Copy failed",
+        description: "Failed to copy code to clipboard.",
         variant: "destructive",
       });
     }
@@ -45,7 +66,6 @@ export function BlueprintViewer() {
   const handleShare = async () => {
     try {
       if (navigator.share) {
-        // Use Web Share API if available
         await navigator.share({
           title: "Generated Blueprint",
           text: "Check out this technical blueprint",
@@ -56,7 +76,6 @@ export function BlueprintViewer() {
           description: "Blueprint has been shared.",
         });
       } else {
-        // Fallback: copy URL to clipboard
         await navigator.clipboard.writeText(window.location.href);
         toast({
           title: "Link copied",
@@ -103,45 +122,187 @@ export function BlueprintViewer() {
   const formatContent = (content: string) => {
     if (!content) return "";
     
-    // Split content into lines and format for display
-    return content.split("\n").map((line, index) => {
-      // Handle headers
-      if (line.startsWith("# ")) {
-        return <h1 key={index} className="text-2xl font-bold text-gray-900 mb-4 mt-6">{line.slice(2)}</h1>;
-      }
-      if (line.startsWith("## ")) {
-        return <h2 key={index} className="text-xl font-semibold text-gray-800 mb-3 mt-5">{line.slice(3)}</h2>;
-      }
-      if (line.startsWith("### ")) {
-        return <h3 key={index} className="text-lg font-semibold text-gray-700 mb-2 mt-4">{line.slice(4)}</h3>;
-      }
+    const lines = content.split("\n");
+    const elements: JSX.Element[] = [];
+    let currentCodeBlock: string[] = [];
+    let inCodeBlock = false;
+    let codeBlockLanguage = "";
+    let codeBlockIndex = 0;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
       
-      // Handle code blocks
+      // Handle code block start/end
       if (line.startsWith("```")) {
-        return <div key={index} className="bg-gray-900 text-gray-100 rounded-lg p-4 my-4 text-sm overflow-x-auto font-mono">{line}</div>;
+        if (!inCodeBlock) {
+          // Starting code block
+          inCodeBlock = true;
+          codeBlockLanguage = line.slice(3).trim();
+          currentCodeBlock = [];
+        } else {
+          // Ending code block
+          inCodeBlock = false;
+          const codeContent = currentCodeBlock.join("\n");
+          elements.push(
+            <div key={`code-${i}-${codeBlockIndex}`} className="relative group my-6">
+              <div className="bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+                {/* Code block header */}
+                <div className="flex items-center justify-between px-4 py-2 bg-slate-800 border-b border-slate-700">
+                  <div className="flex items-center space-x-2">
+                    <Code className="w-4 h-4 text-slate-400" />
+                    <span className="text-sm text-slate-300 font-medium">
+                      {codeBlockLanguage || "Code"}
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleCodeCopy(codeContent, codeBlockIndex)}
+                    className="h-7 text-slate-400 hover:text-white hover:bg-slate-700"
+                  >
+                    {copiedCodeIndex === codeBlockIndex ? (
+                      <CheckCircle className="w-3 h-3" />
+                    ) : (
+                      <Copy className="w-3 h-3" />
+                    )}
+                  </Button>
+                </div>
+                {/* Code content */}
+                <pre className="p-4 text-sm text-slate-100 overflow-x-auto">
+                  <code className="font-mono">{codeContent}</code>
+                </pre>
+              </div>
+            </div>
+          );
+          codeBlockIndex++;
+          currentCodeBlock = [];
+        }
+        continue;
       }
-      
-      // Handle bullet points
-      if (line.startsWith("- ")) {
-        return <li key={index} className="text-gray-700 mb-1">{line.slice(2)}</li>;
+
+      if (inCodeBlock) {
+        currentCodeBlock.push(line);
+        continue;
       }
-      
+
+      // Handle headers with better styling
+      if (line.startsWith("# ")) {
+        elements.push(
+          <div key={i} className="my-8 first:mt-0">
+            <h1 className="text-3xl font-bold text-slate-900 mb-4 pb-3 border-b-2 border-blue-500">
+              {line.slice(2)}
+            </h1>
+          </div>
+        );
+      } else if (line.startsWith("## ")) {
+        elements.push(
+          <div key={i} className="my-6">
+            <h2 className="text-2xl font-semibold text-slate-800 mb-3 pb-2 border-b border-slate-200">
+              {line.slice(3)}
+            </h2>
+          </div>
+        );
+      } else if (line.startsWith("### ")) {
+        elements.push(
+          <h3 key={i} className="text-xl font-semibold text-slate-700 mb-3 mt-6">
+            {line.slice(4)}
+          </h3>
+        );
+      } else if (line.startsWith("#### ")) {
+        elements.push(
+          <h4 key={i} className="text-lg font-medium text-slate-600 mb-2 mt-4">
+            {line.slice(5)}
+          </h4>
+        );
+      }
+      // Handle bullet points with better styling
+      else if (line.startsWith("- ")) {
+        elements.push(
+          <div key={i} className="flex items-start space-x-3 mb-2">
+            <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+            <p className="text-slate-700 leading-relaxed">{line.slice(2)}</p>
+          </div>
+        );
+      }
+      // Handle numbered lists
+      else if (/^\d+\.\s/.test(line)) {
+        const match = line.match(/^(\d+)\.\s(.*)$/);
+        if (match) {
+          elements.push(
+            <div key={i} className="flex items-start space-x-3 mb-2">
+              <div className="bg-blue-100 text-blue-800 text-sm font-medium px-2 py-1 rounded-full min-w-[24px] text-center">
+                {match[1]}
+              </div>
+              <p className="text-slate-700 leading-relaxed">{match[2]}</p>
+            </div>
+          );
+        }
+      }
+      // Handle inline code
+      else if (line.includes("`") && !line.startsWith("```")) {
+        const parts = line.split(/(`[^`]+`)/);
+        const formattedParts = parts.map((part, index) => {
+          if (part.startsWith("`") && part.endsWith("`")) {
+            return (
+              <code key={index} className="bg-slate-100 text-slate-800 px-2 py-1 rounded text-sm font-mono">
+                {part.slice(1, -1)}
+              </code>
+            );
+          }
+          return part;
+        });
+        elements.push(
+          <p key={i} className="text-slate-700 mb-3 leading-relaxed">
+            {formattedParts}
+          </p>
+        );
+      }
+      // Handle bold text
+      else if (line.includes("**")) {
+        const parts = line.split(/(\*\*[^*]+\*\*)/);
+        const formattedParts = parts.map((part, index) => {
+          if (part.startsWith("**") && part.endsWith("**")) {
+            return (
+              <strong key={index} className="font-semibold text-slate-900">
+                {part.slice(2, -2)}
+              </strong>
+            );
+          }
+          return part;
+        });
+        elements.push(
+          <p key={i} className="text-slate-700 mb-3 leading-relaxed">
+            {formattedParts}
+          </p>
+        );
+      }
       // Handle empty lines
-      if (line.trim() === "") {
-        return <br key={index} />;
+      else if (line.trim() === "") {
+        elements.push(<div key={i} className="h-4" />);
       }
-      
       // Regular paragraphs
-      return <p key={index} className="text-gray-700 mb-2">{line}</p>;
-    });
+      else if (line.trim() !== "") {
+        elements.push(
+          <p key={i} className="text-slate-700 mb-3 leading-relaxed">
+            {line}
+          </p>
+        );
+      }
+    }
+
+    return elements;
   };
 
   return (
-    <Card className="h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-gray-200">
+    <Card className="h-full shadow-lg">
+      {/* Enhanced Header */}
+      <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50">
         <div className="flex items-center space-x-3">
-          <h2 className="text-lg font-semibold text-gray-900">Generated Blueprint</h2>
+          <div className="w-2 h-8 bg-gradient-to-b from-blue-500 to-indigo-600 rounded-full"></div>
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">Generated Blueprint</h2>
+            <p className="text-sm text-slate-600">Production-ready technical documentation</p>
+          </div>
           {getStatusBadge()}
         </div>
         <div className="flex items-center space-x-2">
@@ -150,7 +311,8 @@ export function BlueprintViewer() {
             size="sm"
             onClick={handleCopy}
             disabled={!streamState.content}
-            title="Copy to clipboard"
+            title="Copy entire blueprint"
+            className="hover:bg-blue-100"
           >
             <Copy className="w-4 h-4" />
           </Button>
@@ -159,7 +321,8 @@ export function BlueprintViewer() {
             size="sm"
             onClick={handleDownload}
             disabled={!streamState.content}
-            title="Download"
+            title="Download as Markdown"
+            className="hover:bg-blue-100"
           >
             <Download className="w-4 h-4" />
           </Button>
@@ -168,41 +331,63 @@ export function BlueprintViewer() {
             size="sm"
             onClick={handleShare}
             disabled={!streamState.content}
-            title="Share"
+            title="Share blueprint"
+            className="hover:bg-blue-100"
           >
             <Share className="w-4 h-4" />
           </Button>
         </div>
       </div>
       
-      {/* Content Area */}
-      <CardContent className="p-6 h-full overflow-auto" style={{ maxHeight: "calc(100vh - 200px)" }}>
-        <div className="prose prose-slate max-w-none">
+      {/* Enhanced Content Area */}
+      <CardContent className="p-0 h-full overflow-auto bg-white" style={{ maxHeight: "calc(100vh - 200px)" }}>
+        <div className="p-8">
           {streamState.status === "idle" && (
-            <div className="text-center text-gray-500 py-12">
-              <div className="text-4xl mb-4">📋</div>
-              <p className="text-lg">Ready to generate your blueprint</p>
-              <p className="text-sm">Enter your app idea and select a platform to get started.</p>
+            <div className="text-center text-slate-500 py-20">
+              <div className="relative mb-8">
+                <div className="w-24 h-24 mx-auto bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center">
+                  <div className="text-4xl">📋</div>
+                </div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900 mb-3">Ready to Generate</h3>
+              <p className="text-lg text-slate-600 mb-2">Your technical blueprint awaits</p>
+              <p className="text-sm text-slate-500 max-w-md mx-auto">
+                Enter your app idea and select a platform to generate a comprehensive 
+                technical blueprint with architecture diagrams, code snippets, and deployment guides.
+              </p>
             </div>
           )}
           
           {streamState.status === "error" && (
-            <div className="text-center text-red-500 py-12">
-              <AlertCircle className="w-12 h-12 mx-auto mb-4" />
-              <p className="text-lg font-medium">Generation Failed</p>
-              <p className="text-sm">{streamState.error || "An unexpected error occurred."}</p>
+            <div className="text-center text-red-500 py-20">
+              <div className="w-20 h-20 mx-auto bg-red-50 rounded-2xl flex items-center justify-center mb-6">
+                <AlertCircle className="w-10 h-10 text-red-500" />
+              </div>
+              <h3 className="text-xl font-bold text-red-900 mb-2">Generation Failed</h3>
+              <p className="text-red-700 bg-red-50 rounded-lg p-4 max-w-md mx-auto">
+                {streamState.error || "An unexpected error occurred. Please try again."}
+              </p>
             </div>
           )}
           
           {streamState.content && (
-            <div className="space-y-2">
-              {formatContent(streamState.content)}
+            <div className="max-w-none">
+              <div className="space-y-1">
+                {formatContent(streamState.content)}
+              </div>
               
-              {/* Typing cursor for active generation */}
+              {/* Enhanced typing cursor for active generation */}
               {streamState.status === "generating" && (
-                <div className="flex items-center space-x-2 text-gray-500 text-sm mt-4">
-                  <div className="w-2 h-4 bg-primary animate-pulse"></div>
-                  <span className="animate-pulse">Generating...</span>
+                <div className="flex items-center space-x-3 mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
+                  <span className="text-blue-700 font-medium">Generating your blueprint...</span>
                 </div>
               )}
             </div>
