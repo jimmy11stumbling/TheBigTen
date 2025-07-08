@@ -415,14 +415,17 @@ Begin generation immediately with uncompromising attention to detail and complet
 }
 
 async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platformEnum>, userApiKey?: string): AsyncGenerator<string> {
-  if (!userApiKey) {
-    // No API key provided - use simulation
+  // Use environment API key if available, otherwise user-provided key
+  const apiKey = process.env.DEEPSEEK_API_KEY || userApiKey;
+  
+  if (!apiKey) {
+    // No API key available - use simulation
     yield "\n\n> **⚠️ Using Demo Mode**: No DeepSeek API key provided. Add your API key in Settings for real AI generation.\n\n";
     yield* simulateGeneration(prompt, platform);
     return;
   }
 
-  const apiKey = userApiKey;
+  console.log("Using API key:", apiKey ? "YES" : "NO", "- Source:", process.env.DEEPSEEK_API_KEY ? "env" : "user");
 
   const request: DeepSeekRequest = {
     model: "deepseek-chat",
@@ -455,7 +458,19 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
       const errorText = await response.text();
       console.error(`DeepSeek API error: ${response.status} - ${response.statusText}`);
       console.error("Error response:", errorText);
-      throw new Error(`DeepSeek API error: ${response.status} - ${errorText}`);
+      
+      // Parse error for user-friendly message
+      let errorMessage = `HTTP ${response.status}`;
+      try {
+        const errorData = JSON.parse(errorText);
+        if (errorData.error?.message) {
+          errorMessage = errorData.error.message;
+        }
+      } catch (e) {
+        errorMessage = errorText || `HTTP ${response.status}`;
+      }
+      
+      throw new Error(`${response.status}: ${errorMessage}`);
     }
 
     const reader = response.body?.getReader();
