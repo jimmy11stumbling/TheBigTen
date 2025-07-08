@@ -117,6 +117,7 @@ Changelog:
 - July 08, 2025: Fixed API key management - removed hardcoded keys, users now provide their own DeepSeek API keys through Settings interface
 - July 08, 2025: Enhanced system prompts to prevent [object Object] serialization issues and ensure syntactically correct code generation
 - July 08, 2025: Overhauled system prompts to generate REAL IMPLEMENTATION CODE instead of generic placeholders - blueprints must contain actual business logic, not tutorials
+- July 08, 2025: CRITICAL FIX: Removed rehypeSanitize from BlueprintViewer that was filtering/altering AI-generated implementation code
 
 ## User Preferences
 
