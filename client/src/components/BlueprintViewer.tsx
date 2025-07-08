@@ -329,7 +329,7 @@ export function BlueprintViewer() {
   };
 
   return (
-    <Card className="h-full shadow-lg flex flex-col">
+    <Card className="shadow-lg flex flex-col" style={{ height: "calc(100vh - 40px)" }}>
       {/* Enhanced Header */}
       <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50 flex-shrink-0">
         <div className="flex items-center space-x-3">
@@ -374,20 +374,15 @@ export function BlueprintViewer() {
         </div>
       </div>
 
-      {/* Enhanced Content Area - Much Larger */}
+      {/* Enhanced Content Area - Full Page Height */}
       <CardContent 
-        ref={scrollContainerRef}
-        className="p-0 flex-1 overflow-auto bg-white scroll-smooth" 
-        style={{ minHeight: "calc(100vh - 300px)", maxHeight: "calc(100vh - 120px)" }}
+        className="p-0 flex-1 overflow-hidden bg-white" 
+        style={{ height: "calc(100vh - 140px)" }}
       >
-        <div className={`transition-all duration-500 ease-in-out ${
-          streamState.content || streamState.status === "generating" 
-            ? "min-h-[800px]" 
-            : "h-32"
-        } border border-gray-200 rounded-lg overflow-hidden`}>
+        <div className="h-full border border-gray-200 rounded-lg overflow-hidden">
           <div 
             ref={scrollContainerRef}
-            className="h-full overflow-y-auto p-6 bg-gray-50 relative"
+            className="h-full overflow-y-auto p-6 bg-gray-50 relative scroll-smooth"
           >
           {streamState.status === "idle" && (
             <div className="text-center text-slate-500 py-20">
@@ -421,16 +416,15 @@ export function BlueprintViewer() {
           )}
 
           {streamState.content && (
-            <div className="prose prose-slate max-w-none">
+            <div className="prose prose-slate max-w-none h-full">
               <div 
-                className="relative overflow-hidden"
+                className="relative h-full"
                 style={{ 
-                  minHeight: "200px",
                   background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)"
                 }}
               >
                 <div className="absolute inset-0 bg-white/50"></div>
-                <div className="relative z-10 p-6">
+                <div className="relative z-10 p-6 h-full overflow-y-auto">
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     rehypePlugins={[rehypeHighlight, rehypeSanitize]}
