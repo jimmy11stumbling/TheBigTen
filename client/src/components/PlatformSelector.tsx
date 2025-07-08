@@ -106,7 +106,7 @@ export function PlatformSelector({ value, onChange, disabled }: PlatformSelector
               </div>
             </div>
           </label>
-        ))}</div>
+        ))}
       </div>
     </div>
   );
