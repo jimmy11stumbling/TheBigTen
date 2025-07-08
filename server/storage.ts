@@ -5,6 +5,7 @@ import { eq, desc } from "drizzle-orm";
 export interface IStorage {
   // Blueprint methods
   createBlueprint(insertBlueprint: InsertBlueprint): Promise<Blueprint>;
+  updateBlueprint(id: string, updates: Partial<Blueprint>): Promise<Blueprint>;
   updateBlueprintContent(id: string, content: string, status: string): Promise<Blueprint>;
   getBlueprintById(id: string): Promise<Blueprint | undefined>;
   getAllBlueprints(): Promise<Blueprint[]>;
@@ -16,6 +17,18 @@ export class DatabaseStorage implements IStorage {
     const [blueprint] = await db
       .insert(blueprints)
       .values(insertBlueprint)
+      .returning();
+    return blueprint;
+  }
+
+  async updateBlueprint(id: string, updates: Partial<Blueprint>): Promise<Blueprint> {
+    const [blueprint] = await db
+      .update(blueprints)
+      .set({ 
+        ...updates,
+        updated_at: new Date() 
+      })
+      .where(eq(blueprints.id, id))
       .returning();
     return blueprint;
   }
