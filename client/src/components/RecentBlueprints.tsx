@@ -26,13 +26,6 @@ export function RecentBlueprints() {
     queryKey: ["/api/blueprints"],
     staleTime: 30 * 1000, // 30 seconds
     refetchOnWindowFocus: true,
-    retry: 2,
-    onError: (error) => {
-      console.error("Blueprints query error:", error);
-    },
-    onSuccess: (data) => {
-      console.log("Blueprints loaded successfully:", data?.length || 0);
-    },
   });
 
   const deleteBlueprintMutation = useMutation({

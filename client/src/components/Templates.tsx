@@ -1,7 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Platform } from "@/lib/types";
 
 interface Template {
   id: string;
@@ -9,11 +8,11 @@ interface Template {
   description: string;
   tags: string[];
   prompt: string;
-  platform: Platform;
+  platform: string;
 }
 
 interface TemplatesProps {
-  onUseTemplate: (prompt: string, platform: Platform) => void;
+  onUseTemplate: (prompt: string, platform: string) => void;
 }
 
 export function Templates({ onUseTemplate }: TemplatesProps) {
@@ -87,14 +86,14 @@ export function Templates({ onUseTemplate }: TemplatesProps) {
               <p className="text-gray-600 text-sm mb-4">{template.description}</p>
 
               <div className="flex flex-wrap gap-2 mb-4">
-                {(template.tags || []).slice(0, 3).map((tag) => (
+                {template.tags.slice(0, 3).map((tag) => (
                   <Badge key={tag} variant="secondary" className="text-xs">
                     {tag}
                   </Badge>
                 ))}
-                {(template.tags || []).length > 3 && (
+                {template.tags.length > 3 && (
                   <Badge variant="outline" className="text-xs">
-                    +{(template.tags || []).length - 3} more
+                    +{template.tags.length - 3} more
                   </Badge>
                 )}
               </div>

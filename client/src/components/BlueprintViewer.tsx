@@ -354,13 +354,19 @@ export function BlueprintViewer() {
 
       {/* Enhanced Content Area - Much Larger */}
       <CardContent 
-        className="p-6 flex-1 overflow-auto bg-white scroll-smooth" 
-        style={{ minHeight: "calc(100vh - 200px)", maxHeight: "calc(100vh - 200px)" }}
+        ref={scrollContainerRef}
+        className="p-0 flex-1 overflow-auto bg-white scroll-smooth" 
+        style={{ minHeight: "calc(100vh - 300px)", maxHeight: "calc(100vh - 120px)" }}
       >
-        <div 
-          ref={scrollContainerRef}
-          className="h-full overflow-y-auto bg-gray-50 relative"
-        >
+        <div className={`transition-all duration-500 ease-in-out ${
+          streamState.content || streamState.status === "generating" 
+            ? "min-h-[800px]" 
+            : "h-32"
+        } border border-gray-200 rounded-lg overflow-hidden`}>
+          <div 
+            ref={scrollContainerRef}
+            className="h-full overflow-y-auto p-6 bg-gray-50 relative"
+          >
           {streamState.status === "idle" && (
             <div className="text-center text-slate-500 py-20">
               <div className="relative mb-8">
@@ -531,6 +537,7 @@ export function BlueprintViewer() {
               </p>
             </div>
           )}
+        </div>
         </div>
       </CardContent>
     </Card>
