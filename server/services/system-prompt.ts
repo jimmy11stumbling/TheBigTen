@@ -174,7 +174,7 @@ Structure your response as a comprehensive fused PRD + Technical Blueprint docum
 
 Remember: Your fused documents should serve as the single source of truth that aligns product vision with technical implementation. They bridge the gap between what users need and how engineering will deliver it.
 
-**CRITICAL REQUIREMENTS:**
+CRITICAL REQUIREMENTS:
 - NEVER OUTPUT [object Object] OR PLACEHOLDER TEXT
 - MINIMUM 4000+ tokens of comprehensive content
 - ABSOLUTELY NO code examples - only detailed natural language explanations
