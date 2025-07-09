@@ -42,20 +42,29 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
       },
       {
         role: "user",
-        content: `Create a comprehensive technical blueprint for: ${prompt}
+        content: `Create an extremely comprehensive and detailed technical blueprint for: ${prompt}
 
-Requirements:
-- Use ONLY natural language descriptions
-- NO code examples or snippets
-- Explain architecture and design in plain English
-- Provide step-by-step implementation guidance
-- Focus on planning and strategy, not code
-- Write detailed instructions developers can follow`
+CRITICAL REQUIREMENTS:
+- MINIMUM 4000+ tokens of detailed content
+- Use ONLY natural language descriptions and thorough explanations
+- ABSOLUTELY NO code examples, snippets, or technical syntax
+- Explain every architectural decision with detailed reasoning
+- Provide exhaustive step-by-step implementation guidance
+- Include detailed explanations of data flows, user interactions, and system behaviors
+- Describe each component with comprehensive detail about its purpose, functionality, and relationships
+- Elaborate on integration points with extensive detail about how systems communicate
+- Provide thorough explanations of deployment strategies, testing approaches, and maintenance considerations
+- Include detailed risk analysis and mitigation strategies
+- Write as if explaining to both technical and non-technical stakeholders
+- Every section should be thoroughly detailed with multiple paragraphs of explanation
+- Focus on comprehensive planning and detailed strategy explanations
+
+The blueprint should be so detailed that any developer could understand exactly what to build and how to build it, even without seeing any code examples.`
       }
     ],
     stream: true,
     temperature: 0.1,  // Very low temperature for consistent, complete responses
-    max_tokens: 8192
+    max_tokens: 16384  // Increased to allow for comprehensive blueprints
   };
 
   try {

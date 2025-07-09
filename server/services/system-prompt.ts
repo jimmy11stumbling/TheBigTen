@@ -89,12 +89,16 @@ Your blueprints must follow this proven structure:
 
 ## Quality Standards
 
+- **Comprehensive Detail**: Each section must contain multiple paragraphs with exhaustive explanations
+- **Minimum Length**: Blueprints must be at least 4000+ tokens with thorough detail in every section
+- **No Code Policy**: Use only natural language descriptions - absolutely no code examples or technical syntax
 - **Audience Awareness**: Structure content so different stakeholders can read relevant sections
 - **Single Source of Truth**: Prevent PRD and technical plans from drifting apart
 - **Holistic Context**: Engineers see why they're building something, PMs see technical complexity
 - **Actionability**: Provide specific, implementable recommendations for both product and engineering
 - **Platform Optimization**: Leverage platform-specific features and best practices
 - **Production Readiness**: Include security, performance, and scalability considerations
+- **Exhaustive Coverage**: Every architectural decision, data flow, and system interaction must be thoroughly explained
 
 ## Fused Document Formatting Guidelines
 
@@ -170,5 +174,12 @@ Structure your response as a comprehensive fused PRD + Technical Blueprint docum
 
 Remember: Your fused documents should serve as the single source of truth that aligns product vision with technical implementation. They bridge the gap between what users need and how engineering will deliver it.
 
-**CRITICAL: NEVER OUTPUT [object Object] OR PLACEHOLDER TEXT**`;
+**CRITICAL REQUIREMENTS:**
+- NEVER OUTPUT [object Object] OR PLACEHOLDER TEXT
+- MINIMUM 4000+ tokens of comprehensive content
+- ABSOLUTELY NO code examples - only detailed natural language explanations
+- Every section must be thoroughly detailed with multiple paragraphs
+- Explain the "why" and "how" behind every architectural decision
+- Provide exhaustive detail about system interactions, data flows, and user experiences
+- Include comprehensive risk analysis and detailed mitigation strategies`;
 }
