@@ -18,9 +18,14 @@ interface DeepSeekRequest {
   max_tokens?: number;
 }
 
-function getSystemPrompt(platform: z.infer<typeof platformEnum>): string {
+async function getSystemPrompt(platform: z.infer<typeof platformEnum>): Promise<string> {
   const platformDB = getPlatformDatabase(platform);
-  return buildSystemPrompt(platform, platformDB);
+  
+  // Try to get live platform connection
+  const { platformConnector } = await import('./platform-connector.js');
+  const liveConnection = await platformConnector.getConnection(platform);
+  
+  return buildSystemPrompt(platform, platformDB, liveConnection);
 }
 
 async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platformEnum>, userApiKey?: string): AsyncGenerator<string> {
@@ -31,7 +36,7 @@ async function* callDeepSeekAPI(prompt: string, platform: z.infer<typeof platfor
 
   let totalTokens = 0;
   const apiKey = userApiKey;
-  const systemPrompt = getSystemPrompt(platform);
+  const systemPrompt = await getSystemPrompt(platform);
 
   const request: DeepSeekRequest = {
     model: "deepseek-chat",
