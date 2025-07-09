@@ -64,7 +64,7 @@ The blueprint should be so detailed that any developer could understand exactly 
     ],
     stream: true,
     temperature: 0.1,  // Very low temperature for consistent, complete responses
-    max_tokens: 16384  // Increased to allow for comprehensive blueprints
+    max_tokens: 4096   // Maximum tokens within DeepSeek API limits
   };
 
   try {
