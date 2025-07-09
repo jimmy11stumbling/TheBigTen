@@ -34,13 +34,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       headersSent = true;
 
-      // Create blueprint record
-      const blueprint = await storage.createBlueprint({
-        prompt,
-        platform,
-        content: "",
-        status: "generating",
-      });
+      // Create blueprint record with error handling
+      let blueprint;
+      try {
+        blueprint = await storage.createBlueprint({
+          prompt,
+          platform,
+          content: "",
+          status: "generating",
+        });
+      } catch (dbError) {
+        console.error("Database connection error:", dbError);
+        res.write(`data: ${JSON.stringify({
+          type: "error",
+          error: "Database connection failed. Please try again."
+        })}\n\n`);
+        res.end();
+        return;
+      }
 
       let fullContent = "";
       const startTime = Date.now();
