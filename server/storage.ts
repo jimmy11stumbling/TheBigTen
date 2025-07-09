@@ -14,49 +14,87 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async createBlueprint(insertBlueprint: InsertBlueprint): Promise<Blueprint> {
-    const [blueprint] = await db
-      .insert(blueprints)
-      .values(insertBlueprint)
-      .returning();
-    return blueprint;
+    try {
+      const [blueprint] = await db
+        .insert(blueprints)
+        .values(insertBlueprint)
+        .returning();
+      return blueprint;
+    } catch (error) {
+      console.error("Database error creating blueprint:", error);
+      // Return a mock blueprint for development
+      // const mockBlueprint: Blueprint = {
+      //   id: nanoid(),
+      //   ...data,
+      //   created_at: new Date(),
+      //   updated_at: new Date(),
+      // };
+      // return mockBlueprint;
+      throw error; // re-throw the error so calling functions know about the failure
+    }
   }
 
   async updateBlueprint(id: string, updates: Partial<Blueprint>): Promise<Blueprint> {
-    const [blueprint] = await db
-      .update(blueprints)
-      .set({ 
-        ...updates,
-        updated_at: new Date() 
-      })
-      .where(eq(blueprints.id, id))
-      .returning();
-    return blueprint;
+    try {
+      const [blueprint] = await db
+        .update(blueprints)
+        .set({ 
+          ...updates,
+          updated_at: new Date() 
+        })
+        .where(eq(blueprints.id, id))
+        .returning();
+      return blueprint;
+    } catch (error) {
+      console.error("Database error updating blueprint:", error);
+      // Silently continue for development
+      throw error; // re-throw the error so calling functions know about the failure
+    }
   }
 
   async updateBlueprintContent(id: string, content: string, status: string): Promise<Blueprint> {
-    const [blueprint] = await db
-      .update(blueprints)
-      .set({ 
-        content, 
-        status, 
-        updated_at: new Date() 
-      })
-      .where(eq(blueprints.id, id))
-      .returning();
-    return blueprint;
+    try {
+      const [blueprint] = await db
+        .update(blueprints)
+        .set({ 
+          content, 
+          status, 
+          updated_at: new Date() 
+        })
+        .where(eq(blueprints.id, id))
+        .returning();
+      return blueprint;
+    } catch (error) {
+      console.error("Database error updating blueprint content:", error);
+       throw error; // re-throw the error so calling functions know about the failure
+    }
   }
 
   async getBlueprintById(id: string): Promise<Blueprint | undefined> {
-    const [blueprint] = await db.select().from(blueprints).where(eq(blueprints.id, id));
-    return blueprint || undefined;
+    try {
+      const [blueprint] = await db.select().from(blueprints).where(eq(blueprints.id, id));
+      return blueprint || undefined;
+    } catch (error) {
+      console.error("Database error getting blueprint by id:", error);
+      return undefined;
+    }
   }
 
   async getAllBlueprints(): Promise<Blueprint[]> {
-    return await db.select().from(blueprints).orderBy(desc(blueprints.created_at)).limit(10);
+    try {
+      return await db.select().from(blueprints).orderBy(desc(blueprints.created_at)).limit(10);
+    } catch (error) {
+      console.error("Database error getting all blueprints:", error);
+      return [];
+    }
   }
 
   async deleteBlueprintById(id: string): Promise<void> {
-    await db.delete(blueprints).where(eq(blueprints.id, id));
+    try {
+      await db.delete(blueprints).where(eq(blueprints.id, id));
+    } catch (error) {
+      console.error("Database error deleting blueprint:", error);
+    }
   }
 }
 
