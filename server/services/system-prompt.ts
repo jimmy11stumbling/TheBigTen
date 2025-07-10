@@ -100,5 +100,9 @@ Databases: ${platformDB?.integrations?.databases?.join(', ') || 'Not specified'}
 4. You MUST use only the integrations available to this platform
 5. You CANNOT invent features that don't exist for this platform
 6. ${liveConnection?.isConnected ? 'You MUST work with the existing database schema and extend it appropriately' : 'You must design new database schema appropriate for this platform'}
-`;
+- VALIDATE: Every technical recommendation must align with the platform's actual capabilities listed above
+- NEVER make claims about token counts, word counts, or content metrics
+- NEVER claim the document exceeds certain lengths unless you can actually measure it
+- Focus on technical depth and accuracy rather than arbitrary length claims
+- End with actionable next steps, not false marketing claims`;
 }
