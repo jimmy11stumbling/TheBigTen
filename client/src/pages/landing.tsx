@@ -482,20 +482,99 @@ export default function Landing() {
                   <CardContent className="p-6">
                     <h3 className="text-xl font-semibold mb-4 flex items-center">
                       <Terminal className="w-5 h-5 mr-2 text-green-600" />
-                      API Endpoints
+                      Blueprint API Endpoints
                     </h3>
                     <div className="space-y-4">
                       <div className="bg-gray-50 p-4 rounded-lg">
-                        <code className="text-sm">POST /api/blueprint/generate</code>
-                        <p className="text-sm text-gray-600 mt-2">Generate a new blueprint with streaming response</p>
+                        <code className="text-sm font-bold">POST /api/blueprint/generate</code>
+                        <p className="text-sm text-gray-600 mt-2">Generate a new hybrid PRD+Blueprint with Server-Sent Events streaming</p>
+                        <div className="mt-2 text-xs text-gray-500">
+                          <strong>Body:</strong> {"{ prompt, platform, user_id?, apiKey? }"}
+                        </div>
                       </div>
                       <div className="bg-gray-50 p-4 rounded-lg">
-                        <code className="text-sm">GET /api/blueprints</code>
-                        <p className="text-sm text-gray-600 mt-2">Retrieve all saved blueprints</p>
+                        <code className="text-sm font-bold">GET /api/blueprints</code>
+                        <p className="text-sm text-gray-600 mt-2">Retrieve all saved blueprints with metadata</p>
                       </div>
                       <div className="bg-gray-50 p-4 rounded-lg">
-                        <code className="text-sm">DELETE /api/blueprints/:id</code>
-                        <p className="text-sm text-gray-600 mt-2">Delete a specific blueprint</p>
+                        <code className="text-sm font-bold">GET /api/blueprints/:id</code>
+                        <p className="text-sm text-gray-600 mt-2">Get a specific blueprint by ID</p>
+                      </div>
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <code className="text-sm font-bold">DELETE /api/blueprints/:id</code>
+                        <p className="text-sm text-gray-600 mt-2">Delete a specific blueprint permanently</p>
+                      </div>
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <code className="text-sm font-bold">POST /api/test-api-key</code>
+                        <p className="text-sm text-gray-600 mt-2">Validate DeepSeek API key before generation</p>
+                        <div className="mt-2 text-xs text-gray-500">
+                          <strong>Body:</strong> {"{ apiKey }"}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-semibold mb-4 flex items-center">
+                      <Globe className="w-5 h-5 mr-2 text-blue-600" />
+                      Analytics & System Endpoints
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <code className="text-sm font-bold">GET /api/analytics/metrics</code>
+                        <p className="text-sm text-gray-600 mt-2">Get usage metrics and platform statistics</p>
+                      </div>
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <code className="text-sm font-bold">GET /api/analytics/health</code>
+                        <p className="text-sm text-gray-600 mt-2">System health check and status</p>
+                      </div>
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <code className="text-sm font-bold">POST /api/analytics/track</code>
+                        <p className="text-sm text-gray-600 mt-2">Track custom events for analytics</p>
+                        <div className="mt-2 text-xs text-gray-500">
+                          <strong>Body:</strong> {"{ event, userId?, properties? }"}
+                        </div>
+                      </div>
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <code className="text-sm font-bold">GET /api/debug/system-prompt/:platform</code>
+                        <p className="text-sm text-gray-600 mt-2">Debug endpoint to inspect system prompts by platform</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="p-6">
+                    <h3 className="text-xl font-semibold mb-4 flex items-center">
+                      <Shield className="w-5 h-5 mr-2 text-purple-600" />
+                      Authentication & Error Handling
+                    </h3>
+                    <div className="space-y-3 text-sm text-gray-600">
+                      <div className="flex items-start space-x-3">
+                        <ChevronRight className="w-4 h-4 mt-0.5 text-purple-600" />
+                        <div>
+                          <strong>API Key:</strong> DeepSeek API key required for blueprint generation
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <ChevronRight className="w-4 h-4 mt-0.5 text-purple-600" />
+                        <div>
+                          <strong>Streaming:</strong> Real-time updates via Server-Sent Events (SSE)
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <ChevronRight className="w-4 h-4 mt-0.5 text-purple-600" />
+                        <div>
+                          <strong>Error Recovery:</strong> Automatic retries and graceful fallbacks
+                        </div>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <ChevronRight className="w-4 h-4 mt-0.5 text-purple-600" />
+                        <div>
+                          <strong>CORS:</strong> Cross-origin requests enabled for web integration
+                        </div>
                       </div>
                     </div>
                   </CardContent>
