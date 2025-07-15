@@ -41,10 +41,12 @@ export default function HomePage() {
             <div className="flex items-center space-x-4">
               <Link href="/">
                 <div className="flex items-center space-x-3 cursor-pointer">
-                  <div className="w-8 h-8 bg-gradient-to-br from-primary to-purple-600 rounded-lg flex items-center justify-center">
-                    <Compass className="text-white w-4 h-4" />
-                  </div>
-                  <h1 className="text-xl font-bold text-gray-900">NoCodeLos</h1>
+                  <img 
+                    src="/attached_assets/favicon_1752548937275.ico" 
+                    alt="NoCodeLos Logo" 
+                    className="w-8 h-8 rounded-lg"
+                  />
+                  <h1 className="text-xl font-bold text-gray-900 font-inter">NoCodeLos</h1>
                 </div>
               </Link>
               <div className="hidden md:flex items-center space-x-1 ml-8">

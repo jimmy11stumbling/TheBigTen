@@ -128,10 +128,16 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-purple-600 rounded-lg flex items-center justify-center">
-                <Compass className="text-white w-4 h-4" />
-              </div>
-              <h1 className="text-xl font-bold text-gray-900">NoCodeLos</h1>
+              <Link href="/">
+                <div className="flex items-center space-x-3 cursor-pointer">
+                  <img 
+                    src="/attached_assets/favicon_1752548937275.ico" 
+                    alt="NoCodeLos Logo" 
+                    className="w-8 h-8 rounded-lg"
+                  />
+                  <h1 className="text-xl font-bold text-gray-900 font-inter">NoCodeLos</h1>
+                </div>
+              </Link>
             </div>
             <nav className="hidden md:flex items-center space-x-8">
               <button 
@@ -220,7 +226,7 @@ export default function Landing() {
               Powered by advanced AI, NoCodeLos generates comprehensive technical documentation that development teams can immediately act upon.
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <Card key={index} className="border border-gray-200 hover:shadow-lg transition-shadow">
@@ -259,7 +265,7 @@ export default function Landing() {
               From idea to implementation-ready blueprint in four simple steps. Our AI-powered process ensures comprehensive technical documentation every time.
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {howItWorksSteps.map((step, index) => (
               <Card key={index} className="border border-gray-200 hover:shadow-lg transition-shadow relative">
@@ -311,7 +317,7 @@ export default function Landing() {
               <TabsTrigger value="api">API Reference</TabsTrigger>
               <TabsTrigger value="faq">FAQ</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="features" className="mt-8">
               <div className="grid md:grid-cols-2 gap-8">
                 <Card>
