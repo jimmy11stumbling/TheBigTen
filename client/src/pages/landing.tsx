@@ -585,33 +585,347 @@ export default function Landing() {
             <TabsContent value="faq" className="mt-8">
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="item-1">
-                  <AccordionTrigger>What is the minimum prompt length required?</AccordionTrigger>
+                  <AccordionTrigger>What is the minimum prompt length required and why?</AccordionTrigger>
                   <AccordionContent>
-                    NoCodeLos requires a minimum of 3000 characters in your prompt to ensure comprehensive analysis and detailed blueprint generation. This ensures the AI has enough context to create meaningful technical documentation.
+                    <div className="space-y-3">
+                      <p>NoCodeLos requires a minimum of 3000 characters in your prompt to ensure comprehensive analysis and detailed blueprint generation. This threshold is necessary because:</p>
+                      <ul className="list-disc pl-5 space-y-1 text-sm">
+                        <li><strong>Context Depth:</strong> Our AI needs substantial context to understand your app's complexity, target audience, and business requirements</li>
+                        <li><strong>Technical Accuracy:</strong> Detailed descriptions enable precise technology stack recommendations and architectural decisions</li>
+                        <li><strong>Quality Assurance:</strong> Longer prompts result in more accurate PRD+Blueprint fusion with fewer assumptions</li>
+                        <li><strong>Platform Optimization:</strong> Sufficient detail allows for better platform-specific customization across all 10 supported platforms</li>
+                      </ul>
+                      <p className="text-sm text-gray-600">Pro tip: Include user stories, technical preferences, scalability requirements, and integration needs for best results.</p>
+                    </div>
                   </AccordionContent>
                 </AccordionItem>
+
                 <AccordionItem value="item-2">
-                  <AccordionTrigger>Do I need to provide my own API key?</AccordionTrigger>
+                  <AccordionTrigger>Do I need to provide my own API key and what are the costs?</AccordionTrigger>
                   <AccordionContent>
-                    Yes, you need to provide your own DeepSeek API key for blueprint generation. This ensures you have full control over your usage and costs. You can get an API key from DeepSeek's platform.
+                    <div className="space-y-3">
+                      <p>Yes, you need to provide your own DeepSeek API key for blueprint generation. Here's what you need to know:</p>
+                      <div className="bg-blue-50 p-4 rounded-lg space-y-2">
+                        <h4 className="font-semibold text-blue-900">DeepSeek Pricing (Very Affordable):</h4>
+                        <ul className="text-sm text-blue-800 space-y-1">
+                          <li>• <strong>Input:</strong> $0.14 per million tokens (~750,000 words)</li>
+                          <li>• <strong>Output:</strong> $0.28 per million tokens (~750,000 words)</li>
+                          <li>• <strong>Typical Blueprint Cost:</strong> $0.10-0.30 per generation</li>
+                          <li>• <strong>Free Credits:</strong> $5 free credits for new users</li>
+                        </ul>
+                      </div>
+                      <p className="text-sm">This approach ensures you have full control over usage, costs, and API rate limits. Get your key at <a href="https://platform.deepseek.com" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">platform.deepseek.com</a></p>
+                    </div>
                   </AccordionContent>
                 </AccordionItem>
+
                 <AccordionItem value="item-3">
-                  <AccordionTrigger>How are my blueprints stored?</AccordionTrigger>
+                  <AccordionTrigger>How are my blueprints stored and is my data secure?</AccordionTrigger>
                   <AccordionContent>
-                    All blueprints are securely stored in a PostgreSQL database with cross-session persistence. You can access your history anytime, copy content, download files, or delete unwanted blueprints.
+                    <div className="space-y-3">
+                      <p>Your data security and privacy are our top priorities:</p>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="bg-green-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-green-900 mb-2">Storage & Security:</h4>
+                          <ul className="text-sm text-green-800 space-y-1">
+                            <li>• PostgreSQL database with encryption</li>
+                            <li>• Cross-session persistence</li>
+                            <li>• User-specific access controls</li>
+                            <li>• No sharing without permission</li>
+                          </ul>
+                        </div>
+                        <div className="bg-purple-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-purple-900 mb-2">Data Management:</h4>
+                          <ul className="text-sm text-purple-800 space-y-1">
+                            <li>• Full deletion capabilities</li>
+                            <li>• Export all your data anytime</li>
+                            <li>• No vendor lock-in</li>
+                            <li>• GDPR-compliant practices</li>
+                          </ul>
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-600">Your API keys are never stored - they're only used during active sessions for generation requests.</p>
+                    </div>
                   </AccordionContent>
                 </AccordionItem>
+
                 <AccordionItem value="item-4">
-                  <AccordionTrigger>Can I export my blueprints?</AccordionTrigger>
+                  <AccordionTrigger>What export and sharing options are available?</AccordionTrigger>
                   <AccordionContent>
-                    Yes! You can copy blueprint content to your clipboard, download complete blueprints as Markdown files, or copy just the prompts for reuse. All export options preserve formatting and structure.
+                    <div className="space-y-3">
+                      <p>NoCodeLos provides comprehensive export capabilities for maximum flexibility:</p>
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div className="bg-orange-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-orange-900 mb-2">Quick Actions:</h4>
+                          <ul className="text-sm text-orange-800 space-y-1">
+                            <li>• Copy to clipboard</li>
+                            <li>• Copy prompts only</li>
+                            <li>• One-click sharing</li>
+                            <li>• Print-friendly view</li>
+                          </ul>
+                        </div>
+                        <div className="bg-blue-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-blue-900 mb-2">File Downloads:</h4>
+                          <ul className="text-sm text-blue-800 space-y-1">
+                            <li>• Markdown (.md) files</li>
+                            <li>• Structured formatting</li>
+                            <li>• Preserved syntax highlighting</li>
+                            <li>• Platform-ready format</li>
+                          </ul>
+                        </div>
+                        <div className="bg-green-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-green-900 mb-2">Team Collaboration:</h4>
+                          <ul className="text-sm text-green-800 space-y-1">
+                            <li>• Share blueprint URLs</li>
+                            <li>• Team workspace access</li>
+                            <li>• Version control friendly</li>
+                            <li>• Documentation integration</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
                   </AccordionContent>
                 </AccordionItem>
+
                 <AccordionItem value="item-5">
-                  <AccordionTrigger>Which platforms are supported?</AccordionTrigger>
+                  <AccordionTrigger>Which platforms are supported and how do I choose the right one?</AccordionTrigger>
                   <AccordionContent>
-                    NoCodeLos supports Replit, Cursor, Lovable, and Windsurf. Each platform has tailored recommendations based on their unique capabilities, integrations, and development workflows.
+                    <div className="space-y-4">
+                      <p>NoCodeLos supports 10 leading development platforms, each optimized for different use cases:</p>
+                      
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="bg-blue-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-blue-900 mb-2">Full-Stack Platforms:</h4>
+                          <ul className="text-sm text-blue-800 space-y-1">
+                            <li><strong>Replit:</strong> Collaborative development, Nix environments</li>
+                            <li><strong>Cursor:</strong> AI-first coding with VS Code compatibility</li>
+                            <li><strong>Windsurf:</strong> Database-heavy apps with ORM assistance</li>
+                            <li><strong>Claude:</strong> Security-first development with CLI focus</li>
+                          </ul>
+                        </div>
+                        <div className="bg-green-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-green-900 mb-2">Rapid Development:</h4>
+                          <ul className="text-sm text-green-800 space-y-1">
+                            <li><strong>Lovable:</strong> Quick prototyping with modern frameworks</li>
+                            <li><strong>Bolt:</strong> In-browser development, no setup needed</li>
+                            <li><strong>V0:</strong> UI component generation by Vercel</li>
+                            <li><strong>Base44:</strong> No-code full-stack applications</li>
+                          </ul>
+                        </div>
+                        <div className="bg-purple-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-purple-900 mb-2">Specialized Platforms:</h4>
+                          <ul className="text-sm text-purple-800 space-y-1">
+                            <li><strong>Gemini:</strong> Open-source terminal AI development</li>
+                            <li><strong>Rork:</strong> Mobile-first application generation</li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                        <h4 className="font-semibold text-yellow-900 mb-2">Platform Selection Guide:</h4>
+                        <p className="text-sm text-yellow-800">Choose based on your project needs: complex full-stack apps (Replit/Cursor), rapid prototyping (Lovable/Bolt), mobile apps (Rork), or no-code solutions (Base44). Each blueprint is tailored to your chosen platform's capabilities.</p>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-6">
+                  <AccordionTrigger>What makes NoCodeLos different from other blueprint generators?</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-3">
+                      <p>NoCodeLos pioneered the hybrid PRD+Blueprint approach, solving critical industry problems:</p>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="bg-red-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-red-900 mb-2">Industry Problems We Solve:</h4>
+                          <ul className="text-sm text-red-800 space-y-1">
+                            <li>• Product-Engineering misalignment</li>
+                            <li>• Documentation drift and inconsistency</li>
+                            <li>• Separate PRD and technical specs</li>
+                            <li>• Platform-agnostic generic outputs</li>
+                            <li>• Static documentation without updates</li>
+                          </ul>
+                        </div>
+                        <div className="bg-green-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-green-900 mb-2">Our Unique Solutions:</h4>
+                          <ul className="text-sm text-green-800 space-y-1">
+                            <li>• Unified PRD+Blueprint documents</li>
+                            <li>• Real-time streaming generation</li>
+                            <li>• Platform-specific optimization</li>
+                            <li>• Advanced AI reasoning (DeepSeek)</li>
+                            <li>• Complete blueprint management system</li>
+                          </ul>
+                        </div>
+                      </div>
+                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <p className="text-sm text-blue-800"><strong>Result:</strong> Teams get one cohesive document containing both business requirements and technical implementation, eliminating the traditional gap between product and engineering teams.</p>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-7">
+                  <AccordionTrigger>How does the real-time streaming work and what are the benefits?</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-3">
+                      <p>Our streaming technology provides immediate feedback during blueprint generation:</p>
+                      <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+                        <h4 className="font-semibold text-gray-900">Technical Implementation:</h4>
+                        <ul className="text-sm text-gray-700 space-y-1">
+                          <li>• <strong>Server-Sent Events (SSE):</strong> Real-time content streaming</li>
+                          <li>• <strong>WebSocket Fallback:</strong> Ensures reliability across networks</li>
+                          <li>• <strong>Progressive Rendering:</strong> See content as it's generated</li>
+                          <li>• <strong>Error Recovery:</strong> Automatic retries and graceful handling</li>
+                          <li>• <strong>Connection Management:</strong> Robust reconnection logic</li>
+                        </ul>
+                      </div>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="bg-green-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-green-900 mb-2">User Benefits:</h4>
+                          <ul className="text-sm text-green-800 space-y-1">
+                            <li>• Immediate visual feedback</li>
+                            <li>• No waiting for complete responses</li>
+                            <li>• Early problem detection</li>
+                            <li>• Interactive experience</li>
+                          </ul>
+                        </div>
+                        <div className="bg-blue-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-blue-900 mb-2">Performance:</h4>
+                          <ul className="text-sm text-blue-800 space-y-1">
+                            <li>• Sub-second response times</li>
+                            <li>• Reduced perceived latency</li>
+                            <li>• Better user engagement</li>
+                            <li>• Mobile-optimized streaming</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-8">
+                  <AccordionTrigger>Can I customize the generated blueprints and enhance them?</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-3">
+                      <p>Yes! NoCodeLos provides multiple ways to customize and enhance your blueprints:</p>
+                      <div className="grid md:grid-cols-3 gap-4">
+                        <div className="bg-purple-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-purple-900 mb-2">During Generation:</h4>
+                          <ul className="text-sm text-purple-800 space-y-1">
+                            <li>• Detailed prompt engineering</li>
+                            <li>• Platform-specific requirements</li>
+                            <li>• Technical preferences specification</li>
+                            <li>• Business constraint definition</li>
+                          </ul>
+                        </div>
+                        <div className="bg-orange-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-orange-900 mb-2">Post-Generation:</h4>
+                          <ul className="text-sm text-orange-800 space-y-1">
+                            <li>• Copy and edit in external tools</li>
+                            <li>• Markdown format for easy editing</li>
+                            <li>• Version control integration</li>
+                            <li>• Team collaboration features</li>
+                          </ul>
+                        </div>
+                        <div className="bg-green-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-green-900 mb-2">Enhancement Tools:</h4>
+                          <ul className="text-sm text-green-800 space-y-1">
+                            <li>• Quality assessment metrics</li>
+                            <li>• Best practice recommendations</li>
+                            <li>• Security review suggestions</li>
+                            <li>• Scalability analysis</li>
+                          </ul>
+                        </div>
+                      </div>
+                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <p className="text-sm text-blue-800"><strong>Pro Tip:</strong> Include specific technical requirements, team constraints, and business goals in your initial prompt for more targeted blueprints that require less post-generation editing.</p>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-9">
+                  <AccordionTrigger>Is there a free tier or trial available?</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-3">
+                      <p>NoCodeLos offers flexible access options designed to get you started quickly:</p>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                          <h4 className="font-semibold text-green-900 mb-2">Platform Access:</h4>
+                          <ul className="text-sm text-green-800 space-y-1">
+                            <li>• <strong>NoCodeLos Platform:</strong> Completely free</li>
+                            <li>• <strong>No Registration Required:</strong> Start immediately</li>
+                            <li>• <strong>Full Feature Access:</strong> All capabilities available</li>
+                            <li>• <strong>No Usage Limits:</strong> Generate unlimited blueprints</li>
+                          </ul>
+                        </div>
+                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                          <h4 className="font-semibold text-blue-900 mb-2">DeepSeek API Costs:</h4>
+                          <ul className="text-sm text-blue-800 space-y-1">
+                            <li>• <strong>New Users:</strong> $5 free credits</li>
+                            <li>• <strong>Per Blueprint:</strong> ~$0.10-0.30</li>
+                            <li>• <strong>Monthly Usage:</strong> ~$5-15 for regular use</li>
+                            <li>• <strong>Enterprise:</strong> Volume discounts available</li>
+                          </ul>
+                        </div>
+                      </div>
+                      <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                        <h4 className="font-semibold text-yellow-900 mb-2">Getting Started:</h4>
+                        <p className="text-sm text-yellow-800">
+                          1. Access NoCodeLos for free • 2. Get DeepSeek API key with $5 credits • 3. Generate 15-50 blueprints with free credits • 4. Pay only for additional AI usage as needed
+                        </p>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
+                <AccordionItem value="item-10">
+                  <AccordionTrigger>What technical requirements and browser support does NoCodeLos have?</AccordionTrigger>
+                  <AccordionContent>
+                    <div className="space-y-3">
+                      <p>NoCodeLos is designed to work across modern browsers and devices with minimal requirements:</p>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="bg-green-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-green-900 mb-2">Browser Support:</h4>
+                          <ul className="text-sm text-green-800 space-y-1">
+                            <li>• <strong>Chrome/Chromium:</strong> Full support (recommended)</li>
+                            <li>• <strong>Firefox:</strong> Full support</li>
+                            <li>• <strong>Safari:</strong> Full support</li>
+                            <li>• <strong>Edge:</strong> Full support</li>
+                            <li>• <strong>Mobile Browsers:</strong> Optimized experience</li>
+                          </ul>
+                        </div>
+                        <div className="bg-blue-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-blue-900 mb-2">System Requirements:</h4>
+                          <ul className="text-sm text-blue-800 space-y-1">
+                            <li>• <strong>Internet:</strong> Stable connection required</li>
+                            <li>• <strong>JavaScript:</strong> Must be enabled</li>
+                            <li>• <strong>Local Storage:</strong> For settings and preferences</li>
+                            <li>• <strong>RAM:</strong> 2GB+ recommended</li>
+                            <li>• <strong>No Plugins:</strong> Runs entirely in browser</li>
+                          </ul>
+                        </div>
+                      </div>
+                      <div className="grid md:grid-cols-2 gap-4 mt-4">
+                        <div className="bg-purple-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-purple-900 mb-2">Features Requiring Support:</h4>
+                          <ul className="text-sm text-purple-800 space-y-1">
+                            <li>• <strong>Server-Sent Events:</strong> For real-time streaming</li>
+                            <li>• <strong>WebSocket:</strong> Fallback for streaming</li>
+                            <li>• <strong>Clipboard API:</strong> For copy functionality</li>
+                            <li>• <strong>File Download:</strong> For blueprint exports</li>
+                          </ul>
+                        </div>
+                        <div className="bg-orange-50 p-4 rounded-lg">
+                          <h4 className="font-semibold text-orange-900 mb-2">Performance Notes:</h4>
+                          <ul className="text-sm text-orange-800 space-y-1">
+                            <li>• Works offline for viewing saved blueprints</li>
+                            <li>• Optimized for mobile devices</li>
+                            <li>• Progressive loading for large blueprints</li>
+                            <li>• Cached assets for faster load times</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
