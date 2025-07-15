@@ -98,17 +98,17 @@ export default function Landing() {
     {
       step: 2,
       title: "Select Target Platform",
-      description: "Choose your preferred development environment: Replit, Cursor, Lovable, or Windsurf.",
-      details: "Each platform has unique strengths. Select based on your project type, team size, and technical requirements.",
-      tips: ["Replit: Full-stack collaboration", "Cursor: AI-powered coding", "Lovable: Rapid prototyping", "Windsurf: Database-heavy apps"],
+      description: "Choose from 10 leading development platforms: Replit, Cursor, Lovable, Windsurf, Bolt, Claude, Gemini, Base44, V0, and Rork.",
+      details: "Each platform has unique capabilities, integrations, and workflows. Our AI tailors blueprint recommendations to match your chosen platform's strengths and limitations.",
+      tips: ["Replit: Full-stack collaboration", "Cursor: AI-powered coding", "Lovable: Rapid prototyping", "Windsurf: Database-heavy apps", "Bolt: In-browser development", "Claude: Security-first CLI"],
       icon: <Compass className="w-8 h-8 text-emerald-600" />
     },
     {
       step: 3,
-      title: "AI Blueprint Generation",
-      description: "Watch as our AI analyzes your requirements and generates a comprehensive technical blueprint in real-time.",
-      details: "Our system uses DeepSeek Reasoner to understand your requirements and generate detailed technical specifications, architecture diagrams, and implementation roadmaps.",
-      tips: ["Real-time streaming", "Technical debt analysis", "Security considerations", "Scalability planning"],
+      title: "AI Hybrid PRD+Blueprint Generation",
+      description: "Watch as our AI generates a comprehensive hybrid document that combines product requirements with detailed technical implementation in real-time.",
+      details: "Using DeepSeek Reasoner, we create documents that include product vision, user stories, business goals alongside technical architecture, implementation phases, and deployment strategies - all in one cohesive document.",
+      tips: ["Product + Engineering alignment", "Real-time streaming generation", "Platform-specific recommendations", "Security & scalability planning"],
       icon: <Brain className="w-8 h-8 text-purple-600" />
     },
     {
@@ -262,8 +262,16 @@ export default function Landing() {
               How NoCodeLos Works
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              From idea to implementation-ready blueprint in four simple steps. Our AI-powered process ensures comprehensive technical documentation every time.
+              From idea to production-ready hybrid PRD+Blueprint in four simple steps. Our AI generates comprehensive documents that fuse product requirements with technical implementation across 10 leading development platforms.
             </p>
+            <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200 max-w-4xl mx-auto">
+              <h3 className="text-lg font-semibold text-blue-900 mb-2">What Makes Our Approach Unique</h3>
+              <p className="text-blue-800 text-sm leading-relaxed">
+                Traditional workflows separate PRDs (Product Requirements Documents) from technical blueprints, causing misalignment and delays. 
+                NoCodeLos generates <strong>hybrid documents</strong> that combine product vision, user requirements, business goals, and detailed technical specifications 
+                in one cohesive document. This eliminates documentation drift and ensures product and engineering teams work from the same source of truth.
+              </p>
+            </div>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
