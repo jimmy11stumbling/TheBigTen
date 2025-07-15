@@ -373,49 +373,106 @@ export default function Landing() {
             </TabsContent>
 
             <TabsContent value="platforms" className="mt-8">
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                 {[
                   {
                     name: "Replit",
                     icon: "🔶",
-                    description: "Full-stack applications with Nix environments",
-                    features: ["Collaborative development", "Built-in hosting", "Nix package management", "Real-time collaboration"]
+                    description: "Full-stack collaborative development with Nix environments",
+                    features: ["Real-time collaboration", "Built-in hosting", "Nix package management", "Multi-language support"]
                   },
                   {
                     name: "Cursor",
                     icon: "🖱️",
-                    description: "AI-powered coding with VS Code compatibility",
-                    features: ["AI code assistance", "VS Code extensions", "Advanced debugging", "Code completion"]
+                    description: "AI-first code editor with VS Code compatibility",
+                    features: ["AI code assistance", "VS Code extensions", "Advanced debugging", "Context-aware suggestions"]
                   },
                   {
                     name: "Lovable",
                     icon: "❤️",
-                    description: "Rapid prototyping with modern tools",
-                    features: ["Quick deployment", "Supabase integration", "Security scanning", "Modern frameworks"]
+                    description: "Rapid prototyping with modern frameworks",
+                    features: ["Quick deployment", "Supabase integration", "Security scanning", "React/Next.js focus"]
                   },
                   {
                     name: "Windsurf",
                     icon: "🏄‍♀️",
-                    description: "Database-heavy applications",
-                    features: ["ORM assistance", "Database design", "MCP integrations", "Backend focus"]
+                    description: "Agentic IDE optimized for database-heavy applications",
+                    features: ["ORM assistance", "Database design", "MCP integrations", "Backend optimization"]
+                  },
+                  {
+                    name: "Bolt",
+                    icon: "⚡",
+                    description: "Full-stack development entirely in the browser",
+                    features: ["In-browser development", "No local setup", "WebContainer technology", "Instant deployment"]
+                  },
+                  {
+                    name: "Claude",
+                    icon: "🤖",
+                    description: "Security-first CLI coding agent by Anthropic",
+                    features: ["Security-focused", "CLI integration", "Code analysis", "Safe deployment practices"]
+                  },
+                  {
+                    name: "Gemini",
+                    icon: "💎",
+                    description: "Open-source terminal AI agent for development",
+                    features: ["Terminal integration", "Open-source", "Multi-model support", "Developer-centric"]
+                  },
+                  {
+                    name: "Base44",
+                    icon: "🏗️",
+                    description: "No-code full-stack application builder",
+                    features: ["Visual development", "No-code approach", "Full-stack capabilities", "Rapid prototyping"]
+                  },
+                  {
+                    name: "V0",
+                    icon: "🎨",
+                    description: "UI component generator by Vercel",
+                    features: ["Component generation", "Vercel ecosystem", "React components", "Design to code"]
+                  },
+                  {
+                    name: "Rork",
+                    icon: "📱",
+                    description: "Mobile-first application generator",
+                    features: ["Mobile optimization", "Cross-platform", "Native features", "App store ready"]
                   }
                 ].map((platform, index) => (
-                  <Card key={index}>
-                    <CardContent className="p-6">
-                      <div className="text-2xl mb-2">{platform.icon}</div>
-                      <h3 className="text-lg font-semibold mb-2">{platform.name}</h3>
-                      <p className="text-gray-600 text-sm mb-4">{platform.description}</p>
+                  <Card key={index} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="text-2xl mb-2 text-center">{platform.icon}</div>
+                      <h3 className="text-lg font-semibold mb-2 text-center">{platform.name}</h3>
+                      <p className="text-gray-600 text-sm mb-4 text-center leading-relaxed">{platform.description}</p>
                       <ul className="text-xs text-gray-600 space-y-1">
                         {platform.features.map((feature, featureIndex) => (
                           <li key={featureIndex} className="flex items-center">
-                            <ChevronRight className="w-3 h-3 mr-1" />
-                            {feature}
+                            <ChevronRight className="w-3 h-3 mr-1 flex-shrink-0" />
+                            <span className="leading-tight">{feature}</span>
                           </li>
                         ))}
                       </ul>
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+              <div className="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
+                <h3 className="text-lg font-semibold text-blue-900 mb-3">Platform Selection Guide</h3>
+                <div className="grid md:grid-cols-2 gap-4 text-sm text-blue-800">
+                  <div>
+                    <h4 className="font-semibold mb-2">Choose Replit/Cursor/Windsurf for:</h4>
+                    <ul className="space-y-1">
+                      <li>• Complex full-stack applications</li>
+                      <li>• Team collaboration needs</li>
+                      <li>• Custom backend requirements</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">Choose Lovable/Bolt/V0 for:</h4>
+                    <ul className="space-y-1">
+                      <li>• Rapid prototyping</li>
+                      <li>• Frontend-focused projects</li>
+                      <li>• Quick deployment needs</li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </TabsContent>
 
